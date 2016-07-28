@@ -1,6 +1,6 @@
-# lightningcpp
+# lightning
 
-lightningcpp is a http server/client library written in modern c++ (14) aproach. The name lightning is derived from the television series Tom&Jerry where lightning is the orange cat beside of Tomcat.
+lightning is a http server/client library written in modern c++ (C++14). The name lightning is from the television series Tom&Jerry where lightning is the orange cat beside of Tomcat.
 
 ## Supported features
 - HTTP 1.0/1.1 support
@@ -15,7 +15,7 @@ lightningcpp is a http server/client library written in modern c++ (14) aproach.
 - mstch (optional)
 
 # Installation
-lightningcpp must be compiled with a C++14 compliant compiler. 
+lightning must be compiled with a C++14 compliant compiler. 
 
 # Usage
 
