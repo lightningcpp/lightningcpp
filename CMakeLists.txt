@@ -1,12 +1,11 @@
 # -------------------------------------------------------------------------
-# Build httpcpp Project
+# Build lightning Project
 # run the cmake command from your build directory:
 # -------------------------------------------------------------------------
 # Example Usage:
 # cmake .. -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=/usr/bin/g++-6 -Dbuild_tests=true -DCMAKE_BUILD_TYPE=debug -DTESTFILES=~/testfiles/
 
-# cmake .. -Dbuild_tests=true -DTESTFILES=~/testfiles/
-#          -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=/usr/bin/g++-6
+# cmake .. -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=/usr/bin/g++-6
 #          -DCMAKE_BUILD_TYPE=debug -DNDEBUG
 
 # -------------------------------------------------------------------------
@@ -106,11 +105,11 @@ set( HTTP_SRC_LIST ${HTTP_SRC_LIST} src/utils/stringutils.h src/utils/base64.cpp
 set( HTTP_SRC_LIST ${HTTP_SRC_LIST} src/httpconfig.h src/httputils.h src/httpserver.h src/webservercallback.h src/webserverrecallback.h src/webserver.h
                                     src/errordelegate.h src/mimetypes.h )
 include_directories(${ROOT}/src ${ASIO_INCLUDE_DIR} ${RE2_INCLUDE_DIR} ${OPENSSL_INCLUDES})
-add_library(httpcpp ${HTTP_SRC_LIST})
-target_link_libraries(httpcpp re ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
+add_library(${PROJECT_NAME} ${HTTP_SRC_LIST})
+target_link_libraries(${PROJECT_NAME} re ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 add_executable( httpserver main.cpp )
-target_link_libraries( httpserver httpcpp re ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
+target_link_libraries( httpserver ${PROJECT_NAME} re ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
 
 # -------------------------------------------------------------------------
 # -----------------------        Test Code          -----------------------
@@ -123,9 +122,9 @@ if (build_tests)
        ${GTEST_INCLUDE_DIR}
        ${ASIO_INCLUDE_DIR}
        ${OPENSSL_INCLUDES})
-   add_executable(testmain_httpcpp ${TEST_LIST})
-   target_link_libraries(testmain_httpcpp ${GMOCK_MAIN_PATH} ${PROJECT_NAME} re gtest ${LIBS})
-   add_test(httpcpp-tests testmain_httpcpp)
+   add_executable(testmain_lightning ${TEST_LIST})
+   target_link_libraries(testmain_lightning ${GMOCK_MAIN_PATH} ${PROJECT_NAME} re gtest ${LIBS})
+   add_test(lightning-tests testmain_lightning)
 endif()
 
 # -------------------------------------------------------------------------
