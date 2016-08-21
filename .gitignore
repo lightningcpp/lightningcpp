@@ -27,3 +27,9 @@
 *.exe
 *.out
 *.app
+
+#tmp files
+*.bak
+*.orig
+CMakeLists.txt.user
+

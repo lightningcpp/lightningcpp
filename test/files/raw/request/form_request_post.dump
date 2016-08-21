@@ -1,0 +1,15 @@
+POST /form.html HTTP/1.1
+Host: 192.168.0.17:9999
+Connection: keep-alive
+Content-Length: 34
+Cache-Control: max-age=0
+Origin: http://192.168.0.17:9999
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36
+Content-Type: application/x-www-form-urlencoded
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Referer: http://192.168.0.17:9999/form.html
+Accept-Encoding: gzip, deflate
+Accept-Language: de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4
+
+vorname=Heiner&name=Huber&action=0

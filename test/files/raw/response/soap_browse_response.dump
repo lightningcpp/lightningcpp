@@ -1,0 +1,9 @@
+HTTP/1.1 200 OK
+Content-Length: 1416
+Date: Fri Aug  5 21:09:03 2016
+Content-Type: text/xml
+
+<?xml version="1.0"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><s:Body><u:BrowseResponse xmlns:u="urn:schemas-upnp-org:service:ContentDirectory:1"><Result xsi:type="xsd:string">&lt;?xml version="1.0"?&gt;
+&lt;DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:pv="http://www.pv.com/pvns/"&gt;&lt;container id="0" parentID="-1" restricted="1" childCount="2"&gt;&lt;upnp:searchClass includeDerived="1"&gt;object.item.audioItem&lt;/upnp:searchClass&gt;&lt;upnp:searchClass includeDerived="1"&gt;object.item.imageItem&lt;/upnp:searchClass&gt;&lt;upnp:searchClass includeDerived="1"&gt;object.item.videoItem&lt;/upnp:searchClass&gt;&lt;dc:title&gt;root&lt;/dc:title&gt;&lt;upnp:class&gt;object.container.storageFolder&lt;/upnp:class&gt;&lt;upnp:storageUsed&gt;-1&lt;/upnp:storageUsed&gt;&lt;/container&gt;&lt;/DIDL-Lite&gt;
+</Result><NumberReturned xsi:type="xsd:int">3</NumberReturned><TotalMatches xsi:type="xsd:int">3</TotalMatches><UpdateID xsi:type="xsd:int">1</UpdateID></u:BrowseResponse></s:Body></s:Envelope>
