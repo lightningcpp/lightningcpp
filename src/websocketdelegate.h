@@ -21,6 +21,7 @@
 
 #include <openssl/sha.h>
 
+#include "utils/base64.h"
 #include "httprequest.h"
 #include "httpresponse.h"
 
@@ -83,9 +84,23 @@ private:
 	const std::string _key = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 	std::vector< std::string > protocols_;
 	FRIEND_TEST ( WebSocketDelegateTest, CalculateKey );
-	std::string calculate_key ( const std::string & request_key );
-	FRIEND_TEST ( WebSocketDelegateTest, SHA1 );
-	static std::array< unsigned char, SHA_DIGEST_LENGTH > sha1 ( const unsigned char *input, int length );
+        std::string calculate_key ( const std::string & request_key ) {
+                std::stringstream ss_;
+                ss_ << request_key << _key;
+                std::string raw_key_ = ss_.str();
+
+                const std::string key_string_ = ss_.str();
+                std::array< unsigned char, SHA_DIGEST_LENGTH > result_ = sha1 ( reinterpret_cast< const unsigned char *> ( key_string_.c_str() ), key_string_.size() );
+            return Base64::base64_encode ( result_.data(), SHA_DIGEST_LENGTH );
+        }
+        FRIEND_TEST ( WebSocketDelegateTest, SHA1 );
+        std::array< unsigned char, SHA_DIGEST_LENGTH > sha1 ( const unsigned char *input, int length ) {
+
+                // unsigned char * hash_ = new unsigned char[SHA_DIGEST_LENGTH]; //as array<>
+                std::array< unsigned char, SHA_DIGEST_LENGTH > hash_;
+                SHA1 ( input, length, hash_.data() );
+                return hash_;
+        }
 };
 }//namespace delegate
 }//namespace http

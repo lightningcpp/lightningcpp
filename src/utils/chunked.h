@@ -26,9 +26,11 @@ namespace utils {
 
 class Chunked {
 public:
-	Chunked();
+    Chunked() {}
 
-	bool parse ( buffer_t buffer, HttpResponse response );
+    bool write ( buffer_t buffer, HttpResponse response ) {
+
+    }
 };
 }//namespace utils
 }//namespace http

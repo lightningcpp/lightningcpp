@@ -40,7 +40,7 @@ TEST ( WebSocketDelegateTest, Base64 ) {
 	std::array< unsigned char, SHA_DIGEST_LENGTH > key_ = { 0xb3, 0x7a, 0x4f, 0x2c, 0xc0, 0x62, 0x4f, 0x16, 0x90, 0xf6,
 															0x46, 0x06, 0xcf, 0x38, 0x59, 0x45, 0xb2, 0xbe, 0xc4, 0xea
 														  };
-	EXPECT_EQ ( "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=", base64_encode ( key_.data(), SHA_DIGEST_LENGTH ) );
+    EXPECT_EQ ( "s3pPLMBiTxaQ9kYGzzhZRbK+xOo=", Base64::base64_encode ( key_.data(), SHA_DIGEST_LENGTH ) );
 }
 
 TEST ( WebSocketDelegateTest, CalculateKey ) {
