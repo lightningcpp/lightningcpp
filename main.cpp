@@ -28,11 +28,13 @@ int main(int argc, char * argv[] ) {
     std::vector< std::string > _ws_protocols ( { "protocolTwo" } );
     http::delegate::WebSocketDelegate ws_( _ws_protocols );
 
-    //http::delegate::FileDelegate file_delegate( TESTFILES );
-    http::delegate::FileDelegate file_delegate( DOCFILES );
+    http::delegate::FileDelegate file_test_delegate( TESTFILES );
+    http::delegate::FileDelegate file_doc_delegate( DOCFILES );
     server.bind( "/socketserver", std::bind( &http::delegate::WebSocketDelegate::execute, &ws_, std::placeholders::_1, std::placeholders::_2 ) );
+    server.bind( "/html/.*", std::function< void( http::HttpRequest&, http::HttpResponse& ) >(
+                     std::bind( &http::delegate::FileDelegate::execute, &file_doc_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
     server.bind( "*", std::function< void( http::HttpRequest&, http::HttpResponse& ) >(
-        std::bind( &http::delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+                     std::bind( &http::delegate::FileDelegate::execute, &file_test_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
 
     // register signal SIGINT and signal handler
     signal(SIGINT, signalHandler);

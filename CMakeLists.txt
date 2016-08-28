@@ -23,7 +23,7 @@ SET(PATCH_VERSION "0" CACHE PATCH_VERSION "The package build number." )
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 option(build_tests "Build all http unit tests." ON)
 SET(TESTFILES "${PROJECT_SOURCE_DIR}/test/files" CACHE TESTFILES "The path to the testfiles.")
-SET(DOCFILES "${PROJECT_BINARY_DIR}/Documentation/html" CACHE TESTFILES "The path to the documentation files.")
+SET(DOCFILES "${PROJECT_BINARY_DIR}/Documentation/" CACHE TESTFILES "The path to the documentation files.")
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-std=c++14)
