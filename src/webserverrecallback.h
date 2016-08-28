@@ -30,34 +30,34 @@ public:
 	WebServerReCallBack& operator= ( WebServerReCallBack&& ) = delete;
 	~WebServerReCallBack() {}
 
-	std::function< bool ( HttpRequest & request, HttpResponse & response ) > bind (
-		const std::string & uri, std::function< void ( HttpRequest&, HttpResponse&, Args... ) > && delegate ) {
+    std::function< bool ( HttpRequest & request, HttpResponse & response ) > bind (
+        const std::string & uri, std::function< void ( HttpRequest&, HttpResponse&, Args... ) > && delegate ) {
 		_uri = uri;
 		_delegate = std::move ( delegate );
-		return std::bind ( &WebServerReCallBack< HeaderParameter, Args ...>::execute, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2 );
+        return std::bind ( &WebServerReCallBack< HeaderParameter, Args ... >::execute, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2 );
 	};
 private:
-	bool execute ( HttpRequest & request, HttpResponse & response ) {
+    bool execute ( HttpRequest & request, HttpResponse & response ) {
 		std::tuple< Args... > args;
 
 		if ( bind_with_tuple ( request, args, std::index_sequence_for<Args...>() ) ) {
 			callback_with_tuple ( request, response, args, std::index_sequence_for<Args...>() );
-			HeaderParameter::execute ( request, response );
+            HeaderParameter::execute ( request, response );
 			return true;
 
 		} else { return false; }
 	}
-	template<std::size_t... Is>
-	inline bool bind_with_tuple ( HttpRequest & request, std::tuple<Args...>& tuple, std::index_sequence<Is...> ) {
+    template< std::size_t... Is >
+    inline bool bind_with_tuple ( HttpRequest & request, std::tuple<Args...>& tuple, std::index_sequence<Is...> ) {
 		return ( RE2::FullMatch ( request.uri(), _uri, &std::get<Is> ( tuple )... ) );
 	}
-	template<std::size_t... Is>
-	inline void callback_with_tuple ( HttpRequest & request, HttpResponse & response, std::tuple<Args...>& tuple, std::index_sequence<Is...> ) {
+    template< std::size_t... Is>
+    inline void callback_with_tuple ( HttpRequest & request, HttpResponse & response, std::tuple<Args...>& tuple, std::index_sequence<Is...> ) {
 		_delegate ( request, response, std::get<Is> ( tuple )... );
 	}
 
 	std::string _uri;
-	std::function< void ( HttpRequest&, HttpResponse&, Args... ) > _delegate;
+    std::function< void ( HttpRequest&, HttpResponse&, Args... ) > _delegate;
 };
 }//namespace http
 #endif // WEBSERVERRECALLBACK_H

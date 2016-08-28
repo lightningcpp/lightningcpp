@@ -51,8 +51,8 @@ class HttpClient {
 public:
 	HttpClient ( const std::string & host, const std::string & protocol ) : host_ ( host ), protocol_ ( protocol ), io_service(), socket ( io_service ) {}
 
-	template< class Output >
-	HttpResponse get ( HttpRequest & request, Output & output ) {
+    template< class Request, class Output >
+    HttpResponse get ( Request & request, Output & output ) {
 		if ( ! socket.is_open() ) {
 			// std::cout << "connect: " << host_ << ":" << protocol_ << std::endl; //TODO cout
 			connect();
@@ -76,8 +76,21 @@ private:
 	buffer_t buffer_;
 	utils::HttpParser http_parser_;
 
-	void connect();
-	void write ( HttpRequest & request );
+    void connect() {
+        // Get a list of endpoints corresponding to the server name and connect.
+        asio::ip::tcp::resolver resolver ( io_service );
+        asio::ip::tcp::resolver::query query ( host_, protocol_ );
+        asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
+        asio::connect ( socket, endpoint_iterator );
+    }
+
+    template< class Request >
+    void write ( Request & request ) {
+        request.parameter ( header::HOST, host_ ); //TODO set headers in one place
+        size_t _position = request.header ( buffer_ );
+        //TODO check that all bytes are written
+        /*size_t _written =*/ socket.write_some ( asio::buffer ( buffer_, _position ) );
+    }
 
 	template< class Output >
 	void read ( HttpResponse & response, Output & output ) {

@@ -29,6 +29,7 @@
 *.app
 
 #tmp files
+*.autosave
 *.bak
 *.orig
 CMakeLists.txt.user

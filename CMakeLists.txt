@@ -23,6 +23,7 @@ SET(PATCH_VERSION "0" CACHE PATCH_VERSION "The package build number." )
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 option(build_tests "Build all http unit tests." ON)
 SET(TESTFILES "${PROJECT_SOURCE_DIR}/test/files" CACHE TESTFILES "The path to the testfiles.")
+SET(DOCFILES "${PROJECT_BINARY_DIR}/Documentation/html" CACHE TESTFILES "The path to the documentation files.")
 
 if(CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-std=c++14)
@@ -35,6 +36,7 @@ set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG} -O0 -g)
 add_definitions(-DASIO_STANDALONE)
 add_definitions(-DHTTP_CPP_RELEASE="${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 add_definitions(-DTESTFILES="${TESTFILES}/")
+add_definitions(-DDOCFILES="${DOCFILES}/")
 
 # -------------------------------------------------------------------------
 # ---------------------   External Dependencies       ---------------------
@@ -102,8 +104,11 @@ set(LIBS ${LIBS} -lssl -lcrypto -luuid -lpthread -lm) #needed for ubuntu
 # -------------------------------------------------------------------------
 aux_source_directory(src HTTP_SRC_LIST)
 set( HTTP_SRC_LIST ${HTTP_SRC_LIST} src/utils/stringutils.h src/utils/base64.cpp src/utils/httpparser.cpp src/utils/chunked.cpp)
-set( HTTP_SRC_LIST ${HTTP_SRC_LIST} src/httpconfig.h src/httputils.h src/httpserver.h src/webservercallback.h src/webserverrecallback.h src/webserver.h
-                                    src/errordelegate.h src/mimetypes.h )
+set( HTTP_SRC_LIST ${HTTP_SRC_LIST} src/httpconfig.h src/httpserver.h src/webservercallback.h src/webserverrecallback.h
+                                    src/httpclient.h
+                                    src/httpserverconnection.h src/httpsession.h src/webserver.h src/httprequest.h src/httpresponse.h
+                                    src/errordelegate.h src/mimetypes.h
+                                    src/filedelegate.h )
 include_directories(${ROOT}/src ${ASIO_INCLUDE_DIR} ${RE2_INCLUDE_DIR} ${OPENSSL_INCLUDES})
 add_library(${PROJECT_NAME} ${HTTP_SRC_LIST})
 target_link_libraries(${PROJECT_NAME} re ${LIBS} ${CMAKE_THREAD_LIBS_INIT})

@@ -35,7 +35,7 @@ inline size_t get_file ( const std::string & filename, buffer_t * buffer ) {
 		_file.read ( buffer->data(), BUFFER_SIZE );
 		_file.close();
 
-	} else { std::cout << "Unable to open file" << std::endl; }
+    } else { std::cout << "Unable to open file:" << filename << std::endl; }
 
 	return _file.gcount();
 }
@@ -83,7 +83,7 @@ TEST ( HttpParserTest, RequestParserTypeLessThen ) {
 
 TEST ( HttpParserTest, ParseRequestLine ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/simple.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
 	http::HttpRequest _request;
@@ -100,7 +100,7 @@ TEST ( HttpParserTest, ParseRequestLine ) {
 
 TEST ( HttpParserTest, ParseResponseLine ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/response/soap_browse_response.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_response.dump", &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
 	http::HttpResponse _response;
@@ -116,7 +116,7 @@ TEST ( HttpParserTest, ParseResponseLine ) {
 
 TEST ( HttpParserTest, ParseRequestLineAndParameter ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/simple.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
 	http::HttpRequest _request;
@@ -130,7 +130,7 @@ TEST ( HttpParserTest, ParseRequestLineAndParameter ) {
 	EXPECT_EQ ( 1, _request.version_major() );
 	EXPECT_EQ ( 1, _request.version_minor() );
 
-	_position = _parser.parse_parameter ( _state, _request, _buffer, _position, _size );
+    _position = _parser.parse_parameter ( _state, _request, _buffer, _position, _size );
 	EXPECT_EQ ( _position, _size );
 
 	EXPECT_EQ ( "192.168.0.17:10000", _request.parameter ( "Host" ) );
@@ -144,7 +144,7 @@ TEST ( HttpParserTest, ParseRequestLineAndParameter ) {
 
 TEST ( HttpParserTest, ParseRequestLineAndParameterAndFormData ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/form_request_post.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
 	http::HttpRequest _request;
@@ -158,10 +158,10 @@ TEST ( HttpParserTest, ParseRequestLineAndParameterAndFormData ) {
 	EXPECT_EQ ( 1, _request.version_major() );
 	EXPECT_EQ ( 1, _request.version_minor() );
 
-	_position = _parser.parse_parameter ( _state, _request, _buffer, _position, _size );
+    _position = _parser.parse_parameter ( _state, _request, _buffer, _position, _size );
 	EXPECT_EQ ( _position, 575U );
 
-	EXPECT_EQ ( 12U, _request.parameterMap().size() );
+    EXPECT_EQ ( 12U, _request.parameter_map().size() );
 	EXPECT_EQ ( "192.168.0.17:9999", _request.parameter ( "Host" ) );
 	EXPECT_EQ ( "keep-alive", _request.parameter ( "Connection" ) );
 	EXPECT_EQ ( "1", _request.parameter ( "Upgrade-Insecure-Requests" ) );
@@ -178,7 +178,7 @@ TEST ( HttpParserTest, ParseRequestLineAndParameterAndFormData ) {
 	_position = _parser.parse_body_form_data ( _state, _request, _buffer, _position, _size );
 	EXPECT_EQ ( _position, _size );
 
-	EXPECT_EQ ( 3U, _request.attributeMap().size() );
+    EXPECT_EQ ( 3U, _request.attribute_map().size() );
 	EXPECT_EQ ( "Heiner", _request.attribute ( "vorname" ) );
 	EXPECT_EQ ( "Huber", _request.attribute ( "name" ) );
 	EXPECT_EQ ( "0", _request.attribute ( "action" ) );
@@ -186,7 +186,7 @@ TEST ( HttpParserTest, ParseRequestLineAndParameterAndFormData ) {
 
 TEST ( HttpParserTest, ParseSimpleRequest ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/simple.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpRequest _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
@@ -209,7 +209,7 @@ TEST ( HttpParserTest, ParseSimpleRequest ) {
 
 TEST ( HttpParserTest, ParseSoapResponse ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/response/soap_browse_response.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_response.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpResponse _response;
 	size_t _position = _parser.parse_response ( _response, _buffer, 0, _size );
@@ -227,7 +227,7 @@ TEST ( HttpParserTest, ParseSoapResponse ) {
 
 TEST ( HttpParserTest, ParseSoapLongResponse ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/response/soap_browse_long_response.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_long_response.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpResponse _response;
 	size_t _position = _parser.parse_response ( _response, _buffer, 0, _size );
@@ -245,7 +245,7 @@ TEST ( HttpParserTest, ParseSoapLongResponse ) {
 
 TEST ( HttpParserTest, ParseFormGetRequest ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/form_request_get.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_get.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpRequest _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
@@ -257,7 +257,7 @@ TEST ( HttpParserTest, ParseFormGetRequest ) {
 	EXPECT_EQ ( 1, _request.version_major() );
 	EXPECT_EQ ( 1, _request.version_minor() );
 
-	EXPECT_EQ ( 8U, _request.parameterMap().size() );
+    EXPECT_EQ ( 8U, _request.parameter_map().size() );
 	EXPECT_EQ ( "192.168.0.17:9999", _request.parameter ( "Host" ) );
 	EXPECT_EQ ( "keep-alive", _request.parameter ( "Connection" ) );
 	EXPECT_EQ ( "1", _request.parameter ( "Upgrade-Insecure-Requests" ) );
@@ -267,7 +267,7 @@ TEST ( HttpParserTest, ParseFormGetRequest ) {
 	EXPECT_EQ ( "de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4", _request.parameter ( "Accept-Language" ) );
 	EXPECT_EQ ( "http://192.168.0.17:9999/form.html", _request.parameter ( "Referer" ) );
 
-	EXPECT_EQ ( 3U, _request.attributeMap().size() );
+    EXPECT_EQ ( 3U, _request.attribute_map().size() );
 	EXPECT_EQ ( "Heiner", _request.attribute ( "vorname" ) );
 	EXPECT_EQ ( "Huber", _request.attribute ( "name" ) );
 	EXPECT_EQ ( "0", _request.attribute ( "action" ) );
@@ -275,7 +275,7 @@ TEST ( HttpParserTest, ParseFormGetRequest ) {
 
 TEST ( HttpParserTest, ParseFormPostRequest ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/form_request_post.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpRequest _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
@@ -288,7 +288,7 @@ TEST ( HttpParserTest, ParseFormPostRequest ) {
 	EXPECT_EQ ( 1, _request.version_major() );
 	EXPECT_EQ ( 1, _request.version_minor() );
 
-	EXPECT_EQ ( 12U, _request.parameterMap().size() );
+    EXPECT_EQ ( 12U, _request.parameter_map().size() );
 	EXPECT_EQ ( "192.168.0.17:9999", _request.parameter ( "Host" ) );
 	EXPECT_EQ ( "keep-alive", _request.parameter ( "Connection" ) );
 	EXPECT_EQ ( "1", _request.parameter ( "Upgrade-Insecure-Requests" ) );
@@ -302,7 +302,7 @@ TEST ( HttpParserTest, ParseFormPostRequest ) {
 	EXPECT_EQ ( "http://192.168.0.17:9999", _request.parameter ( "Origin" ) );
 	EXPECT_EQ ( "application/x-www-form-urlencoded", _request.parameter ( "Content-Type" ) );
 
-	EXPECT_EQ ( 3U, _request.attributeMap().size() );
+    EXPECT_EQ ( 3U, _request.attribute_map().size() );
 	EXPECT_EQ ( "Heiner", _request.attribute ( "vorname" ) );
 	EXPECT_EQ ( "Huber", _request.attribute ( "name" ) );
 	EXPECT_EQ ( "0", _request.attribute ( "action" ) );
@@ -310,7 +310,7 @@ TEST ( HttpParserTest, ParseFormPostRequest ) {
 
 TEST ( HttpParserTest, ParseFormSoapPost ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/soap_browse_request.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/soap_browse_request.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpRequest _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
@@ -323,7 +323,7 @@ TEST ( HttpParserTest, ParseFormSoapPost ) {
 	EXPECT_EQ ( 1, _request.version_major() );
 	EXPECT_EQ ( 0, _request.version_minor() );
 
-	EXPECT_EQ ( 6U, _request.parameterMap().size() );
+    EXPECT_EQ ( 6U, _request.parameter_map().size() );
 	EXPECT_EQ ( "192.168.0.14", _request.parameter ( "Host" ) );
 	EXPECT_EQ ( "Coherence PageGetter", _request.parameter ( "User-Agent" ) );
 	EXPECT_EQ ( "438", _request.parameter ( "Content-Length" ) );
@@ -363,7 +363,7 @@ TEST ( HttpParserTest, ParseWithBody ) {
 	EXPECT_EQ ( 1, http_request.version_major() );
 	EXPECT_EQ ( 0, http_request.version_minor() );
 
-	EXPECT_EQ ( http_request.parameterMap().size(), 6U );
+    EXPECT_EQ ( http_request.parameter_map().size(), 6U );
 	EXPECT_EQ ( std::string ( "192.168.0.13" ), http_request.parameter ( "Host" ) );
 	EXPECT_EQ ( std::string ( "close" ), http_request.parameter ( "connection" ) );
 
@@ -404,7 +404,7 @@ TEST ( HttpParserTest, ParseIncompleteHeader ) {
 	EXPECT_EQ ( 1, http_request.version_minor() );
 
 
-	EXPECT_EQ ( http_request.parameterMap().size(), 4U );
+    EXPECT_EQ ( http_request.parameter_map().size(), 4U );
 	EXPECT_EQ ( std::string ( "239.255.255.250:1900" ), http_request.parameter ( "Host" ) );
 	EXPECT_EQ ( std::string ( "Sat Dec 28 09:59:08 2013" ), http_request.parameter ( "DATE" ) );
 	EXPECT_EQ ( std::string ( "max-age=1800" ), http_request.parameter ( "Cache-Control" ) );
@@ -449,7 +449,7 @@ TEST ( HttpParserTest, ParseChunkedHeader ) {
 		size_t state = http_parser.parse_request ( http_request, _buffer, 0, _size );
 		EXPECT_EQ ( 34U, state );
 	}
-	EXPECT_EQ ( 3U, http_request.parameterMap().size() );
+    EXPECT_EQ ( 3U, http_request.parameter_map().size() );
 	EXPECT_EQ ( "localhost", http_request.parameter ( http::header::HOST ) );
 	EXPECT_EQ ( "*/*", http_request.parameter ( http::header::ACCEPT ) );
 	EXPECT_EQ ( "close", http_request.parameter ( http::header::CONNECTION ) );
@@ -607,7 +607,7 @@ TEST ( HttpParserTest, ParseMultiJunks ) {
 	EXPECT_EQ ( 1, http_request.version_major() );
 	EXPECT_EQ ( 0, http_request.version_minor() );
 
-	EXPECT_EQ ( http_request.parameterMap().size(), 6U );
+    EXPECT_EQ ( http_request.parameter_map().size(), 6U );
 	EXPECT_EQ ( std::string ( "text/xml; charset=\"utf-8\"" ), http_request.parameter ( "Content-Type" ) );
 	EXPECT_EQ ( std::string ( "192.168.0.13" ), http_request.parameter ( "HOST" ) );
 	EXPECT_EQ ( std::string ( "530" ), http_request.parameter ( "Content-Length" ) );
@@ -618,7 +618,7 @@ TEST ( HttpParserTest, ParseMultiJunks ) {
 
 TEST ( HttpParserTest, ParseChunked ) {
 	buffer_t _buffer;
-	get_file ( "/home/e3a/httpcpp/test/files/raw/request/soap_browse_request.dump", &_buffer );
+    get_file ( HTTP_TESTFILES + "/raw/request/soap_browse_request.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpRequest _request;
 
@@ -648,7 +648,7 @@ TEST ( HttpParserTest, ParseChunked ) {
 	EXPECT_EQ ( 1, _request.version_major() );
 	EXPECT_EQ ( 0, _request.version_minor() );
 
-	EXPECT_EQ ( 6U, _request.parameterMap().size() );
+    EXPECT_EQ ( 6U, _request.parameter_map().size() );
 	EXPECT_EQ ( "192.168.0.14", _request.parameter ( "Host" ) );
 	EXPECT_EQ ( "Coherence PageGetter", _request.parameter ( "User-Agent" ) );
 	EXPECT_EQ ( "438", _request.parameter ( "Content-Length" ) );
@@ -659,7 +659,7 @@ TEST ( HttpParserTest, ParseChunked ) {
 
 TEST ( HttpParserTest, ParseChunkedWithBody ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/form_request_post.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpRequest _request;
 
@@ -694,7 +694,7 @@ TEST ( HttpParserTest, ParseChunkedWithBody ) {
 	EXPECT_EQ ( 1, _request.version_major() );
 	EXPECT_EQ ( 1, _request.version_minor() );
 
-	EXPECT_EQ ( 12U, _request.parameterMap().size() );
+    EXPECT_EQ ( 12U, _request.parameter_map().size() );
 	EXPECT_EQ ( "192.168.0.17:9999", _request.parameter ( "Host" ) );
 	EXPECT_EQ ( "keep-alive", _request.parameter ( "Connection" ) );
 	EXPECT_EQ ( "1", _request.parameter ( "Upgrade-Insecure-Requests" ) );
@@ -708,7 +708,7 @@ TEST ( HttpParserTest, ParseChunkedWithBody ) {
 	EXPECT_EQ ( "http://192.168.0.17:9999", _request.parameter ( "Origin" ) );
 	EXPECT_EQ ( "application/x-www-form-urlencoded", _request.parameter ( "Content-Type" ) );
 
-	EXPECT_EQ ( 3U, _request.attributeMap().size() );
+    EXPECT_EQ ( 3U, _request.attribute_map().size() );
 	EXPECT_EQ ( "Heiner", _request.attribute ( "vorname" ) );
 	EXPECT_EQ ( "Huber", _request.attribute ( "name" ) );
 	EXPECT_EQ ( "0", _request.attribute ( "action" ) );
@@ -716,7 +716,7 @@ TEST ( HttpParserTest, ParseChunkedWithBody ) {
 
 TEST ( HttpParserTest, ParseChunkedWithNewBody ) {
 	buffer_t _buffer;
-	size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/form_request_post.dump", &_buffer );
+    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 	HttpParser _parser;
 	http::HttpRequest _request;
 
@@ -753,7 +753,7 @@ TEST ( HttpParserTest, ParseChunkedWithNewBody ) {
 	EXPECT_EQ ( 1, _request.version_major() );
 	EXPECT_EQ ( 1, _request.version_minor() );
 
-	EXPECT_EQ ( 12U, _request.parameterMap().size() );
+    EXPECT_EQ ( 12U, _request.parameter_map().size() );
 	EXPECT_EQ ( "192.168.0.17:9999", _request.parameter ( "Host" ) );
 	EXPECT_EQ ( "keep-alive", _request.parameter ( "Connection" ) );
 	EXPECT_EQ ( "1", _request.parameter ( "Upgrade-Insecure-Requests" ) );
@@ -767,7 +767,7 @@ TEST ( HttpParserTest, ParseChunkedWithNewBody ) {
 	EXPECT_EQ ( "http://192.168.0.17:9999", _request.parameter ( "Origin" ) );
 	EXPECT_EQ ( "application/x-www-form-urlencoded", _request.parameter ( "Content-Type" ) );
 
-	EXPECT_EQ ( 3U, _request.attributeMap().size() );
+    EXPECT_EQ ( 3U, _request.attribute_map().size() );
 	EXPECT_EQ ( "Heiner", _request.attribute ( "vorname" ) );
 	EXPECT_EQ ( "Huber", _request.attribute ( "name" ) );
 	EXPECT_EQ ( "0", _request.attribute ( "action" ) );
@@ -778,7 +778,7 @@ TEST ( HttpParserTest, MultiParse ) {
 	HttpParser _parser;
 	{
 		buffer_t _buffer;
-		size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/simple.dump", &_buffer );
+        size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
 		http::HttpRequest _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 		EXPECT_EQ ( _position, _size );
@@ -800,7 +800,7 @@ TEST ( HttpParserTest, MultiParse ) {
 
 	{
 		buffer_t _buffer;
-		size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/form_request_get.dump", &_buffer );
+        size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_get.dump", &_buffer );
 		http::HttpRequest _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 		EXPECT_EQ ( _position, _size );
@@ -811,7 +811,7 @@ TEST ( HttpParserTest, MultiParse ) {
 		EXPECT_EQ ( 1, _request.version_major() );
 		EXPECT_EQ ( 1, _request.version_minor() );
 
-		EXPECT_EQ ( 8U, _request.parameterMap().size() );
+        EXPECT_EQ ( 8U, _request.parameter_map().size() );
 		EXPECT_EQ ( "192.168.0.17:9999", _request.parameter ( "Host" ) );
 		EXPECT_EQ ( "keep-alive", _request.parameter ( "Connection" ) );
 		EXPECT_EQ ( "1", _request.parameter ( "Upgrade-Insecure-Requests" ) );
@@ -821,7 +821,7 @@ TEST ( HttpParserTest, MultiParse ) {
 		EXPECT_EQ ( "de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4", _request.parameter ( "Accept-Language" ) );
 		EXPECT_EQ ( "http://192.168.0.17:9999/form.html", _request.parameter ( "Referer" ) );
 
-		EXPECT_EQ ( 3U, _request.attributeMap().size() );
+        EXPECT_EQ ( 3U, _request.attribute_map().size() );
 		EXPECT_EQ ( "Heiner", _request.attribute ( "vorname" ) );
 		EXPECT_EQ ( "Huber", _request.attribute ( "name" ) );
 		EXPECT_EQ ( "0", _request.attribute ( "action" ) );
@@ -829,7 +829,7 @@ TEST ( HttpParserTest, MultiParse ) {
 
 	{
 		buffer_t _buffer;
-		size_t _size = get_file ( "/home/e3a/httpcpp/test/files/raw/request/form_request_post.dump", &_buffer );
+        size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 		http::HttpRequest _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 
@@ -841,7 +841,7 @@ TEST ( HttpParserTest, MultiParse ) {
 		EXPECT_EQ ( 1, _request.version_major() );
 		EXPECT_EQ ( 1, _request.version_minor() );
 
-		EXPECT_EQ ( 12U, _request.parameterMap().size() );
+        EXPECT_EQ ( 12U, _request.parameter_map().size() );
 		EXPECT_EQ ( "192.168.0.17:9999", _request.parameter ( "Host" ) );
 		EXPECT_EQ ( "keep-alive", _request.parameter ( "Connection" ) );
 		EXPECT_EQ ( "1", _request.parameter ( "Upgrade-Insecure-Requests" ) );
@@ -855,7 +855,7 @@ TEST ( HttpParserTest, MultiParse ) {
 		EXPECT_EQ ( "http://192.168.0.17:9999", _request.parameter ( "Origin" ) );
 		EXPECT_EQ ( "application/x-www-form-urlencoded", _request.parameter ( "Content-Type" ) );
 
-		EXPECT_EQ ( 3U, _request.attributeMap().size() );
+        EXPECT_EQ ( 3U, _request.attribute_map().size() );
 		EXPECT_EQ ( "Heiner", _request.attribute ( "vorname" ) );
 		EXPECT_EQ ( "Huber", _request.attribute ( "name" ) );
 		EXPECT_EQ ( "0", _request.attribute ( "action" ) );
@@ -1088,7 +1088,7 @@ TEST ( HttpParserTest, MeasurePerformance ) {
 		EXPECT_EQ ( 1, http_request.version_major() );
 		EXPECT_EQ ( 0, http_request.version_minor() );
 
-		EXPECT_EQ ( http_request.parameterMap().size(), 6U );
+        EXPECT_EQ ( http_request.parameter_map().size(), 6U );
 		EXPECT_EQ ( std::string ( "text/xml; charset=\"utf-8\"" ), http_request.parameter ( "Content-Type" ) );
 		EXPECT_EQ ( std::string ( "192.168.0.13" ), http_request.parameter ( "HOST" ) );
 		EXPECT_EQ ( std::string ( "530" ), http_request.parameter ( "Content-Length" ) );

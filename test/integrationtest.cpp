@@ -106,6 +106,34 @@ TEST ( IntegrationTest, RepeatGetSimpleLargeFile ) {
 	}
 }
 
+TEST ( IntegrationTest, GetReMatchFile ) {
+
+    //create the server
+    WebServer< HttpServer > server ( "127.0.0.1", 9999 );
+    server.bind ( "/foo/.*", std::function< void ( HttpRequest&, HttpResponse& ) > ( [] ( HttpRequest & request, HttpResponse & response ) {
+        response << request.uri();
+    } ) );
+    server.bind ( "/foo", std::function< void ( HttpRequest&, HttpResponse& ) > ( [] ( HttpRequest&, HttpResponse & response ) {
+        response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL";
+    } ) );
+
+    {
+        HttpClient client_ ( "localhost", "9999" );
+        HttpRequest request_ ( "/foo" );
+        std::stringstream _sstream;
+        client_.get ( request_, _sstream );
+        EXPECT_EQ ( "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL", _sstream.str() );
+    }
+    {
+        HttpClient client_ ( "localhost", "9999" );
+        HttpRequest request_ ( "/foo/bar" );
+        std::stringstream _sstream;
+        client_.get ( request_, _sstream );
+        EXPECT_EQ ( "/foo/bar", _sstream.str() );
+
+    }
+}
+
 TEST ( IntegrationTest, GetFileNotFound ) {
 
 	//create the server

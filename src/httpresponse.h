@@ -21,49 +21,12 @@
 #include <memory>
 #include <sstream>
 
-#include "httputils.h"
+#include "httpconfig.h"
 #include "mimetypes.h"
 
 #include <gtest/gtest_prod.h>
 
 namespace http {
-
-class HttpRequest;
-
-class DefaultParameter {
-public:
-	static void execute ( auto&, auto & response ) {
-		if ( ! response.contains_parameter ( header::CONTENT_LENGTH ) ) {
-			response.parameter ( header::CONTENT_LENGTH,  std::to_string ( response.size() ) );
-
-		}
-
-		//TODO add HOST,
-
-		//add expiration date
-		if ( response.expires() ) {
-			time_t now = time ( nullptr );
-			struct tm then_tm = *gmtime ( &now );
-			then_tm.tm_sec += response.expires();
-			mktime ( &then_tm );
-			response.parameter ( header::EXPIRES, http::utils::time_to_string ( &then_tm ) );
-		}
-
-		//add now
-		time_t now = time ( nullptr );
-		struct tm now_tm = *gmtime ( &now );
-		mktime ( &now_tm );
-		response.parameter ( header::DATE, http::utils::time_to_string ( &now_tm ) );
-
-		//add mime-type
-		// ss << header::CONTENT_TYPE << ": " << parameters_[header::CONTENT_TYPE] << "\r\n";
-	}
-};
-
-class EmptyParameter {
-public:
-	static void execute ( auto&, auto& ) {}
-};
 
 /**
  * @brief The HttpResponse class
@@ -71,9 +34,8 @@ public:
  */
 class HttpResponse {
 public:
-//	enum RESPONSE_STATE { NONE, CONNECTING, READY, COMPLETE, INCOMPLETE } state = NONE;
 
-	HttpResponse() {}
+    HttpResponse() : body_ostream_( std::make_unique< std::stringstream >() ) {}
 	HttpResponse ( const HttpResponse& ) = delete;
 	HttpResponse ( HttpResponse&& ) = default;
 	HttpResponse& operator= ( const HttpResponse& ) = delete;
@@ -119,49 +81,62 @@ public:
 	/** @brief the buffer read status of this request. */
 	http_status status () const { return status_; }
 
-	/** @brief reset the stream and header map. */
-	void reset ();
-	/** @brief The body of this response. The caller controlles the lifetime. */
+    /* ------------------------------------------------------------------------------------------------------------------ */
+    /*                                            stream realated methods                                                 */
+    /* ------------------------------------------------------------------------------------------------------------------ */
 
+    /**
+     * @brief Fill buffer with the header. The complete header must fit into the buffer.
+     * @param buffer
+     * @return
+     */
+    size_t header ( buffer_t & buffer ) {
+        // create status line: Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
+        int _position = snprintf ( buffer.data(), BUFFER_SIZE, "%s/%d.%d %d %s\r\n",
+                                   protocol_.c_str(), version_major_, version_minor_, static_cast< int > ( status_ ), status_reason_phrase ( status_ ).c_str() );
 
-	/* stream realated methods */
+        if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
 
-	/**
-	 * @brief Fill buffer with the header. The complete header must fit into the buffer.
-	 * @param buffer
-	 * @return
-	 */
-	size_t header ( buffer_t & buffer );
+        for ( auto & _header : parameters_ ) {
+            _position += snprintf ( buffer.data() +_position, BUFFER_SIZE-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
 
-	/* ------------------------------------------------------------------------------------------------------------------ */
+            if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
+        }
 
+        _position += snprintf ( buffer.data()+_position, BUFFER_SIZE-_position, "\r\n" );
+        return _position;
+    }
 
-	void istream ( std::unique_ptr< std::istream > && is );
+    auto tellp()
+    { return body_ostream_->tellp(); }
 
-	/**
-	 * @brief read the content and store in buffer
-	 * @param buffer array
-	 * @return size of content in the buffer
-	 */
-	size_t read ( buffer_t & buffer );
+    auto tellg()
+    { return (  body_istream_ != nullptr ? body_istream_->tellg() : body_ostream_->tellg() ); }
 
-	/* ------------------------------------------------------------------------------------------------------------------ */
+    auto read( buffer_t & buffer ) {
+        if( body_istream_ ) {
+            return body_istream_->readsome( buffer.data(), BUFFER_SIZE );
+        } else {
+            return body_ostream_->readsome( buffer.data(), BUFFER_SIZE );
+        }
+    }
 
+    void write( buffer_t & buffer, size_t index, size_t size )
+    { body_ostream_->write( buffer.data()+index, size ); }
 
-	template< class T >
+    void istream ( std::unique_ptr< std::istream > && is )
+    { body_istream_ = std::move ( is ); }
+
 	/**
 	 * @brief write to the buffer
 	 * @param value
 	 * @return
 	 */
-	HttpResponse & operator<< ( const T & value ) {
-		body_ostream_ << value;
+    template< class T >
+    HttpResponse & operator<< ( const T & value ) {
+        *(body_ostream_) << value;
 		return *this;
 	}
-
-	/** @brief the size of the response body. */
-	size_t size () { return body_ostream_.tellp(); }
-
 	/* ------------------------------------------------------------------------------------------------------------------ */
 
 
@@ -191,13 +166,8 @@ private:
 	std::string remote_ip_;
 
 	std::map<std::string, std::string> parameters_;
-
-	std::stringstream body_ostream_;
-	std::unique_ptr< std::istream > body_istream_;
+    std::unique_ptr< std::stringstream > body_ostream_;
+    std::unique_ptr< std::istream > body_istream_;
 };
-/**
- * the server delegate method.
- */
-typedef std::function< std::shared_ptr< HttpResponse > ( buffer_t, size_t size ) > server_delegate_t;
 } //namespace http
 #endif //HTTPRESPONSE_H

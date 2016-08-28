@@ -41,15 +41,14 @@ public:
 	virtual ~WebServer() {}
 
 
-	template< class HeaderParameter = DefaultParameter, class ... Args >
-	void bind ( const std::string & uri, std::function< void ( HttpRequest&, HttpResponse&, Args... ) > && delegate ) {
-		std::shared_ptr< WebServerReCallBack< HeaderParameter, Args... > > cb = std::make_shared< WebServerReCallBack< HeaderParameter, Args ... > >();
+    template< class ... Args >
+    void bind ( const std::string & uri, std::function< void ( HttpRequest&, HttpResponse&, Args... ) > && delegate ) {
+        std::shared_ptr< WebServerReCallBack< DefaultParameter, Args... > > cb = std::make_shared< WebServerReCallBack< DefaultParameter, Args ... > >();
 		_delegates.push_back ( cb->bind ( uri, std::move ( delegate ) ) );
 	}
 
-	template< class HeaderParameter = DefaultParameter >
-	void bind ( const std::string & uri, http_delegate_t && delegate ) {
-		std::shared_ptr< WebServerCallBack< HeaderParameter > > cb = std::make_shared< WebServerCallBack< HeaderParameter > >();
+    void bind ( const std::string & uri, http_delegate_t && delegate ) {
+        std::shared_ptr< WebServerCallBack< DefaultParameter > > cb = std::make_shared< WebServerCallBack< DefaultParameter > >();
 		_delegates.push_back ( cb->bind ( uri, std::move ( delegate ) ) );
 	}
 	/**
@@ -61,7 +60,7 @@ public:
 		_error_delegates[ status ] = std::move ( delegate );
 	}
 
-	void execute ( HttpRequest & request, HttpResponse & response ) {
+    void execute ( HttpRequest & request, HttpResponse & response ) {
 		try {
 			for ( auto delegate : _delegates ) {
 				if ( delegate ( request, response ) ) {
@@ -94,7 +93,7 @@ public:
 	}
 
 private:
-	std::list< std::function< bool ( HttpRequest&, HttpResponse& ) > > _delegates;
+    std::list< webserver_delegate_t > _delegates;
 	std::map<http_status, http_delegate_t > _error_delegates {
 		{ http_status::BAD_GATEWAY, ErrorDelegate<>::bind ( http::response::BAD_GATEWAY ) },
 		{ http_status::BAD_REQUEST, ErrorDelegate<>::bind ( http::response::BAD_REQUEST ) },
@@ -114,7 +113,8 @@ private:
 	 * @brief error handler
 	 * @param status
 	 */
-	void handle_error ( HttpRequest & request, HttpResponse & response ) {
+    template< class Request, class Response >
+    void handle_error ( Request & request, Response & response ) {
 		http_status status = response.status();
 
 		try {
@@ -130,15 +130,16 @@ private:
 			}
 
 		} catch ( ... ) {
+            //TODO log
 			request.uri ( make_error_uri ( http_status::INTERNAL_SERVER_ERROR ) );
 			_error_delegates[ status ] ( request, response );
 			response.status ( http_status::INTERNAL_SERVER_ERROR );
 		}
 	}
 	inline std::string make_error_uri ( http_status status ) {
-		std::stringstream buf;
-		buf << "/" << static_cast< int > ( status ) << ".html";
-		return buf.str();
+        std::stringstream _buf;
+        _buf << "/" << static_cast< int > ( status ) << ".html";
+        return _buf.str();
 	}
 };
 

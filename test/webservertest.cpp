@@ -71,13 +71,13 @@ TEST ( WebServerTest, DelegateTest ) {
 	EXPECT_CALL ( *test_callback, callback ( "/foo/lambda/alice/234", "alice", 234 ) ).Times ( 1 );
 
 	WebServer< HttpServer > server ( "127.0.0.1", 8080 );
-	MethodClass cls;
-	server.bind ( "/foo/bar",  std::function< void ( HttpRequest&, HttpResponse& ) > ( delegate_function ) );
-	server.bind ( "/foo/bar/cls", std::function< void ( HttpRequest&, HttpResponse& ) > ( std::bind ( &MethodClass::delegate_function, &cls, std::placeholders::_1, std::placeholders::_2 ) ) );
-	server.bind ( "/foo/bar/(\\w+)/(\\d+)", std::function< void ( HttpRequest&, HttpResponse&, std::string, int ) > ( std::bind ( &MethodClass::delegate_function_user, &cls, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4 ) ) );
-	server.bind ( "/foo/lambda/(\\w+)/(\\d+)", std::function< void ( HttpRequest&, HttpResponse&, std::string, int ) > ( [] ( HttpRequest & request, HttpResponse&, std::string name, int id ) {
+    MethodClass cls;
+    server.bind ( "/foo/bar",  http_delegate_t ( delegate_function ) );
+    server.bind ( "/foo/bar/cls", std::bind ( &MethodClass::delegate_function, &cls, std::placeholders::_1, std::placeholders::_2 ) );
+    server.bind<> ( "/foo/bar/(\\w+)/(\\d+)", std::function< void ( HttpRequest&, HttpResponse&, std::string, int ) > ( std::bind ( &MethodClass::delegate_function_user, &cls, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4 ) ) );
+    server.bind ( "/foo/lambda/(\\w+)/(\\d+)", std::function< void ( HttpRequest&, HttpResponse&, std::string, int ) > ( [] ( HttpRequest & request, HttpResponse&, std::string name, int id ) {
 		test_callback->callback ( request.uri(), name, id );
-	} ) );
+    } ) );
 
 	HttpRequest request ( "/foo/bar" );
 	HttpResponse response;
@@ -107,37 +107,37 @@ TEST ( WebServerTest, EqualsMatchAnyTest ) {
 
 	delete test_callback;
 }
-TEST ( WebServerTest, HttpServerTest ) {
+//TEST ( WebServerTest, HttpServerTest ) {
 
-	WebServer< HttpServer > server ( "127.0.0.1", 8080 );
-	server.bind< EmptyParameter > ( "/foo/lambda/(\\w+)/(\\d+)", std::function< void ( HttpRequest&, HttpResponse&, std::string, int ) > ( [] ( HttpRequest&, HttpResponse & response, std::string, int ) {
-		response.status ( http::http_status::OK );
-		response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV";
+//	WebServer< HttpServer > server ( "127.0.0.1", 8080 );
+//    server.bind< EmptyParameter > ( "/foo/lambda/(\\w+)/(\\d+)", std::function< void ( HttpRequest&, HttpResponse&, std::string, int ) > ( [] ( HttpRequest&, HttpResponse & response, std::string, int ) {
+//		response.status ( http::http_status::OK );
+//		response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV";
 
-		response.status ( http::http_status::OK );
-		response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
-		response.parameter ( header::CONTENT_LENGTH, std::to_string ( 0 ) );
-	} ) );
+//		response.status ( http::http_status::OK );
+//		response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
+//		response.parameter ( header::CONTENT_LENGTH, std::to_string ( 0 ) );
+//	} ) );
 
 
-	//test data
-	asio::streambuf response;
-	asio::streambuf request;
-	std::ostream request_stream ( &request );
-	request_stream << "GET /foo/lambda/alice/123 HTTP/1.0\r\n";
-	request_stream << "Host: localhost\r\n";
-	request_stream << "Accept: */*\r\n";
-	request_stream << "Connection: close\r\n\r\n";
+//	//test data
+//	asio::streambuf response;
+//	asio::streambuf request;
+//	std::ostream request_stream ( &request );
+//	request_stream << "GET /foo/lambda/alice/123 HTTP/1.0\r\n";
+//	request_stream << "Host: localhost\r\n";
+//	request_stream << "Accept: */*\r\n";
+//	request_stream << "Connection: close\r\n\r\n";
 
-	std::stringstream _response_expectedstreambuf;
-	_response_expectedstreambuf << "HTTP/1.1 200 OK\r\n" <<
-								"Content-Length: 0\r\n" <<
-								"Content-Type: text/plain\r\n\r\n" <<
-								"abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV";
+//	std::stringstream _response_expectedstreambuf;
+//	_response_expectedstreambuf << "HTTP/1.1 200 OK\r\n" <<
+//								"Content-Length: 0\r\n" <<
+//								"Content-Type: text/plain\r\n\r\n" <<
+//								"abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV";
 
-	//send a request
-	client_header ( "127.0.0.1", "8080", std::vector< asio::streambuf* > ( { &request } ), response );
-	std::istream _response_stream ( &response );
-	EXPECT_TRUE ( compare_streams ( _response_expectedstreambuf, _response_stream ) );
-}
+//	//send a request
+//	client_header ( "127.0.0.1", "8080", std::vector< asio::streambuf* > ( { &request } ), response );
+//	std::istream _response_stream ( &response );
+//	EXPECT_TRUE ( compare_streams ( _response_expectedstreambuf, _response_stream ) );
+//}
 }//namespace http

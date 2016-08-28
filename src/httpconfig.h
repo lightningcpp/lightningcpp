@@ -20,6 +20,8 @@
 #include <functional>
 #include <string>
 
+#include "utils/stringutils.h"
+
 namespace http {
 
 class HttpRequest;
@@ -28,9 +30,11 @@ class HttpResponse;
 static const size_t BUFFER_SIZE = 8192;
 static const size_t CLIENT_TIMEOUT = 3;
 static const size_t HTTP_SERVER_THREAD_POOL_SIZE = 10;
+static const std::string HTTP_TESTFILES = TESTFILES;
 
 typedef std::array< char, BUFFER_SIZE > buffer_t;
 typedef std::function< void ( HttpRequest&, HttpResponse& ) > http_delegate_t;
+typedef std::function< bool ( HttpRequest&, HttpResponse& ) > webserver_delegate_t;
 }
 
 namespace http {
@@ -156,6 +160,41 @@ static const std::string    FORM_URLENCODED     =   "application/x-www-form-urle
 } //http
 
 namespace http {
+class DefaultParameter {
+public:
+    static void execute ( auto&, auto & response ) {
+        if ( ! response.contains_parameter ( header::CONTENT_LENGTH ) ) {
+            response.parameter ( header::CONTENT_LENGTH,  std::to_string ( response.tellp() ) );
+
+        }
+
+        //TODO add HOST,
+
+        //add expiration date
+        if ( response.expires() ) {
+            time_t now = time ( nullptr );
+            struct tm then_tm = *gmtime ( &now );
+            then_tm.tm_sec += response.expires();
+            mktime ( &then_tm );
+            response.parameter ( header::EXPIRES, http::utils::time_to_string ( &then_tm ) );
+        }
+
+        //add now
+        time_t now = time ( nullptr );
+        struct tm now_tm = *gmtime ( &now );
+        mktime ( &now_tm );
+        response.parameter ( header::DATE, http::utils::time_to_string ( &now_tm ) );
+
+        //add mime-type
+        // ss << header::CONTENT_TYPE << ": " << parameters_[header::CONTENT_TYPE] << "\r\n";
+    }
+};
+
+class EmptyParameter {
+public:
+    static void execute ( auto&, auto& ) {}
+};
+
 /**
  * The http status types.
  * @brief http status types.

@@ -44,21 +44,11 @@ TEST ( HttpResponseTest, StringStreamSize ) {
 
 	HttpResponse response_;
 	response_ << "abc";
-	EXPECT_EQ ( 3U, response_.size() );
+    EXPECT_EQ ( 3, response_.tellp() );
 	response_ << "def";
-	EXPECT_EQ ( 6U, response_.size() );
+    EXPECT_EQ ( 6, response_.tellp() );
 	response_ << "ghi";
-	EXPECT_EQ ( 9U, response_.size() );
-}
-
-TEST ( HttpResponseTest, TestStreamException ) {
-
-	HttpResponse response_;
-	response_.istream ( std::make_unique< std::stringstream >() );
-	ASSERT_THROW ( {
-		response_.istream ( std::make_unique< std::stringstream >() );
-	}, std::logic_error );
-
+    EXPECT_EQ ( 9, response_.tellp() );
 }
 
 TEST ( HttpResponseTest, HeadersToArray ) {
@@ -96,11 +86,17 @@ TEST ( HttpResponseTest, BodyToArray ) {
 	_response << _test_string;
 
 	buffer_t _array;
-	size_t _size = _response.read ( _array );
-	EXPECT_EQ ( _test_string.size(), _size );
-	std::string _result ( _array.data(), 0, _size );
-	EXPECT_EQ ( _test_string.size(), _result.size() );
-	EXPECT_EQ ( _test_string, _result );
+    size_t _size = 0;
+    std::stringstream _ss_result;
+    do {
+        size_t _chunk_size =_response.read ( _array );
+        _ss_result.write( _array.data(), _chunk_size );
+        _size += _chunk_size;
+    } while( _size < _test_string.size() );
+
+    EXPECT_EQ ( _ss_result.str().size(), _size );
+    EXPECT_EQ ( _test_string.size(), _ss_result.str().size() );
+    EXPECT_EQ ( _test_string, _ss_result.str() );
 }
 
 TEST ( HttpResponseTest, LargeBodyToArray ) {

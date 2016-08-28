@@ -28,39 +28,6 @@
 namespace http {
 namespace delegate {
 
-void WebSocketDelegate::execute ( HttpRequest & request, HttpResponse & response ) {
-	std::cout << "WebSocket:" << request.uri() << std::endl;
-
-	for ( auto & item : request.parameterMap() ) {
-		std::cout << item.first << "= '" << item.second << "'" << std::endl;
-	}
-
-	if ( request.contains_parameter ( "Connection" ) && request.parameter ( "Connection" ) == "Upgrade" &&
-			request.contains_parameter ( "Upgrade" ) && request.parameter ( "Upgrade" ) == "websocket" ) {
-		std::cout << "WebSocket Request" << std::endl;
-		response.status ( http_status::SWITCHING_PROTOCOL );
-		response.parameter ( "Sec-WebSocket-Accept", calculate_key ( request.parameter ( "Sec-Websocket-Key" ) ) );
-		response.parameter ( "Upgrade", "websocket" );
-		response.parameter ( "Connection", "Upgrade" );
-
-		if ( request.contains_parameter ( "Sec-WebSocket-Protocol" ) ) {
-			for ( auto & __proto : utils::parse_csv ( request.parameter ( "Sec-WebSocket-Protocol" ) ) ) {
-				if ( std::find ( protocols_.begin(), protocols_.end(), __proto ) != protocols_.end() ) {
-					response.parameter ( "Sec-WebSocket-Protocol", __proto );
-					break;
-				}
-			}
-
-			if ( ! response.contains_parameter ( "Sec-WebSocket-Protocol" ) ) {
-				std::cout << "no valid protocol found." << std::endl;
-			}
-		}
-
-	} else {
-		std::cout << "Regular Request" << std::endl;
-	}
-}
-
 std::string WebSocketDelegate::calculate_key ( const std::string & request_key ) {
 	std::stringstream ss_;
 	ss_ << request_key << _key;

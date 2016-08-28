@@ -16,6 +16,10 @@
 #ifndef WEBSERVERCALLBACK_H
 #define WEBSERVERCALLBACK_H
 
+#include "re2/re2.h"
+
+#include "httpconfig.h"
+
 namespace http {
 
 template< class HeaderParameter >
@@ -28,18 +32,18 @@ public:
 	WebServerCallBack& operator= ( WebServerCallBack&& ) = delete;
 	~WebServerCallBack() {}
 
-	std::function< bool ( HttpRequest&, HttpResponse& ) > bind (  const std::string & uri, http_delegate_t && delegate ) {
+    webserver_delegate_t bind (  const std::string & uri, http_delegate_t && delegate ) {
 		_uri = uri;
 		_delegate = std::move ( delegate );
 		return std::bind ( &WebServerCallBack::execute, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2 );
 	};
 
 private:
-	bool execute ( HttpRequest & request, HttpResponse & response ) {
-        if ( request.uri() == _uri || _uri == "*" ) {
-			_delegate ( request, response );
-			HeaderParameter::execute ( request, response );
-			return true;
+    bool execute ( HttpRequest & request, HttpResponse & response ) {
+        if ( request.uri() == _uri || _uri == "*" || RE2::FullMatch ( request.uri(), _uri ) ) {
+            _delegate ( request, response );
+            HeaderParameter::execute ( request, response );
+            return true;
 
 		} else { return false; }
 	}

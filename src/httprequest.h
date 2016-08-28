@@ -33,8 +33,27 @@ namespace http {
  */
 class HttpRequest {
 public:
-	HttpRequest();
-	HttpRequest ( const std::string & path );
+
+    /**
+     * @brief HttpRequest
+     */
+    HttpRequest() :
+        method_ ( std::string ( method::GET ) ), uri_ ( "" ), protocol_ ( "HTTP" ), remote_ip_ ( std::string ( "" ) ),
+        body_size_ ( 0 ), http_version_major_ ( 1 ), http_version_minor_ ( 1 ),
+        parameters_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
+        attributes_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
+        out_body_ ( std::shared_ptr< std::stringstream > ( new std::stringstream() ) ) {}
+
+    /**
+     * @brief HttpRequest
+     * @param path
+     */
+    HttpRequest ( const std::string & path ) :
+        method_ ( std::string ( method::GET ) ), uri_ ( path ), protocol_ ( "HTTP" ), remote_ip_ ( std::string ( "" ) ),
+        body_size_ ( 0 ), http_version_major_ ( 1 ), http_version_minor_ ( 1 ),
+        parameters_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
+        attributes_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
+        out_body_ ( std::shared_ptr< std::stringstream > ( new std::stringstream() ) ) {}
 
 	HttpRequest ( const HttpRequest& ) = delete;
 	HttpRequest ( HttpRequest&& ) = delete;
@@ -43,92 +62,189 @@ public:
 	~HttpRequest() {}
 
 	/** @brief Set a request parameter. */
-	void parameter ( const std::string & name, const std::string & value );
+    void parameter ( const std::string & name, const std::string & value )
+    { parameters_[name] = value; }
 	/** @brief Get a request paremeter */
-	std::string parameter ( const std::string & name );
+    std::string parameter ( const std::string & name )
+    { return parameters_[name]; }
 	/** @brief Contains request parameter by key. */
-	bool contains_parameter ( const std::string & name );
+    bool contains_parameter ( const std::string & name )
+    { return parameters_.find ( name ) != parameters_.end(); }
 	/** @brief Get the request parameter names. */
-	std::vector<std::string> parameter_names() const;
+    std::vector<std::string> parameter_names() const {
+        std::vector< std::string > result;
+
+        for ( auto r : parameters_ )
+        { result.push_back ( r.first ); }
+
+        return result;
+    }
 	/** @brief Get a copy of the request parameter map. */
-	std::map< std::string, std::string, utils::KeyICompare > parameterMap() const;
+    std::map< std::string, std::string, utils::KeyICompare > parameter_map() const
+    { return parameters_; }
+
 	/** @brief Set a request attribute. */
-	void attribute ( const std::string & name, const std::string & value );
+    void attribute ( const std::string & name, const std::string & value )
+    { attributes_[name] = value; }
 	/** @brief Get a request attribute */
-	std::string attribute ( const std::string & name );
+    std::string attribute ( const std::string & name )
+    { return attributes_[name]; }
 	/** @brief Contains request attribute by key. */
-	bool contains_attribute ( const std::string & name );
+    bool contains_attribute ( const std::string & name )
+    { return attributes_.find ( name ) != attributes_.end(); }
 	/** @brief Get the request attribute names. */
-	std::list<std::string> attributeNames() const;
+    std::list<std::string> attribute_names() const {
+        std::list< std::string > result;
+
+        for ( auto r : attributes_ )
+        { result.push_back ( r.first ); }
+
+        return result;
+    }
 	/** @brief Get a copy of the request parameter map. */
-	std::map< std::string, std::string, utils::KeyICompare > attributeMap() const;
+    std::map< std::string, std::string, utils::KeyICompare > attribute_map() const
+    { return attributes_; }
 
 	/** @brief Set the request method. */
-	void method ( const std::string & method );
+    void method ( const std::string & method )
+    { method_ = method; }
 	/** @brief Get the request method. */
-	std::string method() const;
+    std::string method() const
+    { return method_; }
 	/** @brief Set the request protocol. */
-	void protocol ( const std::string & protocol );
+    void protocol ( const std::string & protocol )
+    { protocol_ = protocol; }
 	/** @brief Get the request protocol. */
-	std::string protocol() const;
+    std::string protocol() const
+    { return protocol_; }
 	/** @brief Get the request path. */
-	std::string uri() const;
+    std::string uri() const
+    { return uri_; }
 	/** @brief Set the request path. */
-	void uri ( const std::string & uri );
+    void uri ( const std::string & uri )
+    { uri_ = uri; }
 	/** @brief Set the http major version. */
-	void version_major ( const int & http_version_major );
+    void version_major ( const int & http_version_major )
+    { http_version_major_ = http_version_major; }
 	/** @brief Get the http major version. */
-	int version_major() const;
+    int version_major() const
+    { return http_version_major_; }
 	/** @brief Set the http minor version. */
-	void version_minor ( const int & http_version_minor );
+    void version_minor ( const int & http_version_minor )
+    { http_version_minor_ = http_version_minor; }
 	/** @brief Get the http minor version. */
-	int version_minor() const;
+    int version_minor() const
+    { return http_version_minor_; }
 	/** @brief Get the remote IP. */
-	std::string remote_ip() const;
+    std::string remote_ip() const
+    { return remote_ip_; }
 	/** @brief Set the remote IP. */
-	void remote_ip ( const std::string & remote_ip );
+    void remote_ip ( const std::string & remote_ip )
+    { remote_ip_ = remote_ip; }
 	/** @brief Persistent connection. */
-	bool persistent();
-	/** @brief Set persistend connection. */
-	void persistent ( bool persistent );
+    bool persistent() {
+        if ( parameters_[ header::CONNECTION ] == header::CONNECTION_KEEP_ALIVE ) {
+            return true;
 
+        } else if ( parameters_[ header::CONNECTION ] == header::CONNECTION_CLOSE ) {
+            return false;
+
+        } else if ( http_version_major_ == 1 && http_version_minor_ == 1 ) {
+            return true;
+
+        } else { return false; }
+    }
+	/** @brief Set persistend connection. */
+    void persistent ( bool persistent ) {
+        if ( persistent )
+        { parameters_[header::CONNECTION] = header::CONNECTION_KEEP_ALIVE; }
+
+        else
+        { parameters_[header::CONNECTION] = header::CONNECTION_CLOSE; }
+    }
+
+
+    /* ------------------------------------------------------------------------------------------------------------------ */
+    /*                                            stream realated methods                                                 */
+    /* ------------------------------------------------------------------------------------------------------------------ */
 
 	/**
 	 * @brief write the header to the buffer.
 	 * @param buffer
 	 * @return
 	 */
-	size_t header ( buffer_t & buffer );
+    size_t header ( buffer_t & buffer ) {
+        // create status line
+        int _position = snprintf ( buffer.data(), BUFFER_SIZE, "%s %s %s/%d.%d\r\n", method_.c_str(), uri_.c_str(), protocol_.c_str(), http_version_major_, http_version_minor_ );
+
+        if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
+
+        for ( auto & _header : parameters_ ) {
+            _position += snprintf ( buffer.data() +_position, BUFFER_SIZE-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
+
+            if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
+        }
+
+        _position += snprintf ( buffer.data()+_position, BUFFER_SIZE-_position, "\r\n" );
+        return _position;
+    }
+
 	/**
 	 * @brief content write content to the buffer.
 	 * @param buffer
 	 * @param index
 	 * @param count
 	 */
-	void content ( buffer_t & buffer, const size_t & index, const size_t & count );
+    void write ( buffer_t & buffer, const size_t & index, const size_t & count ) {
+        out_body_->write( buffer.data()+index, count );
+    }
 
-	/** TODO
-	 * @brief Get the request body.
-	 * @return
-	 */
-	const std::string requestBody() const;
+    auto tellp()
+    { return out_body_->tellp(); }
 
-	template< class T >
+    auto tellg()
+    { return out_body_->tellg(); }
+
 	/**
 	 * @brief operator <<
 	 * @param in
 	 */
-	void operator<< ( const T & in ) {
+    template< class T >
+    void operator<< ( const T & in ) {
 		( *std::dynamic_pointer_cast<std::stringstream> ( out_body_ ) ) << in;
-	}
+    }
 
-	/**
+    std::string str()
+    { return ( *std::dynamic_pointer_cast<std::stringstream> ( out_body_ ) ).str(); }
+    /* ------------------------------------------------------------------------------------------------------------------ */
+
+
+    /**
 	 * @brief output the request as string.
 	 * @param out
 	 * @param request
 	 * @return
 	 */
-	friend std::ostream& operator<< ( std::ostream& out, const http::HttpRequest & request );
+    friend std::ostream& operator<< ( std::ostream& out, const HttpRequest & request ) {
+        //TODO fprint
+        out << "http::HttpRequest: \n";
+        out << request.method_ << " " << request.uri_ << " " << request.protocol_ << "/" << request.http_version_major_ << "." << request.http_version_minor_ << "\n";
+        out << "Parameters:\n";
+
+        for ( auto request_line : request.parameters_ ) {
+            out << "\t" << request_line.first << ": " << request_line.second << "\n";
+        }
+
+        if ( request.attributes_.size() > 0 ) {
+            out << "Attributes:\n";
+
+            for ( auto parameter : request.attributes_ ) {
+                out << "\t" << parameter.first << ": " << parameter.second << "\n";
+            }
+        }
+
+        return out;
+    }
 
 private:
 	std::string method_, uri_, protocol_, remote_ip_;
@@ -138,9 +254,8 @@ private:
 	std::map< std::string, std::string, utils::KeyICompare > parameters_;
 	std::map< std::string, std::string, utils::KeyICompare > attributes_;
 
-	std::shared_ptr< std::istream > out_body_;
+    std::shared_ptr< std::stringstream > out_body_;
 };
-
 } //http
 #endif // HTTPREQUEST
 

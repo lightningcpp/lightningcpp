@@ -61,7 +61,7 @@ TEST ( HttpServerTest, TestCreateServer ) {
 		EXPECT_EQ ( 1, request.version_major() );
 		EXPECT_EQ ( 0, request.version_minor() );
 
-		EXPECT_EQ ( 3U, request.parameterMap().size() );
+        EXPECT_EQ ( 3U, request.parameter_map().size() );
 		EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
 		EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
 		EXPECT_EQ ( "close", request.parameter ( http::header::CONNECTION ) );
@@ -89,7 +89,7 @@ TEST ( HttpServerTest, TestReadChunkedHeader ) {
 		EXPECT_EQ ( 1, request.version_major() );
 		EXPECT_EQ ( 0, request.version_minor() );
 
-		EXPECT_EQ ( 3U, request.parameterMap().size() );
+        EXPECT_EQ ( 3U, request.parameter_map().size() );
 
 		EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
 		EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
@@ -131,16 +131,14 @@ TEST ( HttpServerTest, TestReadBody ) {
 		EXPECT_EQ ( 1, request.version_major() );
 		EXPECT_EQ ( 0, request.version_minor() );
 
-		EXPECT_EQ ( 4U, request.parameterMap().size() );
+        EXPECT_EQ ( 4U, request.parameter_map().size() );
 
 		EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
 		EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
 		EXPECT_EQ ( "close", request.parameter ( http::header::CONNECTION ) );
 		EXPECT_EQ ( "105", request.parameter ( http::header::CONTENT_LENGTH ) );
 
-		std::stringstream _ss;
-		_ss << request.requestBody();
-		EXPECT_EQ ( "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.", _ss.str() );
+        EXPECT_EQ ( "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.", request.str() );
 
 		response.status ( http::http_status::OK );
 		response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
@@ -171,14 +169,14 @@ TEST ( HttpServerTest, DISABLED_TestReadChunkedEncoding ) { //TODO
 	HttpServer _server ( "127.0.0.1", 9000, [&_call_back_called] ( HttpRequest & request, HttpResponse & ) {
 		_call_back_called = true;
 		std::string _res = "Wikipedia in\r\n\r\nchunks.";
-		EXPECT_EQ ( 4U, request.parameterMap().size() );
+        EXPECT_EQ ( 4U, request.parameter_map().size() );
 		EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
 		EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
 		EXPECT_EQ ( "close", request.parameter ( http::header::CONNECTION ) );
 		EXPECT_EQ ( "chunked", request.parameter ( http::header::TRANSFER_ENCODING ) );
 		EXPECT_FALSE ( request.persistent() );
 
-		std::string _body = request.requestBody();
+        std::string _body = request.str();
 		EXPECT_EQ ( _res, _body );
 	} );
 	// _server.run();
@@ -244,7 +242,7 @@ TEST ( HttpServerTest, TestResponse ) {
 		EXPECT_EQ ( 1, request.version_major() );
 		EXPECT_EQ ( 0, request.version_minor() );
 
-		EXPECT_EQ ( 3U, request.parameterMap().size() );
+        EXPECT_EQ ( 3U, request.parameter_map().size() );
 
 		EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
 		EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
@@ -255,7 +253,6 @@ TEST ( HttpServerTest, TestResponse ) {
 		response.parameter ( header::CONTENT_LENGTH, std::to_string ( _test_string.size() ) );
 		response << _test_string;
 	} );
-	// _server.run();
 
 	/** send a request **/
 
@@ -325,7 +322,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV10 ) {
 		EXPECT_EQ ( 1, request.version_major() );
 		EXPECT_EQ ( 1, request.version_minor() );
 
-		EXPECT_EQ ( 3U, request.parameterMap().size() );
+        EXPECT_EQ ( 3U, request.parameter_map().size() );
 
 		EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
 		EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
@@ -402,6 +399,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV10 ) {
 		EXPECT_FALSE ( error );
 
 		size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
+        std::cout << error << std::endl;
 		EXPECT_FALSE ( error );
 
 		utils::HttpParser _parser;
@@ -443,7 +441,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV11 ) {
 		EXPECT_EQ ( 1, request.version_major() );
 		EXPECT_EQ ( 1, request.version_minor() );
 
-		EXPECT_EQ ( 2U, request.parameterMap().size() );
+        EXPECT_EQ ( 2U, request.parameter_map().size() );
 
 		EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
 		EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
