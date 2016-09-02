@@ -24,6 +24,8 @@
 
 namespace http {
 
+using namespace std::placeholders;
+
 class HttpRequest;
 class HttpResponse;
 
@@ -160,6 +162,46 @@ static const std::string    FORM_URLENCODED     =   "application/x-www-form-urle
 } //http
 
 namespace http {
+
+struct InputOutputBuffer {
+    enum MODE { IOBuffer, InputStream, BufferDelegate, WriteTo } mode = IOBuffer;
+
+    auto tellp()
+    { return body_ostream_->tellp(); }
+
+    auto tellg()
+    { return (  body_istream_ != nullptr ? body_istream_->tellg() : body_ostream_->tellg() ); }
+
+    auto read( buffer_t & buffer ) {
+        if( body_istream_ ) {
+            return body_istream_->readsome( buffer.data(), BUFFER_SIZE );
+        } else {
+            return body_ostream_->readsome( buffer.data(), BUFFER_SIZE );
+        }
+    }
+
+    void write( buffer_t & buffer, size_t index, size_t size )
+    { body_ostream_->write( buffer.data()+index, size ); }
+
+    void istream ( std::unique_ptr< std::istream > && is )
+    { body_istream_ = std::move ( is ); }
+
+    /**
+     * @brief write to the buffer
+     * @param value
+     * @return
+     */
+    template< class T >
+    HttpResponse & operator<< ( const T & value ) {
+        *(body_ostream_) << value;
+        return *this;
+    }
+private:
+    std::unique_ptr< std::stringstream > body_ostream_;
+    std::unique_ptr< std::istream > body_istream_;
+
+};
+
 class DefaultParameter {
 public:
     static void execute ( auto&, auto & response ) {

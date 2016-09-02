@@ -17,6 +17,7 @@
 #define WEBSERVER_H
 
 #include <functional>
+#include <type_traits>
 
 #include "httpconfig.h"
 #include "httprequest.h"
@@ -29,7 +30,88 @@
 
 namespace http {
 
+template < int position, class ParameterParser, class... Args >
+struct MakeWebserverDelegate {
+    static auto value() {
+        return std::make_shared< WebServerReCallBack< ParameterParser, Args ... > >();
+    }
+};
+template < class ParameterParser, class... Args >
+struct MakeWebserverDelegate< 0, ParameterParser, Args... > {
+    static auto value() {
+        return std::make_shared< WebServerCallBack< ParameterParser > >();
+    }
+};
+
+/*
+ * Bind the delegate function to the WebserverDelegate object.
+ */
+
+template < int placeholder_size, class... Args >
+struct BindDelegateMethod {
+    template < class Delegate, class Fn, class... Placeholders >
+    static webserver_delegate_t bind( Delegate & delegate, const std::string & uri, Fn&& fn, Placeholders... placeholders ) {
+        std::function<void( HttpRequest&, HttpResponse&, Args... ) > _del = std::bind( fn, placeholders... );
+        return ( delegate->bind ( uri, std::move( _del ) ) );
+    }
+};
+template < class... Args >
+struct BindDelegateMethod< 1, Args... > {
+    template < class Delegate, class Fn, class... Placeholders >
+    static webserver_delegate_t bind( Delegate & delegate, const std::string & uri, Fn&& fn, Placeholders... placeholders ) {
+        std::function<void(HttpRequest&, HttpResponse&)> _del = std::bind( fn, placeholders..., _1, _2  );
+        return delegate->bind ( uri, std::move( _del ) );
+    }
+};
+template < class... Args >
+struct BindDelegateMethod< 0, Args... > {
+    template < class Delegate, class Fn, class... Placeholders >
+    static webserver_delegate_t bind( Delegate & delegate, const std::string & uri, Fn&& fn, Placeholders... ) {
+        return delegate->bind ( uri, std::move( fn ) );
+    }
+};
+
+template < class ParameterParser, class... Args >
+struct BindWebserverDelegate {
+    template< class Fn, class... Placeholders >
+    static webserver_delegate_t value( std::string uri, Fn&& fn, Placeholders... placeholders ) {
+        static const std::size_t size_types = sizeof...(Args);
+        auto _delegate = MakeWebserverDelegate< size_types, ParameterParser, Args... >::value();
+        static const std::size_t size_placeholders = sizeof...(Placeholders);
+        return BindDelegateMethod< size_placeholders, Args... >::bind ( _delegate, uri, fn, placeholders... );
+    }
+};
+
+template < class ParameterParser, class... Args >
+struct BindUriMatch {
+    template< class Fn, class... Placeholders >
+    static webserver_delegate_t value( std::string uri, Fn&& fn, Placeholders... placeholders ) {
+        static const std::size_t size_types = sizeof...(Args);
+        auto _delegate = MakeWebserverDelegate< size_types, ParameterParser, Args... >::value();
+        static const std::size_t size_placeholders = sizeof...(Placeholders);
+        return BindDelegateMethod< size_placeholders, Args... >::bind ( _delegate, uri, fn, placeholders... );
+    }
+};
+
+
 template< typename T >
+/**
+ * @brief The WebServer class.
+ *
+ * the request execution call flow:
+ *\msc
+ *  T, WebServer, WebServerDelegate, HeaderParameter, Delegate;
+ *
+ *  T->WebServer [label="Request, Response", URL="\ref WebServer::execute( Request&, Response& )"];
+ *  WebServer->WebServerDelegate [label="execute(Request&, Response&)"];
+ *  WebServerDelegate->Delegate [label="execute( \n Request&, \n Response&, \n Args... )" ];
+ *  WebServerDelegate<-Delegate [label="bool" ];
+ *  WebServerDelegate->HeaderParameter [label="set header parameter"];
+ *  WebServerDelegate<-HeaderParameter [label="void"];
+ *  WebServer<-WebServerDelegate [label="void"];
+ *  T<-WebServer [label="void"];
+ *\endmsc
+ */
 class WebServer : T {
 public:
 	WebServer ( const std::string & ip, const int & port ) :
@@ -41,17 +123,24 @@ public:
 	virtual ~WebServer() {}
 
 
-    template< class ... Args >
-    void bind ( const std::string & uri, std::function< void ( HttpRequest&, HttpResponse&, Args... ) > && delegate ) {
-        std::shared_ptr< WebServerReCallBack< DefaultParameter, Args... > > cb = std::make_shared< WebServerReCallBack< DefaultParameter, Args ... > >();
-		_delegates.push_back ( cb->bind ( uri, std::move ( delegate ) ) );
-	}
+    /**
+     * @brief bind delegate
+     * @param uri the uri for this delegate
+     * @param fn the delegate function pointer
+     * @param placeholders the placeholders for the argument
+     */
+    template< class ParameterParser = DefaultParameter, class... Types, class Fn, class ... Placeholders >
+    void bind( const std::string & uri, Fn && fn, Placeholders&&... placeholders ) {
+        _delegates.push_back ( BindWebserverDelegate< ParameterParser, Types... >::value( uri, fn, placeholders... ) );
+    }
 
-    void bind ( const std::string & uri, http_delegate_t && delegate ) {
-        std::shared_ptr< WebServerCallBack< DefaultParameter > > cb = std::make_shared< WebServerCallBack< DefaultParameter > >();
-		_delegates.push_back ( cb->bind ( uri, std::move ( delegate ) ) );
-	}
-	/**
+    template< class Fn >
+    void add( Fn && fn ) {
+        _delegates.push_back ( fn );
+    }
+
+
+    /**
 	 * @brief bind error delegate
 	 * @param status the http status for this delegate
 	 * @param delegate the delegate
@@ -94,22 +183,8 @@ public:
 
 private:
     std::list< webserver_delegate_t > _delegates;
-	std::map<http_status, http_delegate_t > _error_delegates {
-		{ http_status::BAD_GATEWAY, ErrorDelegate<>::bind ( http::response::BAD_GATEWAY ) },
-		{ http_status::BAD_REQUEST, ErrorDelegate<>::bind ( http::response::BAD_REQUEST ) },
-		{ http_status::CREATED, ErrorDelegate<>::bind ( http::response::CREATED ) },
-		{ http_status::FORBIDDEN, ErrorDelegate<>::bind ( http::response::FORBIDDEN ) },
-		{ http_status::INTERNAL_SERVER_ERROR, ErrorDelegate<>::bind ( http::response::INTERNAL_SERVER_ERROR ) },
-		{ http_status::MOVED_PERMANENTLY, ErrorDelegate<>::bind ( http::response::MOVED_PERMANENTLY ) },
-		{ http_status::MULTIPLE_CHOICES, ErrorDelegate<>::bind ( http::response::MULTIPLE_CHOICES ) },
-		{ http_status::NOT_FOUND, ErrorDelegate<>::bind ( http::response::NOT_FOUND ) },
-		{ http_status::NOT_IMPLEMENTED, ErrorDelegate<>::bind ( http::response::NOT_IMPLEMENTED ) },
-		{ http_status::NOT_MODIFIED, ErrorDelegate<>::bind ( http::response::NOT_MODIFIED ) },
-		{ http_status::NO_CONTENT, ErrorDelegate<>::bind ( http::response::NO_CONTENT ) },
-		{ http_status::SERVICE_UNAVAILABLE, ErrorDelegate<>::bind ( http::response::SERVICE_UNAVAILABLE ) },
-		{ http_status::UNAUTHORIZED, ErrorDelegate<>::bind ( http::response::UNAUTHORIZED ) }
-	};
-	/**
+
+    /**
 	 * @brief error handler
 	 * @param status
 	 */
@@ -136,11 +211,27 @@ private:
 			response.status ( http_status::INTERNAL_SERVER_ERROR );
 		}
 	}
-	inline std::string make_error_uri ( http_status status ) {
+    static std::string make_error_uri ( http_status status ) {
         std::stringstream _buf;
         _buf << "/" << static_cast< int > ( status ) << ".html";
         return _buf.str();
-	}
+    }
+
+    std::map<http_status, http_delegate_t > _error_delegates {
+        { http_status::BAD_GATEWAY, ErrorDelegate<>::bind ( http::response::BAD_GATEWAY ) },
+        { http_status::BAD_REQUEST, ErrorDelegate<>::bind ( http::response::BAD_REQUEST ) },
+        { http_status::CREATED, ErrorDelegate<>::bind ( http::response::CREATED ) },
+        { http_status::FORBIDDEN, ErrorDelegate<>::bind ( http::response::FORBIDDEN ) },
+        { http_status::INTERNAL_SERVER_ERROR, ErrorDelegate<>::bind ( http::response::INTERNAL_SERVER_ERROR ) },
+        { http_status::MOVED_PERMANENTLY, ErrorDelegate<>::bind ( http::response::MOVED_PERMANENTLY ) },
+        { http_status::MULTIPLE_CHOICES, ErrorDelegate<>::bind ( http::response::MULTIPLE_CHOICES ) },
+        { http_status::NOT_FOUND, ErrorDelegate<>::bind ( http::response::NOT_FOUND ) },
+        { http_status::NOT_IMPLEMENTED, ErrorDelegate<>::bind ( http::response::NOT_IMPLEMENTED ) },
+        { http_status::NOT_MODIFIED, ErrorDelegate<>::bind ( http::response::NOT_MODIFIED ) },
+        { http_status::NO_CONTENT, ErrorDelegate<>::bind ( http::response::NO_CONTENT ) },
+        { http_status::SERVICE_UNAVAILABLE, ErrorDelegate<>::bind ( http::response::SERVICE_UNAVAILABLE ) },
+        { http_status::UNAUTHORIZED, ErrorDelegate<>::bind ( http::response::UNAUTHORIZED ) }
+    };
 };
 
 }//namespace http

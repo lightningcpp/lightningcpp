@@ -51,7 +51,8 @@ public:
 	/** @brief Check if response contains parameter. */
 	bool contains_parameter ( const std::string & key )
 	{ return ( parameters_.find ( key ) != parameters_.end() ); }
-
+    /** @brief parameter size. */
+    size_t parameter_size () { return parameters_.size(); }
 	/** @brief expire time in seconds. if not set no header will be added. */
 	void expires ( int seconds ) { expires_ = seconds; }
 	/** @brief expire time in seconds. if not set no header will be added. */

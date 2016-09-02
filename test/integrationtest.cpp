@@ -41,9 +41,9 @@ TEST ( IntegrationTest, GetSimpleSmalFile ) {
 
 	//create the server
 	WebServer< HttpServer > server ( "127.0.0.1", 9999 );
-	server.bind ( "*", std::function< void ( HttpRequest&, HttpResponse& ) > ( [] ( HttpRequest&, HttpResponse & response ) {
-		response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL";
-	} ) );
+    server.bind ( "*", [] ( HttpRequest&, HttpResponse & response ) {
+        response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL";
+    } );
 
 	HttpClient client_ ( "localhost", "9999" );
 	HttpRequest request_ ( "/simple.txt" );
@@ -57,8 +57,7 @@ TEST ( IntegrationTest, GetSimpleLargeFile ) {
 	//create the server
 	WebServer< HttpServer > server ( "127.0.0.1", 9999 );
 	delegate::FileDelegate file_delegate ( TESTFILES );
-	server.bind ( "*", std::function< void ( HttpRequest&, HttpResponse& ) > (
-					  std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+    server.bind ( "*", &delegate::FileDelegate::execute, &file_delegate );
 
 	HttpClient client_ ( "localhost", "9999" );
 	HttpRequest request_ ( "/files/The%20Divine%20Comedy.txt" );
@@ -75,8 +74,7 @@ TEST ( IntegrationTest, GetSimpleLargeFileAsFile ) {
 	//create the server
 	WebServer< HttpServer > server ( "127.0.0.1", 9999 );
 	delegate::FileDelegate file_delegate ( TESTFILES );
-	server.bind ( "*", std::function< void ( HttpRequest&, HttpResponse& ) > (
-					  std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+    server.bind( "*", &delegate::FileDelegate::execute, &file_delegate );
 
 	HttpClient client_ ( "localhost", "9999" );
 	HttpRequest request_ ( "/files/The%20Divine%20Comedy.txt" );
@@ -93,8 +91,7 @@ TEST ( IntegrationTest, RepeatGetSimpleLargeFile ) {
 	//create the server
 	WebServer< HttpServer > server ( "127.0.0.1", 9999 );
 	delegate::FileDelegate file_delegate ( TESTFILES );
-	server.bind ( "*", std::function< void ( HttpRequest&, HttpResponse& ) > (
-					  std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+    server.bind ( "*", &delegate::FileDelegate::execute, &file_delegate );
 
 	for ( int i = 0; i<100; ++i ) {
 		HttpClient client_ ( "localhost", "9999" );
@@ -110,12 +107,12 @@ TEST ( IntegrationTest, GetReMatchFile ) {
 
     //create the server
     WebServer< HttpServer > server ( "127.0.0.1", 9999 );
-    server.bind ( "/foo/.*", std::function< void ( HttpRequest&, HttpResponse& ) > ( [] ( HttpRequest & request, HttpResponse & response ) {
+    server.bind ( "/foo/.*", [] ( HttpRequest & request, HttpResponse & response ) {
         response << request.uri();
-    } ) );
-    server.bind ( "/foo", std::function< void ( HttpRequest&, HttpResponse& ) > ( [] ( HttpRequest&, HttpResponse & response ) {
+    } );
+    server.bind ( "/foo", [] ( HttpRequest&, HttpResponse & response ) {
         response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL";
-    } ) );
+    } );
 
     {
         HttpClient client_ ( "localhost", "9999" );
@@ -139,8 +136,7 @@ TEST ( IntegrationTest, GetFileNotFound ) {
 	//create the server
 	WebServer< HttpServer > server ( "127.0.0.1", 9999 );
 	delegate::FileDelegate file_delegate ( TESTFILES );
-	server.bind ( "*", std::function< void ( HttpRequest&, HttpResponse& ) > (
-					  std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+    server.bind ( "*", &delegate::FileDelegate::execute, &file_delegate );
 
 	HttpClient client_ ( "localhost", "9999" );
 	HttpRequest request_ ( "/foo.txt" );
@@ -156,8 +152,7 @@ TEST ( IntegrationTest, CustomGetFileNotFound ) {
 	WebServer< HttpServer > server ( "127.0.0.1", 9999 );
 	server.bind_error_delegate ( http_status::NOT_FOUND, ErrorDelegate<>::bind ( "404" ) );
 	delegate::FileDelegate file_delegate ( TESTFILES );
-	server.bind ( "*", std::function< void ( HttpRequest&, HttpResponse& ) > (
-					  std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+    server.bind ( "*", &delegate::FileDelegate::execute, &file_delegate );
 
 	HttpClient client_ ( "localhost", "9999" );
 	HttpRequest request_ ( "/foo.txt" );
@@ -173,8 +168,7 @@ TEST ( IntegrationTest, CustomFileDelegateGetFileNotFound ) {
 	WebServer< HttpServer > server ( "127.0.0.1", 9999 );
 	delegate::FileDelegate file_delegate ( TESTFILES );
 	server.bind_error_delegate ( http_status::NOT_FOUND, std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) );
-	server.bind ( "*", std::function< void ( HttpRequest&, HttpResponse& ) > (
-					  std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+    server.bind( "*", &delegate::FileDelegate::execute, &file_delegate );
 
 	HttpClient client_ ( "localhost", "9999" );
 	HttpRequest request_ ( "/foo.txt" );
@@ -190,8 +184,7 @@ TEST ( IntegrationTest, MultiThreadingTest ) {
 		//create the server
 		WebServer< HttpServer > server ( "127.0.0.1", 9999 );
 		delegate::FileDelegate file_delegate ( TESTFILES );
-		server.bind ( "*", std::function< void ( HttpRequest&, HttpResponse& ) > (
-						  std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+        server.bind ( "*", &delegate::FileDelegate::execute, &file_delegate );
 
 		std::list< std::thread > threads_;
 		std::atomic< int > count1 ( 0 );

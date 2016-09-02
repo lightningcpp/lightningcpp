@@ -30,11 +30,9 @@ int main(int argc, char * argv[] ) {
 
     http::delegate::FileDelegate file_test_delegate( TESTFILES );
     http::delegate::FileDelegate file_doc_delegate( DOCFILES );
-    server.bind( "/socketserver", std::bind( &http::delegate::WebSocketDelegate::execute, &ws_, std::placeholders::_1, std::placeholders::_2 ) );
-    server.bind( "/html/.*", std::function< void( http::HttpRequest&, http::HttpResponse& ) >(
-                     std::bind( &http::delegate::FileDelegate::execute, &file_doc_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
-    server.bind( "*", std::function< void( http::HttpRequest&, http::HttpResponse& ) >(
-                     std::bind( &http::delegate::FileDelegate::execute, &file_test_delegate, std::placeholders::_1, std::placeholders::_2 ) ) );
+    server.bind( "/socketserver", &http::delegate::WebSocketDelegate::execute, &ws_ );
+    server.bind( "/html/.*", &http::delegate::FileDelegate::execute, &file_doc_delegate );
+    server.bind( "*", &http::delegate::FileDelegate::execute, &file_test_delegate );
 
     // register signal SIGINT and signal handler
     signal(SIGINT, signalHandler);

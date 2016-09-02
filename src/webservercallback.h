@@ -35,12 +35,16 @@ public:
     webserver_delegate_t bind (  const std::string & uri, http_delegate_t && delegate ) {
 		_uri = uri;
 		_delegate = std::move ( delegate );
-		return std::bind ( &WebServerCallBack::execute, this->shared_from_this(), std::placeholders::_1, std::placeholders::_2 );
+        using namespace std::placeholders;
+        return std::bind ( &WebServerCallBack::execute, this->shared_from_this(), _1, _2 );
 	};
 
 private:
+    bool match ( const std::string & left, const std::string & right ) {
+        return RE2::FullMatch ( left, right ); //TODO also use std::regexp
+    }
     bool execute ( HttpRequest & request, HttpResponse & response ) {
-        if ( request.uri() == _uri || _uri == "*" || RE2::FullMatch ( request.uri(), _uri ) ) {
+        if ( request.uri() == _uri || _uri == "*" || match ( request.uri(), _uri ) ) {
             _delegate ( request, response );
             HeaderParameter::execute ( request, response );
             return true;
