@@ -28,7 +28,7 @@ namespace mod {
 
 class Exec  {
 public:
-    Exec ( std::function< http::http_status ( http::Request&, http::Response& ) >&& f ) : _f ( std::move ( f ) ) {}
+    Exec ( std::function< void ( http::Request&, http::Response& ) >&& f ) : _f ( std::move ( f ) ) {}
     Exec ( const Exec& ) = delete;
     Exec ( Exec&& ) = default;
     Exec& operator= ( const Exec& ) = delete;
@@ -36,10 +36,15 @@ public:
     ~Exec() {}
 
     http_status execute ( Request& request, Response& response ) {
-        return _f ( request, response );
+        try {
+            _f ( request, response );
+        } catch( ... ) {
+            return http::http_status::INTERNAL_SERVER_ERROR;
+        }
+        return http::http_status::OK;
     }
 private:
-    std::function< http::http_status ( http::Request&, http::Response& ) > _f;
+    std::function< void ( http::Request&, http::Response& ) > _f;
 };
 }//mod http
 }//namespace http
