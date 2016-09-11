@@ -227,7 +227,7 @@ public:
 	 * @return
 	 */
     friend std::ostream& operator<< ( std::ostream& out, const Request & request ) {
-        //TODO fprint
+
         out << "http::HttpRequest: \n";
         out << request.method_ << " " << request.uri_ << " " << request.protocol_ << "/" << request.http_version_major_ << "." << request.http_version_minor_ << "\n";
         out << "Parameters:\n";
