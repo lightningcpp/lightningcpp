@@ -26,7 +26,7 @@ int main(int argc, char * argv[] ) {
 
     //create the server
     http::Server< http::HttpServer > server ( "192.168.0.17", "9999" );
-    server.bind( http::mod::Match<>( "/html/.*" ), http::mod::File( DOCFILES /* TODO prefix */ ), http::mod::Http() );
+    server.bind( http::mod::Match<>( "/doc/.*" ), http::mod::File( DOCFILES, "/doc/" ), http::mod::Http() );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
     //std::vector< std::string > _ws_protocols ( { "protocolTwo" } );
     //http::delegate::WebSocketDelegate ws_( _ws_protocols );

@@ -50,7 +50,7 @@ namespace http {
 namespace mod {
 class File  {
 public:
-    File( const std::string & docroot ) : docroot_( docroot ) {}
+    File( const std::string & docroot, const std::string & prefix = "" ) : docroot_( docroot ), prefix_( prefix ) {}
     File ( const File& ) = delete;
     File ( File&& ) = default;
     File& operator= ( const File& ) = delete;
@@ -65,7 +65,11 @@ public:
         }
 
         std::stringstream ss_;
-        ss_ << docroot_ + request.uri();
+        if( prefix_.empty() ) { //handle prefix
+            ss_ << docroot_ << request.uri();
+        } else {
+            ss_ << docroot_ << request.uri().substr( prefix_.size() );
+        }
 
         struct stat filestatus;
         std::string extension_, filename_;
@@ -111,7 +115,7 @@ public:
         return http_status::OK;
     }
 private:
-    const std::string docroot_;
+    const std::string docroot_, prefix_;
 
     void get ( Request & request, Response & response, const std::string & filename, const size_t file_size ) {
 

@@ -67,6 +67,13 @@ TEST ( ModFileTest, TestRequest ) {
     Response response_;
     ASSERT_EQ ( http_status::OK, fd_.execute ( request_, response_ ) );
 }
+TEST ( ModFileTest, TestRequestPrefix ) {
+
+    File fd_ ( TESTFILES, "/prefix/" );
+    Request request_ ( "/prefix/files/simple.txt" );
+    Response response_;
+    ASSERT_EQ ( http_status::OK, fd_.execute ( request_, response_ ) );
+}
 TEST ( ModFileTest, TestRequest404 ) {
 
     File fd_ ( TESTFILES );

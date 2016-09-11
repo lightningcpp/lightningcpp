@@ -24,7 +24,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 option(build_tests "Build all http unit tests." ON)
 SET(TESTFILES "${PROJECT_SOURCE_DIR}/test/files" CACHE TESTFILES "The path to the testfiles.")
 add_definitions(-DTESTFILES="${TESTFILES}/")
-SET(DOCFILES "${PROJECT_BINARY_DIR}/Documentation/" CACHE TESTFILES "The path to the documentation files.")
+SET(DOCFILES "${PROJECT_BINARY_DIR}/Documentation/html/" CACHE TESTFILES "The path to the documentation files.")
 add_definitions(-DDOCFILES="${DOCFILES}/")
 
 set(MASTER_PROJECT OFF)
