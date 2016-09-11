@@ -17,14 +17,14 @@
 #include <string>
 
 #include "../src/httpconfig.h"
-#include "../src/httprequest.h"
+#include "../src/request.h"
 
 #include <gtest/gtest.h>
 
 namespace http {
 
 TEST ( HttpRequestTest, ITestParameter ) {
-	HttpRequest _request;
+	Request _request;
 
 	_request.parameter ( http::header::CONNECTION, "close" );
 	_request.parameter ( http::header::HOST, "localhost" );
@@ -49,7 +49,7 @@ TEST ( HttpRequestTest, HeadersToArray ) {
 		"SOAPACTION: \"urn:schemas-upnp-org:service:ContentDirectory:1#Browse\"\r\n" <<
 		"\r\n";
 
-	HttpRequest _request ( "/foo/bar" );
+	Request _request ( "/foo/bar" );
 
 	_request.parameter ( http::header::CONNECTION, "close" );
 	_request.parameter ( http::header::HOST, "localhost" );

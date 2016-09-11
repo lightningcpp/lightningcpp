@@ -20,8 +20,8 @@
 
 #include <asio.hpp>
 
-#include "httprequest.h"
-#include "httpresponse.h"
+#include "request.h"
+#include "response.h"
 #include "utils/httpparser.h"
 
 namespace http {
@@ -52,7 +52,7 @@ public:
 	HttpClient ( const std::string & host, const std::string & protocol ) : host_ ( host ), protocol_ ( protocol ), io_service(), socket ( io_service ) {}
 
     template< class Request, class Output >
-    HttpResponse get ( Request & request, Output & output ) {
+    Response get ( Request & request, Output & output ) {
 		if ( ! socket.is_open() ) {
 			// std::cout << "connect: " << host_ << ":" << protocol_ << std::endl; //TODO cout
 			connect();
@@ -61,7 +61,7 @@ public:
 		write ( request );
 
 		//read response
-		HttpResponse _response;
+		Response _response;
 		read ( _response, output );
 		return _response;
 	}
@@ -93,7 +93,7 @@ private:
     }
 
 	template< class Output >
-	void read ( HttpResponse & response, Output & output ) {
+	void read ( Response & response, Output & output ) {
 		int _position = 0;
 		asio::error_code error;
 		int _len;

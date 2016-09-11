@@ -13,63 +13,55 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef FILEDELEGATE_H
-#define FILEDELEGATE_H
-
-#include <fstream>
-#include <sstream>
-#include <string>
+#ifndef FILE_H
+#define FILE_H
 
 #include <sys/stat.h>
 
-#include "httprequest.h"
-#include "httpresponse.h"
+#include <fstream>
+#include <string>
 
-#include <gtest/gtest_prod.h>
+#include "../httpconfig.h"
+#include "../request.h"
+#include "../response.h"
 
 namespace http {
-namespace delegate {
+namespace mod {
+namespace file {
+static inline void parse_filename ( const std::string & path, std::string & filename, std::string & extension ) {
+    std::size_t last_slash_pos = path.find_last_of ( "/" );
+    std::size_t last_dot_pos = path.find_last_of ( "." );
 
-/**
- * @brief Delegate to handle requests to files.
- <p>This delegate serves files from the filesystem. The request uri has to be absolute, any relative url without leading slash (/) or with a
- reference to the parent directory (..) will be rejected with a BAD_REQUEST status. In general the browser shall resolve the .. in url's.<br/>
- <strong>supported requests:</strong>
- <ul>
-    <li>HEAD and GET requests</li>
-    <li>create a content-disposition header</li>
-    <li>GET byte range</li>
-    <li>If_Modified_Since cache control</li>
- </ul>
- <strong>create and bind the file delegate:</strong>
- <pre>
- TODO
- </pre>
- </p>
- */
-class FileDelegate {
+    if ( last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos ) {
+        extension = path.substr ( last_dot_pos + 1 );
+
+    } else { extension = "txt"; }
+
+    if ( last_slash_pos != std::string::npos && last_slash_pos < path.size() ) {
+        filename = path.substr ( last_slash_pos + 1 );
+
+    } else { throw http_status::BAD_REQUEST; }
+}
+}//namespace file
+}//namespace mod
+}//namespace http
+
+namespace http {
+namespace mod {
+class File  {
 public:
-	/**
-	 * @brief FileDelegate CTOR
-	 * @param docroot Path to the files.
-	 */
-	explicit FileDelegate ( const std::string & docroot ) : docroot_ ( docroot ) {}
-	FileDelegate ( const FileDelegate& ) = delete;
-	FileDelegate ( FileDelegate&& ) = delete;
-	FileDelegate& operator= ( const FileDelegate& ) = delete;
-	FileDelegate& operator= ( FileDelegate&& ) = delete;
-	~FileDelegate() {}
+    File( const std::string & docroot ) : docroot_( docroot ) {}
+    File ( const File& ) = delete;
+    File ( File&& ) = default;
+    File& operator= ( const File& ) = delete;
+    File& operator= ( File&& ) = default;
+    ~File() {}
 
-	/**
-	 * @brief execute request
-	 * @param request
-	 * @param response
-	 */
-    void execute ( HttpRequest & request, HttpResponse & response ) {
+    http_status execute ( Request& request, Response& response ) {
 
         /* test if the path is valid */
         if ( request.uri().empty() || request.uri() [0] != '/' || request.uri().find ( ".." ) != std::string::npos ) {
-            throw http::http_status::BAD_REQUEST;
+            return http::http_status::BAD_REQUEST;
         }
 
         std::stringstream ss_;
@@ -88,7 +80,7 @@ public:
 
         } else {
             //get the filename and extension
-            parse_filename ( ss_.str(), filename_, extension_ );
+            file::parse_filename ( ss_.str(), filename_, extension_ );
         }
 
         if ( S_ISREG ( filestatus.st_mode ) ) {
@@ -97,7 +89,7 @@ public:
 
             if ( request.contains_parameter ( http::header::IF_MODIFIED_SINCE ) &&
                     request.parameter ( http::header::IF_MODIFIED_SINCE ) == s_time_ ) {
-                throw http_status::NOT_MODIFIED;
+                return http_status::NOT_MODIFIED;
             }
 
             //add headers
@@ -112,15 +104,16 @@ public:
                 get ( request, response, ss_.str(), filestatus.st_size );
 
             } else if ( request.method() != http::method::HEAD )
-            { throw http::http_status::NOT_IMPLEMENTED; }
+            { return http::http_status::NOT_IMPLEMENTED; }
 
-        } else { throw http::http_status::NOT_FOUND; }
+        } else { return http::http_status::NOT_FOUND; }
+
+        return http_status::OK;
     }
-
 private:
-	std::string docroot_;
-    template< class Request >
-    void get ( Request & request, HttpResponse & response, const std::string & filename, const size_t file_size ) {
+    const std::string docroot_;
+
+    void get ( Request & request, Response & response, const std::string & filename, const size_t file_size ) {
 
         // Open the file to send back.
         std::unique_ptr < std::ifstream > is = std::make_unique< std::ifstream > ( filename.c_str(), std::ios::in | std::ios::binary );
@@ -150,22 +143,7 @@ private:
 
         response.istream ( std::move ( is ) );
     }
-    FRIEND_TEST ( FileDelegateTest, ParseFilename );
-	static inline void parse_filename ( const std::string & path, std::string & filename, std::string & extension ) {
-		std::size_t last_slash_pos = path.find_last_of ( "/" );
-		std::size_t last_dot_pos = path.find_last_of ( "." );
-
-		if ( last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos ) {
-			extension = path.substr ( last_dot_pos + 1 );
-
-		} else { extension = "txt"; }
-
-		if ( last_slash_pos != std::string::npos && last_slash_pos < path.size() ) {
-			filename = path.substr ( last_slash_pos + 1 );
-
-		} else { throw http_status::BAD_REQUEST; }
-	}
 };
-}//namespace delegate
+}//mod http
 }//namespace http
-#endif // FILEDELEGATE_H
+#endif // FILE_H

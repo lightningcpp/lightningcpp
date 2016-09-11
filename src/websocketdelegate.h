@@ -22,8 +22,8 @@
 #include <openssl/sha.h>
 
 #include "utils/base64.h"
-#include "httprequest.h"
-#include "httpresponse.h"
+#include "request.h"
+#include "response.h"
 
 #include <gtest/gtest_prod.h>
 
@@ -47,7 +47,7 @@ public:
 	 * @param request
 	 * @param response
 	 */
-    void execute ( HttpRequest & request, HttpResponse & response ) {
+    void execute ( Request & request, Response & response ) {
         std::cout << "WebSocket:" << request.uri() << std::endl;
 
         for ( auto & item : request.parameter_map() ) {

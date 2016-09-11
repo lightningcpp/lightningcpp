@@ -18,8 +18,10 @@
 #include <string>
 #include <memory>
 
-#include "../src/webserver.h"
+#include "../src/server.h"
 #include "../src/httpserver.h"
+#include "../src/mod/match.h"
+#include "../src/mod/http.h"
 
 #include "testutils.h"
 
@@ -28,120 +30,59 @@
 
 namespace http {
 
-class TestCallBack {
-public:
-	virtual ~TestCallBack() {}
-	virtual void callback ( std::string uri ) = 0;
-	virtual void callback ( std::string uri, std::string name, int id ) = 0;
-};
+TEST ( WebserverTest, DelegateTestWithoutArgs ) {
+    Server< HttpServer > _server( "localhost", "9000" );
+    _server.bind( mod::Match<>( "/foo" ), mod::Http() );
 
-class MockTestCallback : public TestCallBack {
-public:
-	MOCK_METHOD1 ( callback, void ( std::string uri ) );
-	MOCK_METHOD3 ( callback, void ( std::string uri, std::string name, int id ) );
-};
+    Request _request( "/foo" );
+    Response _response;
+    _server.request( _request, _response );
+    EXPECT_EQ( http::http_status::OK, _response.status() );
+    EXPECT_EQ( 2U, _response.parameter_size() );
 
-MockTestCallback * test_callback;
-
-void delegate_function ( HttpRequest & request, HttpResponse& ) {
-	test_callback->callback ( request.uri() );
+    Request _request2 ( "/bar" );
+    _server.request( _request2, _response );
+    EXPECT_EQ( http::http_status::NOT_FOUND, _response.status() );
+    EXPECT_EQ( 2U, _response.parameter_size() );
 }
+TEST ( WebserverTest, DelegateTestArgs ) {
+    Server< HttpServer > _server( "localhost", "9000" );
+    _server.bind( mod::Match< std::string, int >( "/(\\w+)/(\\d+)", "name", "user-id" ), mod::Http() );
 
-void delegate_args_function ( HttpRequest & request, HttpResponse&, std::string name, int id ) {
-    test_callback->callback ( request.uri(), name, id );
+    Request _request( "/alice/42" );
+    Response _response;
+    _server.request( _request, _response );
+    EXPECT_EQ( http::http_status::OK, _response.status() );
+    EXPECT_EQ( 2U, _response.parameter_size() );
+    EXPECT_EQ( "alice", _request.attribute( "name" ) );
+    EXPECT_EQ( "42", _request.attribute( "user-id" ) );
+
+    Request _request2 ( "/bar" );
+    _server.request( _request2, _response );
+    EXPECT_EQ( http::http_status::NOT_FOUND, _response.status() );
+    EXPECT_EQ( 2U, _response.parameter_size() );
 }
+TEST ( WebserverTest, DelegateTestMixed ) {
+    Server< HttpServer > _server( "localhost", "9000" );
+    _server.bind( mod::Match<>( "/foo" ), mod::Http() );
+    _server.bind( mod::Match< std::string, int >( "/(\\w+)/(\\d+)", "name", "user-id" ), mod::Http() );
 
-class MethodClass {
-public:
-	void delegate_function ( HttpRequest & request, HttpResponse& ) {
-		test_callback->callback ( request.uri() );
-	}
-	void delegate_function_user ( HttpRequest & request, HttpResponse&, std::string name, int id ) {
-		test_callback->callback ( request.uri(), name, id );
-	}
-};
+    Request _request( "/foo" );
+    Response _response;
+    _server.request( _request, _response );
+    EXPECT_EQ( http::http_status::OK, _response.status() );
+    EXPECT_EQ( 2U, _response.parameter_size() );
 
-class DummyServer {
-public:
-	DummyServer ( const std::string&, const int&, std::function< void ( HttpRequest&, HttpResponse& ) >&& ) {}
-};
+    Request _request2 ( "/alice/42" );
+    _server.request( _request2, _response );
+    EXPECT_EQ( http::http_status::OK, _response.status() );
+    EXPECT_EQ( 2U, _response.parameter_size() );
+    EXPECT_EQ( "alice", _request2.attribute( "name" ) );
+    EXPECT_EQ( "42", _request2.attribute( "user-id" ) );
 
-TEST ( WebServerTest, DelegateTest ) {
-	test_callback = new MockTestCallback();
-
-    EXPECT_CALL ( *test_callback, callback ( "/static" ) ).Times ( 1 );
-    EXPECT_CALL ( *test_callback, callback ( "/static/bob/123", "bob", 123 ) ).Times ( 1 );
-    EXPECT_CALL ( *test_callback, callback ( "/cls" ) ).Times ( 1 );
-    EXPECT_CALL ( *test_callback, callback ( "/cls/john/123", "john", 123 ) ).Times ( 1 );
-    EXPECT_CALL ( *test_callback, callback ( "/lambda" ) ).Times ( 1 );
-    EXPECT_CALL ( *test_callback, callback ( "/lambda/alice/234", "alice", 234 ) ).Times ( 1 );
-
-	WebServer< HttpServer > server ( "127.0.0.1", 8080 );
-    MethodClass cls;
-    server.bind ( "/static",  delegate_function );
-    server.bind ( "/cls", &MethodClass::delegate_function, &cls );
-
-    server.bind< DefaultParameter, std::string, int > ( "/static/(\\w+)/(\\d+)", delegate_args_function, _1, _2, _3, _4 );
-    server.bind ( "/lambda", [] ( HttpRequest & request, HttpResponse& ) {
-        test_callback->callback ( request.uri() );
-    } );
-    server.bind< DefaultParameter, std::string, int >( "/lambda/(\\w+)/(\\d+)", [] ( HttpRequest & request, HttpResponse&, std::string name, int id ) {
-        test_callback->callback ( request.uri(), name, id );
-    } );
-
-    server.bind< DefaultParameter, std::string, int > ( "/static/(\\w+)/(\\d+)", delegate_args_function, _1, _2, _3, _4 );
-    server.bind< DefaultParameter, std::string, int > ( "/cls/(\\w+)/(\\d+)", &MethodClass::delegate_function_user, &cls, _1, _2, _3, _4 );
-
-	HttpResponse response;
-    HttpRequest request0 ( "/static" );
-    server.execute ( request0, response );
-
-    HttpRequest request1 ( "/static/bob/123" );
-    server.execute ( request1, response );
-
-    HttpRequest request2 ( "/cls" );
-    server.execute ( request2, response );
-
-    HttpRequest request3 ( "/cls/john/123" );
-    server.execute ( request3, response );
-
-    HttpRequest request4 ( "/lambda" );
-    server.execute ( request4, response );
-
-    HttpRequest request5 ( "/lambda/alice/234" );
-    server.execute ( request5, response );
-
-	delete test_callback;
-}
-TEST ( WebServerTest, EqualsMatchAnyTest ) {
-	test_callback = new MockTestCallback();
-	EXPECT_CALL ( *test_callback, callback ( "/foo/bar" ) ).Times ( 1 );
-
-	WebServer<DummyServer> server ( "127.0.0.1", 8080 );
-    server.bind< DefaultParameter > ( "*",  delegate_function );
-
-	HttpRequest request ( "/foo/bar" );
-	HttpResponse response;
-	server.execute ( request, response );
-
-	delete test_callback;
-}
-TEST ( WebServerTest, HttpServerTest ) {
-
-    WebServer< HttpServer > server ( "127.0.0.1", 8080 );
-    server.bind< EmptyParameter, std::string, int >( "/foo/lambda/(\\w+)/(\\d+)", [] ( HttpRequest&, HttpResponse & response, std::string, int ) {
-        response.status ( http::http_status::OK );
-        response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV";
-
-        response.status ( http::http_status::OK );
-        response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
-        response.parameter ( header::CONTENT_LENGTH, std::to_string ( 0 ) );
-    } );
-
-    HttpRequest request ( "/foo/lambda/alice/123" );
-    HttpResponse response;
-    server.execute ( request, response );
-
-    EXPECT_EQ( 2U, response.parameter_size() );
+    Request _request3 ( "/bar" );
+    _server.request( _request3, _response );
+    EXPECT_EQ( http::http_status::NOT_FOUND, _response.status() );
+    EXPECT_EQ( 2U, _response.parameter_size() );
 }
 }//namespace http

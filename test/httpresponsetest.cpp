@@ -16,7 +16,7 @@
 
 #include <fstream>
 
-#include "../src/httpresponse.h"
+#include "../src/response.h"
 
 #include <gtest/gtest.h>
 
@@ -42,7 +42,7 @@ bool compare ( std::istream & r_stream, std::istream & l_stream ) {
 
 TEST ( HttpResponseTest, StringStreamSize ) {
 
-	HttpResponse response_;
+	Response response_;
 	response_ << "abc";
     EXPECT_EQ ( 3, response_.tellp() );
 	response_ << "def";
@@ -58,7 +58,7 @@ TEST ( HttpResponseTest, HeadersToArray ) {
 		"SOAPACTION: \"urn:schemas-upnp-org:service:ContentDirectory:1#Browse\"\r\n" <<
 		"\r\n";
 
-	HttpResponse _response;
+	Response _response;
 
 	_response.status ( http_status::OK );
 	_response.parameter ( http::header::HOST, "localhost" );
@@ -76,7 +76,7 @@ TEST ( HttpResponseTest, BodyToArray ) {
 
 	std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
 
-	HttpResponse _response;
+	Response _response;
 
 	_response.status ( http_status::OK );
 	_response.parameter ( http::header::CONNECTION, "close" );
@@ -108,7 +108,7 @@ TEST ( HttpResponseTest, LargeBodyToArray ) {
 	std::ifstream file ( _filename_ss.str() );
 
 	if ( file ) {
-		HttpResponse _response;
+		Response _response;
 
 		_response.status ( http_status::OK );
 		_response.parameter ( http::header::CONNECTION, "close" );

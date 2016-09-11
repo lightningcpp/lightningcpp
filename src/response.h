@@ -21,7 +21,8 @@
 #include <memory>
 #include <sstream>
 
-#include "httpconfig.h"
+#include "constant.h"
+#include "httpconfig.h" //TODO
 #include "mimetypes.h"
 
 #include <gtest/gtest_prod.h>
@@ -32,15 +33,15 @@ namespace http {
  * @brief The HttpResponse class
  * <p>the http response. This class is not copyable only movable.</p>
  */
-class HttpResponse {
+class Response {
 public:
 
-    HttpResponse() : body_ostream_( std::make_unique< std::stringstream >() ) {}
-	HttpResponse ( const HttpResponse& ) = delete;
-	HttpResponse ( HttpResponse&& ) = default;
-	HttpResponse& operator= ( const HttpResponse& ) = delete;
-	HttpResponse& operator= ( HttpResponse&& ) = default;
-	~HttpResponse() {}
+    Response() : body_ostream_( std::make_unique< std::stringstream >() ) {}
+    Response ( const Response& ) = delete;
+    Response ( Response&& ) = default;
+    Response& operator= ( const Response& ) = delete;
+    Response& operator= ( Response&& ) = default;
+    ~Response() {}
 
 	/** @brief Set value for the key. */
 	void parameter ( const std::string & key, const std::string & value )
@@ -94,7 +95,7 @@ public:
     size_t header ( buffer_t & buffer ) {
         // create status line: Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
         int _position = snprintf ( buffer.data(), BUFFER_SIZE, "%s/%d.%d %d %s\r\n",
-                                   protocol_.c_str(), version_major_, version_minor_, static_cast< int > ( status_ ), status_reason_phrase ( status_ ).c_str() );
+            protocol_.c_str(), version_major_, version_minor_, static_cast< int > ( status_ ), status_reason_phrases.at( status_ ).c_str() );
 
         if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
 
@@ -134,7 +135,7 @@ public:
 	 * @return
 	 */
     template< class T >
-    HttpResponse & operator<< ( const T & value ) {
+    Response & operator<< ( const T & value ) {
         *(body_ostream_) << value;
 		return *this;
 	}
@@ -142,9 +143,9 @@ public:
 
 
 	/** @brief output this request as string. */
-	friend std::ostream& operator<< ( std::ostream& out, const http::HttpResponse & response ) {
+    friend std::ostream& operator<< ( std::ostream& out, const http::Response & response ) {
 		out << response.protocol_ << "/" << response.version_major_ << "." <<
-			response.version_minor_ << " " << static_cast< int > ( response.status_ ) << status_reason_phrase ( response.status_ ) <<
+            response.version_minor_ << " " << static_cast< int > ( response.status_ ) << status_reason_phrases.at( response.status_ ) <<
 			"\n" << "Parameters:\n";
 
 		for ( auto response_line : response.parameters_ ) {
@@ -153,6 +154,12 @@ public:
 
 		return out;
 	}
+
+    void reset() {
+        parameters_.clear();
+        body_istream_.reset();
+        body_ostream_.reset();
+    }
 
 private:
 	FRIEND_TEST ( HttpServerTest, TestResponse );

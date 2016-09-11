@@ -13,25 +13,23 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef CHUNKED_H
-#define CHUNKED_H
 
-#include <array>
+#include <string>
 
-#include "../httpconfig.h"
-#include "../response.h"
+#include "../src/mod/http.h"
+
+#include <gtest/gtest.h>
 
 namespace http {
-namespace utils {
+namespace mod {
 
-class Chunked {
-public:
-    Chunked() {}
+TEST ( ModHttpTest, TestExecute ) {
+    Http _http;
+    Request _request( "/foo/bar" );
+    Response _response;
+    EXPECT_EQ( http::http_status::OK, _http.execute( _request, _response ) );
+    EXPECT_EQ( 2U, _response.parameter_size() );
 
-    bool write ( buffer_t buffer, Response response ) {
-
-    }
-};
-}//namespace utils
+}
+}//namespace mod
 }//namespace http
-#endif // CHUNKED_H

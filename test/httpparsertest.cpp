@@ -20,8 +20,8 @@
 
 #include "../src/httpconfig.h"
 #include "../src/utils/httpparser.h"
-#include "../src/httprequest.h"
-#include "../src/httpresponse.h"
+#include "../src/request.h"
+#include "../src/response.h"
 
 #include <gtest/gtest.h>
 
@@ -86,7 +86,7 @@ TEST ( HttpParserTest, ParseRequestLine ) {
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
-	http::HttpRequest _request;
+	http::Request _request;
 
 	size_t _position = _parser.parse_request_status_line ( _state, _request, _buffer, 0, _size );
 	EXPECT_EQ ( _position, 16U );
@@ -103,7 +103,7 @@ TEST ( HttpParserTest, ParseResponseLine ) {
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_response.dump", &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
-	http::HttpResponse _response;
+	http::Response _response;
 
 	size_t _position = _parser.parse_response_status_line ( _state, _response, _buffer, 0, _size );
 	EXPECT_EQ ( _position, 17U );
@@ -119,7 +119,7 @@ TEST ( HttpParserTest, ParseRequestLineAndParameter ) {
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
-	http::HttpRequest _request;
+	http::Request _request;
 
 	size_t _position = _parser.parse_request_status_line ( _state, _request, _buffer, 0, _size );
 	EXPECT_EQ ( _position, 16U );
@@ -147,7 +147,7 @@ TEST ( HttpParserTest, ParseRequestLineAndParameterAndFormData ) {
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
-	http::HttpRequest _request;
+	http::Request _request;
 
 	size_t _position = _parser.parse_request_status_line ( _state, _request, _buffer, 0, _size );
 	EXPECT_EQ ( _position, 26U );
@@ -188,7 +188,7 @@ TEST ( HttpParserTest, ParseSimpleRequest ) {
 	buffer_t _buffer;
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpRequest _request;
+	http::Request _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 	EXPECT_EQ ( _position, _size );
 
@@ -211,7 +211,7 @@ TEST ( HttpParserTest, ParseSoapResponse ) {
 	buffer_t _buffer;
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_response.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpResponse _response;
+	http::Response _response;
 	size_t _position = _parser.parse_response ( _response, _buffer, 0, _size );
 	EXPECT_EQ ( _position, 97U );
 
@@ -229,7 +229,7 @@ TEST ( HttpParserTest, ParseSoapLongResponse ) {
 	buffer_t _buffer;
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_long_response.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpResponse _response;
+	http::Response _response;
 	size_t _position = _parser.parse_response ( _response, _buffer, 0, _size );
 	EXPECT_EQ ( _position, 98U );
 
@@ -247,7 +247,7 @@ TEST ( HttpParserTest, ParseFormGetRequest ) {
 	buffer_t _buffer;
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_get.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpRequest _request;
+	http::Request _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 	EXPECT_EQ ( _position, _size );
 
@@ -277,7 +277,7 @@ TEST ( HttpParserTest, ParseFormPostRequest ) {
 	buffer_t _buffer;
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpRequest _request;
+	http::Request _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 
 	EXPECT_EQ ( _size, _position );
@@ -312,7 +312,7 @@ TEST ( HttpParserTest, ParseFormSoapPost ) {
 	buffer_t _buffer;
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/soap_browse_request.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpRequest _request;
+	http::Request _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 
 	EXPECT_EQ ( 676U - 438U, _position );
@@ -352,7 +352,7 @@ TEST ( HttpParserTest, ParseWithBody ) {
 
 	char const * response = "<?xml version=\"1.0\" encoding=\"utf-8\"?><s:Envelope xmlns:ns0=\"urn:schemas-upnp-org:service:ContentDirectory:1\" s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ns0:Browse><ObjectID>0</ObjectID><BrowseFlag>BrowseMetadata</BrowseFlag><Filter>*</Filter><StartingIndex>0</StartingIndex><RequestedCount>0</RequestedCount><SortCriteria /></ns0:Browse></s:Body></s:Envelope>";
 
-	http::HttpRequest http_request;
+	http::Request http_request;
 	HttpParser parser;
 	size_t _size = parser.parse_request ( http_request, request, 0, strlen ( _request ) );
 
@@ -392,7 +392,7 @@ TEST ( HttpParserTest, ParseIncompleteHeader ) {
 		request[i] = _request[i];
 	}
 
-	http::HttpRequest http_request;
+	http::Request http_request;
 	HttpParser http_parser;
 	size_t state = http_parser.parse_request ( http_request, request, 0, strlen ( _request ) );
 	EXPECT_EQ ( state, 0U );
@@ -413,7 +413,7 @@ TEST ( HttpParserTest, ParseIncompleteHeader ) {
 
 TEST ( HttpParserTest, ParseChunkedHeader ) {
 
-	http::HttpRequest http_request;
+	http::Request http_request;
 	HttpParser http_parser;
 
 	/* parse first chunk */ {
@@ -594,7 +594,7 @@ TEST ( HttpParserTest, ParseMultiJunks ) {
 		request2[i] = peer0_1[i];
 	}
 
-	http::HttpRequest http_request;
+	http::Request http_request;
 	HttpParser http_parser;
 	size_t state = http_parser.parse_request ( http_request, request, 0, sizeof ( peer0_0 ) );
 	EXPECT_EQ ( 0U, state );
@@ -620,7 +620,7 @@ TEST ( HttpParserTest, ParseChunked ) {
 	buffer_t _buffer;
     get_file ( HTTP_TESTFILES + "/raw/request/soap_browse_request.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpRequest _request;
+	http::Request _request;
 
 	size_t _position = 0;
 	size_t _res_position = 0;
@@ -661,7 +661,7 @@ TEST ( HttpParserTest, ParseChunkedWithBody ) {
 	buffer_t _buffer;
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpRequest _request;
+	http::Request _request;
 
 	size_t _position = 0;
 	size_t _res_position = 0;
@@ -718,7 +718,7 @@ TEST ( HttpParserTest, ParseChunkedWithNewBody ) {
 	buffer_t _buffer;
     size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
 	HttpParser _parser;
-	http::HttpRequest _request;
+	http::Request _request;
 
 	size_t _position = 0;
 	size_t _res_position = 0;
@@ -779,7 +779,7 @@ TEST ( HttpParserTest, MultiParse ) {
 	{
 		buffer_t _buffer;
         size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
-		http::HttpRequest _request;
+		http::Request _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 		EXPECT_EQ ( _position, _size );
 
@@ -801,7 +801,7 @@ TEST ( HttpParserTest, MultiParse ) {
 	{
 		buffer_t _buffer;
         size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_get.dump", &_buffer );
-		http::HttpRequest _request;
+		http::Request _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 		EXPECT_EQ ( _position, _size );
 
@@ -830,7 +830,7 @@ TEST ( HttpParserTest, MultiParse ) {
 	{
 		buffer_t _buffer;
         size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
-		http::HttpRequest _request;
+		http::Request _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 
 		EXPECT_EQ ( _size, _position );
@@ -915,7 +915,7 @@ TEST ( HttpParserTest, TestParseSimpleSSDPResponse ) {
 		request[i] = _request[i];
 	}
 
-	http::HttpResponse http_response;
+	http::Response http_response;
 	HttpParser httpParser;
 	size_t state = httpParser.parse_response ( http_response, request, 0, sizeof ( _request ) );
 	EXPECT_EQ ( sizeof ( _request ), state );
@@ -1075,7 +1075,7 @@ TEST ( HttpParserTest, MeasurePerformance ) {
 			request2[i] = peer0_1[i];
 		}
 
-		http::HttpRequest http_request;
+		http::Request http_request;
 		HttpParser http_parser;
 		size_t state = http_parser.parse_request ( http_request, request, 0, sizeof ( peer0_0 ) );
 		EXPECT_EQ ( 0U, state );

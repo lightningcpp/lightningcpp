@@ -4,12 +4,13 @@
 #include <sstream>
 #include <memory>
 
-#include "src/webserver.h"
+#include "src/server.h"
 #include "src/httpserver.h"
-#include "src/filedelegate.h"
-#include "src/httprequest.h"
-#include "src/httpresponse.h"
-#include "src/websocketdelegate.h"
+#include "src/request.h"
+#include "src/response.h"
+#include "src/mod/file.h"
+#include "src/mod/match.h"
+#include "src/mod/http.h"
 
 void signalHandler( int signum ) {
     std::cout << "Interrupt signal (" << signum << ") received.\n";
@@ -24,15 +25,12 @@ int main(int argc, char * argv[] ) {
     std::cout << "}" << std::endl;
 
     //create the server
-    http::WebServer< http::HttpServer > server ( "192.168.0.17", 9999 );
-    std::vector< std::string > _ws_protocols ( { "protocolTwo" } );
-    http::delegate::WebSocketDelegate ws_( _ws_protocols );
-
-    http::delegate::FileDelegate file_test_delegate( TESTFILES );
-    http::delegate::FileDelegate file_doc_delegate( DOCFILES );
-    server.bind( "/socketserver", &http::delegate::WebSocketDelegate::execute, &ws_ );
-    server.bind( "/html/.*", &http::delegate::FileDelegate::execute, &file_doc_delegate );
-    server.bind( "*", &http::delegate::FileDelegate::execute, &file_test_delegate );
+    http::Server< http::HttpServer > server ( "192.168.0.17", "9999" );
+    server.bind( http::mod::Match<>( "/html/.*" ), http::mod::File( DOCFILES /* TODO prefix */ ), http::mod::Http() );
+    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
+    //std::vector< std::string > _ws_protocols ( { "protocolTwo" } );
+    //http::delegate::WebSocketDelegate ws_( _ws_protocols );
+    //server.bind( "/socketserver", &http::delegate::WebSocketDelegate::execute, &ws_ );
 
     // register signal SIGINT and signal handler
     signal(SIGINT, signalHandler);

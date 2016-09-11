@@ -13,25 +13,34 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef CHUNKED_H
-#define CHUNKED_H
+#ifndef EXEC_H
+#define EXEC_H
 
-#include <array>
+#include <memory>
+#include <string>
 
 #include "../httpconfig.h"
+#include "../request.h"
 #include "../response.h"
 
 namespace http {
-namespace utils {
+namespace mod {
 
-class Chunked {
+class Exec  {
 public:
-    Chunked() {}
+    Exec ( std::function< http::http_status ( http::Request&, http::Response& ) >&& f ) : _f ( std::move ( f ) ) {}
+    Exec ( const Exec& ) = delete;
+    Exec ( Exec&& ) = default;
+    Exec& operator= ( const Exec& ) = delete;
+    Exec& operator= ( Exec&& ) = default;
+    ~Exec() {}
 
-    bool write ( buffer_t buffer, Response response ) {
-
+    http_status execute ( Request& request, Response& response ) {
+        return _f ( request, response );
     }
+private:
+    std::function< http::http_status ( http::Request&, http::Response& ) > _f;
 };
-}//namespace utils
+}//mod http
 }//namespace http
-#endif // CHUNKED_H
+#endif // EXEC_H

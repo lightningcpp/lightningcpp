@@ -65,6 +65,10 @@ set(LIBS ${LIBS} -lssl -lcrypto -luuid -lpthread -lm) #needed for ubuntu
 # -----------------------      Compile Code         -----------------------
 # -------------------------------------------------------------------------
 if( MASTER_PROJECT )
+    #add headers for editor
+    FILE(GLOB_RECURSE HeaderFiles "src/*.h")
+    add_custom_target(headers SOURCES ${HeaderFiles})
+
     find_package(Threads)
     if(CMAKE_COMPILER_IS_GNUCXX)
         add_definitions(-std=c++14)
@@ -79,18 +83,9 @@ if( MASTER_PROJECT )
         set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_RELEASE} -O3)
     endif()
 
-    #aux_source_directory(src HTTP_SRC_LIST)
-    set( HTTP_SRC_LIST ${HTTP_SRC_LIST} src/utils/stringutils.h src/utils/base64.h src/utils/httpparser.h src/utils/chunked.h)
-    set( HTTP_SRC_LIST ${HTTP_SRC_LIST} src/httpconfig.h src/httpserver.h src/webservercallback.h src/webserverrecallback.h
-                                        src/httpclient.h
-                                        src/httpserverconnection.h src/httpsession.h src/webserver.h src/httprequest.h src/httpresponse.h
-                                        src/errordelegate.h src/mimetypes.h
-                                        src/filedelegate.h src/websocketdelegate.h )
-
     include_directories( ${ASIO_INCLUDE_DIR} ${RE2_INCLUDE_DIR} ${OPENSSL_INCLUDES})
-    #add_library(${PROJECT_NAME} ${HTTP_SRC_LIST})
-    #target_link_libraries(${PROJECT_NAME} re ${LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
+    #create the test server
     add_executable( httpserver main.cpp ${HTTP_SRC_LIST} )
     target_link_libraries( httpserver re ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
 

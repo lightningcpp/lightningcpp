@@ -23,7 +23,8 @@
 #include <sstream>
 #include <vector>
 
-#include "httpconfig.h"
+#include "constant.h"
+#include "httpconfig.h" //TODO
 #include "utils/stringutils.h"
 
 namespace http {
@@ -31,13 +32,13 @@ namespace http {
 /**
  * @brief Http Request class.
  */
-class HttpRequest {
+class Request {
 public:
 
     /**
      * @brief HttpRequest
      */
-    HttpRequest() :
+    Request() :
         method_ ( std::string ( method::GET ) ), uri_ ( "" ), protocol_ ( "HTTP" ), remote_ip_ ( std::string ( "" ) ),
         body_size_ ( 0 ), http_version_major_ ( 1 ), http_version_minor_ ( 1 ),
         parameters_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
@@ -48,18 +49,18 @@ public:
      * @brief HttpRequest
      * @param path
      */
-    HttpRequest ( const std::string & path ) :
+    Request ( const std::string & path ) :
         method_ ( std::string ( method::GET ) ), uri_ ( path ), protocol_ ( "HTTP" ), remote_ip_ ( std::string ( "" ) ),
         body_size_ ( 0 ), http_version_major_ ( 1 ), http_version_minor_ ( 1 ),
         parameters_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
         attributes_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
         out_body_ ( std::shared_ptr< std::stringstream > ( new std::stringstream() ) ) {}
 
-	HttpRequest ( const HttpRequest& ) = delete;
-	HttpRequest ( HttpRequest&& ) = delete;
-	HttpRequest& operator= ( const HttpRequest& ) = delete;
-	HttpRequest& operator= ( HttpRequest&& ) = delete;
-	~HttpRequest() {}
+    Request ( const Request& ) = delete;
+    Request ( Request&& ) = delete;
+    Request& operator= ( const Request& ) = delete;
+    Request& operator= ( Request&& ) = delete;
+    ~Request() {}
 
 	/** @brief Set a request parameter. */
     void parameter ( const std::string & name, const std::string & value )
@@ -225,7 +226,7 @@ public:
 	 * @param request
 	 * @return
 	 */
-    friend std::ostream& operator<< ( std::ostream& out, const HttpRequest & request ) {
+    friend std::ostream& operator<< ( std::ostream& out, const Request & request ) {
         //TODO fprint
         out << "http::HttpRequest: \n";
         out << request.method_ << " " << request.uri_ << " " << request.protocol_ << "/" << request.http_version_major_ << "." << request.http_version_minor_ << "\n";
@@ -244,6 +245,12 @@ public:
         }
 
         return out;
+    }
+
+    void reset() {
+        parameters_.clear();
+        attributes_.clear();
+        out_body_.reset();
     }
 
 private:

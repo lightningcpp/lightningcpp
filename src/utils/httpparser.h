@@ -22,8 +22,8 @@
 #include <sstream>
 
 #include "../httpconfig.h"
-#include "../httprequest.h"
-#include "../httpresponse.h"
+#include "../request.h"
+#include "../response.h"
 
 #include <gtest/gtest_prod.h>
 
@@ -44,7 +44,7 @@ public:
 	 * @param end
 	 * @return
 	 */
-    size_t parse_request ( HttpRequest & request, buffer_t & buffer, size_t start, size_t end ) {
+    size_t parse_request ( Request & request, buffer_t & buffer, size_t start, size_t end ) {
         size_t _position = start;
 
         if ( parser_state_.request_type_ < request_parser_type::REQUEST_KEY ) {
@@ -77,7 +77,7 @@ public:
 	 * @param end
 	 * @return
 	 */
-    size_t parse_response ( HttpResponse & response, buffer_t & buffer, size_t start, size_t end ) {
+    size_t parse_response ( Response & response, buffer_t & buffer, size_t start, size_t end ) {
         size_t _position = start;
 
         if ( parser_state_.response_type_ < response_parser_type::RESPONSE_KEY ) {
@@ -205,7 +205,7 @@ private:
 	};
 
 	RequestParserState parser_state_; //TODO handle multiple states
-    static size_t parse_request_status_line ( RequestParserState & parser_state, http::HttpRequest & request, buffer_t & buffer, size_t start, size_t end ) {
+    static size_t parse_request_status_line ( RequestParserState & parser_state, http::Request & request, buffer_t & buffer, size_t start, size_t end ) {
         parser_state.start_pos_ = start;
 
         for ( size_t i = start; i<end; ++i ) {
@@ -255,7 +255,7 @@ private:
             std::string ( buffer.data(), parser_state.start_pos_, end - parser_state.start_pos_ ) );
         return 0;
     }
-    static size_t parse_response_status_line ( RequestParserState & parser_state, http::HttpResponse & response, buffer_t & buffer, size_t start, size_t end ) {
+    static size_t parse_response_status_line ( RequestParserState & parser_state, http::Response & response, buffer_t & buffer, size_t start, size_t end ) {
         parser_state.start_pos_ = start;
 
         for ( size_t i = start; i<end; ++i ) {
@@ -294,7 +294,7 @@ private:
             std::string ( buffer.data(), parser_state.start_pos_, end - parser_state.start_pos_ ) );
         return 0;
     }
-    static size_t parse_parameter ( RequestParserState & parser_state, http::HttpRequest & request, buffer_t & buffer, size_t start, size_t end ) {
+    static size_t parse_parameter ( RequestParserState & parser_state, http::Request & request, buffer_t & buffer, size_t start, size_t end ) {
         parser_state.start_pos_ = start;
 
         for ( size_t i = start; i<end; ++i ) {
@@ -327,7 +327,7 @@ private:
             std::string ( buffer.data(), parser_state.start_pos_, end - parser_state.start_pos_ ) );
         return 0;
     }
-    static size_t parse_parameter ( RequestParserState & parser_state, http::HttpResponse & response, buffer_t & buffer, size_t start, size_t end ) {
+    static size_t parse_parameter ( RequestParserState & parser_state, http::Response & response, buffer_t & buffer, size_t start, size_t end ) {
         parser_state.start_pos_ = start;
 
         for ( size_t i = start; i<end; ++i ) {
@@ -360,7 +360,7 @@ private:
             std::string ( buffer.data(), parser_state.start_pos_, end - parser_state.start_pos_ ) );
         return 0;
     }
-    static size_t parse_body_form_data ( RequestParserState & parser_state, http::HttpRequest & request, buffer_t & buffer, size_t start, size_t end ) {
+    static size_t parse_body_form_data ( RequestParserState & parser_state, http::Request & request, buffer_t & buffer, size_t start, size_t end ) {
         if ( std::stoul ( request.parameter ( http::header::CONTENT_LENGTH ) ) >= start - end ) {
             get_attributes ( std::string ( buffer.data(), start, start +  std::stoul ( request.parameter ( http::header::CONTENT_LENGTH ) ) ), request );
             return start + std::stoul ( request.parameter ( http::header::CONTENT_LENGTH ) );
@@ -385,7 +385,7 @@ private:
      * @param parameters the request line string.
      * @param request the request where to store the parameters.
      */
-    static void get_attributes ( const std::string & parameters, HttpRequest & request ) {
+    static void get_attributes ( const std::string & parameters, Request & request ) {
         enum parse_mode { KEY, VALUE } _mode = KEY;
         std::stringstream _ss_buffer_key;
         std::stringstream _ss_buffer_value;

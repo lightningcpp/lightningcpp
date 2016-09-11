@@ -13,25 +13,31 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef CHUNKED_H
-#define CHUNKED_H
 
-#include <array>
+#include <string>
 
-#include "../httpconfig.h"
-#include "../response.h"
+#include "../src/mod/error.h"
+
+#include <gtest/gtest.h>
 
 namespace http {
-namespace utils {
+namespace mod {
 
-class Chunked {
-public:
-    Chunked() {}
+TEST ( ModErrorTest, TestExecute ) {
+    http::mod::Error error;
+    Request _request( "/foo" );
+    Response _response;
+    _response.status( http::http_status::NOT_FOUND );
+    http::http_status _status = error.execute ( _request, _response );
+    EXPECT_EQ( http::http_status::NOT_FOUND, _status );
 
-    bool write ( buffer_t buffer, Response response ) {
-
+    std::stringstream _sbuf;
+    buffer_t _buf;
+    while( _response.tellp() > _response.tellg() ) {
+        size_t _size = _response.read( _buf );
+        _sbuf << std::string( _buf.data(), 0, _size );
     }
-};
-}//namespace utils
+    EXPECT_EQ( "<html><head><title>Not Found</title></head><body><h1>404 Not Found</h1></body></html>", _sbuf.str() );
+}
+}//namespace mod
 }//namespace http
-#endif // CHUNKED_H

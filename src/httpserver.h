@@ -22,8 +22,8 @@
 #include <thread>
 
 #include "httpconfig.h"
-#include "httpserverconnection.h"
-#include "httpsession.h"
+#include "connection.h"
+#include "socket.h"
 
 #include <gtest/gtest_prod.h>
 
@@ -46,12 +46,12 @@ namespace http {
  */
 class HttpServer {
 public:
-	HttpServer ( const std::string & address, const int & port, http_delegate_t && request_handler ) :
+    HttpServer ( const std::string & address, const std::string & protocol, http_delegate_t && request_handler ) :
         acceptor_ ( io_service_ ), request_handler_ ( std::move ( request_handler ) ) {
 
 		// Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
 		asio::ip::tcp::resolver resolver ( io_service_ );
-		asio::ip::tcp::resolver::query query ( address, std::to_string ( port ) );
+        asio::ip::tcp::resolver::query query ( address, protocol );
 		asio::ip::tcp::endpoint endpoint = *resolver.resolve ( query );
 		acceptor_.open ( endpoint.protocol() );
 		acceptor_.set_option ( asio::ip::tcp::acceptor::reuse_address ( true ) );
@@ -83,15 +83,16 @@ private:
 
 	/* Initiate an asynchronous accept operation. */
 	void start_accept() {
-        server_connection_.reset ( new HttpServerConnection( io_service_ ) );
-        acceptor_.async_accept ( server_connection_->socket(),
+        server_socket_.reset ( new Socket( io_service_ ) );
+        acceptor_.async_accept ( server_socket_->socket(),
 								 std::bind ( &HttpServer::handle_accept, this, std::placeholders::_1 ) );
 	}
 
 	/* Handle completion of an asynchronous accept operation. */
 	void handle_accept ( const asio::error_code& e ) {
 		if ( !e ) {
-            std::shared_ptr< HttpSession > _session = std::shared_ptr< HttpSession >( new HttpSession( std::move( server_connection_ ), request_handler_ ) );
+            std::shared_ptr< Connection > _session =
+                    std::shared_ptr< Connection >( new Connection( std::move( server_socket_ ), request_handler_ ) );
             _session->start();
 		}
 
@@ -105,7 +106,7 @@ private:
 	/* The Thread pool. */
 	std::array<std::shared_ptr<std::thread>, HTTP_SERVER_THREAD_POOL_SIZE > threads_;
 
-    server_connection_ptr server_connection_;
+    server_socket_ptr server_socket_;
 
 	/** http request handler delegate */
 	http_delegate_t request_handler_;
