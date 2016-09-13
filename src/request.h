@@ -250,7 +250,10 @@ public:
     void reset() {
         parameters_.clear();
         attributes_.clear();
-        out_body_.reset();
+        if( out_body_ ) {
+            out_body_->str();
+            out_body_->clear();
+        }
     }
 
 private:

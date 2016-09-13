@@ -31,6 +31,8 @@ public:
         socket_ ( std::move( socket ) ), callback_ ( callback ) {}
 
     void start() {
+        request_.reset();
+        response_.reset();
         socket_->read ( buffer_,
             std::bind( &Connection::connect, shared_from_this(), _1, _2 ) );
     }
@@ -69,9 +71,7 @@ public:
             request_.write ( buffer_, 0, size );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
 
-                response_.reset(); // = std::make_shared< Response >();
                 callback_ ( request_, response_ );
-
                 size_t _buffer_size = response_.header ( buffer_ );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
 
@@ -113,7 +113,7 @@ private:
     Request request_;
     Response response_;
     utils::HttpParser http_parser_;
-    buffer_t buffer_; //TODO
+    buffer_t buffer_;
 
     size_t body_length() {
         if( request_.contains_parameter( http::header::CONTENT_LENGTH ) )

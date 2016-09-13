@@ -129,4 +129,13 @@ TEST ( HttpResponseTest, LargeBodyToArray ) {
     EXPECT_TRUE (  compare_streams ( _reference_file, _result_ios ) );
 }
 
+TEST ( HttpResponseTest, ResponseReset ) {
+    http::Response _res;
+    _res << "test" << "abc";
+    EXPECT_EQ ( 7U, _res.tellp() );
+    _res.reset();
+    EXPECT_EQ ( 0U, _res.tellp() );
+
+}
+
 }//namespace http
