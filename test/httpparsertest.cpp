@@ -375,7 +375,7 @@ TEST ( HttpParserTest, ParseWithBody ) {
 
 	EXPECT_EQ ( strlen ( response ), strlen ( response_buffer ) );
 	EXPECT_EQ ( std::string ( response ), std::string ( response_buffer ) );
-	delete response_buffer;
+    delete[] response_buffer;
 }
 
 TEST ( HttpParserTest, ParseIncompleteHeader ) {

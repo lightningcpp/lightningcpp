@@ -18,27 +18,11 @@
 
 #include "../src/response.h"
 
+#include "testutils.h"
+
 #include <gtest/gtest.h>
 
 namespace http {
-
-bool compare ( std::istream & r_stream, std::istream & l_stream ) {
-	char *lBuffer = new char[BUFFER_SIZE]();
-	char *rBuffer = new char[BUFFER_SIZE]();
-
-	do {
-		l_stream.read ( lBuffer, BUFFER_SIZE );
-		r_stream.read ( rBuffer, BUFFER_SIZE );
-
-		if ( std::memcmp ( lBuffer, rBuffer, BUFFER_SIZE ) != 0 ) {
-			delete[] lBuffer;
-			delete[] rBuffer;
-			return false;
-		}
-	} while ( l_stream.good() || r_stream.good() );
-
-	return true;
-}
 
 TEST ( HttpResponseTest, StringStreamSize ) {
 
@@ -142,7 +126,7 @@ TEST ( HttpResponseTest, LargeBodyToArray ) {
 	}
 
 	std::ifstream _reference_file ( _filename_ss.str() );
-	EXPECT_TRUE (  compare ( _reference_file, _result_ios ) );
+    EXPECT_TRUE (  compare_streams ( _reference_file, _result_ios ) );
 }
 
 }//namespace http

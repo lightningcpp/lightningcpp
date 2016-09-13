@@ -42,7 +42,7 @@ T_execute_module ( Rq& request, Rs& response, std::tuple<Tp...>& t ) {
 }
 
 template< class... Placeholders >
-struct Mod : public std::enable_shared_from_this< Mod< Placeholders... > > { //TODO remove ebable shared
+struct Mod {
 public:
     Mod ( Placeholders&&... p ) :_modules ( { std::move( p )... } ) {}
     Mod( const Mod& ) = delete;

@@ -173,7 +173,7 @@ private:
 	std::string protocol_ = "HTTP";
 	std::string remote_ip_;
 
-	std::map<std::string, std::string> parameters_;
+    std::map< std::string, std::string, utils::KeyICompare > parameters_;
     std::unique_ptr< std::stringstream > body_ostream_;
     std::unique_ptr< std::istream > body_istream_;
 };

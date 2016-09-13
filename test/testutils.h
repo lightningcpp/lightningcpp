@@ -41,6 +41,7 @@ inline void client_header ( const std::string & host, const std::string & port, 
 
 inline bool compare_streams ( std::istream & r_stream, std::istream & l_stream ) {
 
+    bool _result = true;
 	char *lBuffer = new char[http::BUFFER_SIZE]();
 	char *rBuffer = new char[http::BUFFER_SIZE]();
 
@@ -49,17 +50,17 @@ inline bool compare_streams ( std::istream & r_stream, std::istream & l_stream )
 		r_stream.read ( rBuffer, http::BUFFER_SIZE );
 
 		if ( l_stream.tellg() != r_stream.tellg() ) {
-			return false;
+                        _result = false;
 		}
 
 		if ( std::memcmp ( lBuffer, rBuffer, l_stream.gcount() ) != 0 ) {
-			delete[] lBuffer;
-			delete[] rBuffer;
-			return false;
+                        _result = false;
 		}
-	} while ( l_stream.good() || r_stream.good() );
+        } while ( _result && ( l_stream.good() || r_stream.good() ) );
 
-	return true;
+        delete[] lBuffer;
+        delete[] rBuffer;
+        return _result;
 }
 
 #endif // TESTUTILS_H
