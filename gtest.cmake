@@ -6,6 +6,8 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
+  BUILD_BYPRODUCTS "googletest-prefix/src/googletest-build/googlemock/libgmock_main.a"
+  BUILD_BYPRODUCTS "googletest-prefix/src/googletest-build/googlemock/libgmock.a"
 )
 ExternalProject_Get_Property(googletest source_dir)
 set(GTEST_INCLUDE_DIR ${source_dir}/googletest/include/ ${source_dir}/googlemock/include/)

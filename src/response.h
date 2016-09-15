@@ -158,7 +158,7 @@ public:
     void reset() {
         parameters_.clear();
         if ( body_istream_ ) {
-            body_istream_->clear();
+            body_istream_.reset();
         }
         if ( body_ostream_ ) {
             body_ostream_->str( "" );

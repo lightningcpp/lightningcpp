@@ -6,25 +6,25 @@
 
 find_package(PkgConfig)
 
-message( "search path ")
-find_path(RE2_INCLUDE_DIR re2/re2.h
-    HINTS ${CMAKE_BINARY_DIR}
-    PATH_SUFFIXES re2 )
-message( "RE2 PATH: " ${RE2_INCLUDE_DIR} )
-find_library(RE2_LIBRARY NAMES re2 )
+#message( "search path ")
+#find_path(RE2_INCLUDE_DIR re2/re2.h
+#    HINTS ${CMAKE_BINARY_DIR}
+#    PATH_SUFFIXES re2 )
+#message( "RE2 PATH: " ${RE2_INCLUDE_DIR} )
+#find_library(RE2_LIBRARY NAMES re2 )
 
-include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set LIBXML2_FOUND to TRUE
-# if all listed variables are TRUE
-find_package_handle_standard_args(RE2  DEFAULT_MSG RE2_LIBRARY RE2_INCLUDE_DIR)
+#include(FindPackageHandleStandardArgs)
+## handle the QUIETLY and REQUIRED arguments and set LIBXML2_FOUND to TRUE
+## if all listed variables are TRUE
+#find_package_handle_standard_args(RE2  DEFAULT_MSG RE2_LIBRARY RE2_INCLUDE_DIR)
 
-#mark_as_advanced(LIBXML2_INCLUDE_DIR LIBXML2_LIBRARY )
+##mark_as_advanced(LIBXML2_INCLUDE_DIR LIBXML2_LIBRARY )
 
-if( RE2_FOUND )
-    message( "RE2_FOUND: " ${RE2_FOUND} )
-    set(RE2_LIBRARIES ${RE2_LIBRARY} )
-    set(RE2_INCLUDE_DIRS ${RE2_INCLUDE_DIR} )
-else()
+#if( RE2_FOUND )
+#    message( "RE2_FOUND: " ${RE2_FOUND} )
+#    set(RE2_LIBRARIES ${RE2_LIBRARY} )
+#    set(RE2_INCLUDE_DIRS ${RE2_INCLUDE_DIR} )
+#else()
     message( "RE2_NOT_FOUND: " ${RE2_FOUND} )
     ExternalProject_Add(
       re2
@@ -32,6 +32,7 @@ else()
       INSTALL_COMMAND ""
       UPDATE_COMMAND ""
       PATCH_COMMAND ""
+      BUILD_BYPRODUCTS re2-prefix/src/re2-build/libre2.a
     )
     ExternalProject_Get_Property(re2 source_dir)
     set(RE2_INCLUDE_DIR ${source_dir}/)
@@ -44,4 +45,4 @@ else()
 
     set(RE2_LIBRARIES ${RE2_LIBRARY} )
     set(RE2_INCLUDE_DIRS ${RE2_INCLUDE_DIR} )
-endif()
+#endif()

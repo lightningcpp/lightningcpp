@@ -48,14 +48,32 @@ public:
             size_t body_start_ = http_parser_.parse_request ( request_, buffer_, 0, size );
 
             if ( body_start_ == 0 ) { //continue to read the header.
-                socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
+                socket_->read( buffer_, std::bind( &Connection::connect, shared_from_this(), _1, _2 ) );
 
             } else {
 
-                if ( body_length() == 0 ) {
+                size_t _body_length = body_length();
+                if ( _body_length == 0 ) {
                     callback_ ( request_, response_ );
                     size_t _buffer_size = response_.header ( buffer_ );
                     socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
+                } else {
+
+                    if ( size - body_start_ <= _body_length ) {
+                        request_.write ( buffer_, body_start_, _body_length );
+                        //TODO response_ = std::make_shared< HttpResponse >();
+                        callback_ ( request_, response_ );
+
+                        size_t _buffer_size = response_.header ( buffer_ );
+                        socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
+
+                    } else if ( size - body_start_ > 0 ) {
+                        request_.write ( buffer_, body_start_, size - body_start_ );
+                        socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
+
+                    } else {
+                        socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
+                    }
                 }
             }
         }
@@ -68,6 +86,8 @@ public:
     void read ( const asio::error_code& e, std::size_t size ) {
         if( !e ) {
             size_t _body_length = body_length();
+            std::cout << "connection, size: "  << _body_length << std::endl;
+
             request_.write ( buffer_, 0, size );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
 
@@ -79,7 +99,7 @@ public:
                 socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
 
             } else {
-                std::cout << "parse_content: Wrong size." << std::endl;
+                std::cout << "parse_content: Wrong size: " << request_.tellp() << ", " << _body_length << std::endl;
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 size_t _buffer_size = response_.header ( buffer_ );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
