@@ -19,7 +19,7 @@
 #include <memory>
 #include <string>
 
-#include "../httpconfig.h"
+#include "../constant.h"
 #include "../request.h"
 #include "../response.h"
 
@@ -45,7 +45,6 @@ public:
         //set content length
         if ( ! response.contains_parameter ( header::CONTENT_LENGTH ) ) {
             response.parameter ( header::CONTENT_LENGTH,  std::to_string ( response.tellp() ) );
-
         }
 
         //add expiration date

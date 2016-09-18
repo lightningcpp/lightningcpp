@@ -24,7 +24,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 option(build_tests "Build all http unit tests." ON)
 SET(TESTFILES "${PROJECT_SOURCE_DIR}/test/files" CACHE TESTFILES "The path to the testfiles.")
 add_definitions(-DTESTFILES="${TESTFILES}/")
-SET(DOCFILES "${PROJECT_BINARY_DIR}/Documentation/html/" CACHE TESTFILES "The path to the documentation files.")
+SET(DOCFILES "${PROJECT_BINARY_DIR}/doc/" CACHE TESTFILES "The path to the documentation files.")
 add_definitions(-DDOCFILES="${DOCFILES}/")
 
 set(MASTER_PROJECT OFF)
@@ -41,18 +41,15 @@ add_definitions(-DHTTP_CPP_RELEASE="${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VE
 # ---------------------   External Dependencies       ---------------------
 # -------------------------------------------------------------------------
 
-message( "binary: PATH " ${CMAKE_BINARY_DIR} )
+include( cmake/external/gtest.cmake )
+include( cmake/external/re2.cmake )
+include( cmake/external/asio.cmake )
+include( cmake/external/mstch.cmake )
 
-include( gtest.cmake )
-include( re2.cmake )
-if( RE2_FOUND )
-    message( "found RE2 Libraries.")
-endif()
+SET( LIBS ${LIBS} ${MSTCH_LIBRARIES} )
 
-include( asio.cmake )
-
-set( LIGHTNING_INCLUDES ${ROOT}/src ${ASIO_INCLUDE_DIR} ${RE2_INCLUDE_DIR} )
-set( LIGHTNING_LIBS LIGHTNING_LIBS} )
+#set( LIGHTNING_INCLUDES  )
+#set( LIGHTNING_LIBS LIGHTNING_LIBS} )
 
 # -------------------------------------------------------------------------
 # -----------------------   Find Dependencies       -----------------------
@@ -83,11 +80,11 @@ if( MASTER_PROJECT )
         set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_RELEASE} -O3)
     endif()
 
-    include_directories( ${ASIO_INCLUDE_DIR} ${RE2_INCLUDE_DIR} ${OPENSSL_INCLUDES})
+    include_directories( ${ROOT}/src ${ASIO_INCLUDE_DIR} ${RE2_INCLUDE_DIR} ${MSTCH_INCLUDE_DIRS} ${OPENSSL_INCLUDES} )
 
     #create the test server
     add_executable( httpserver main.cpp ${HTTP_SRC_LIST} )
-    target_link_libraries( httpserver re ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
+    target_link_libraries( httpserver re mstch ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
 
     # -------------------------------------------------------------------------
     # -----------------------        Test Code          -----------------------
@@ -101,7 +98,7 @@ if( MASTER_PROJECT )
            ${ASIO_INCLUDE_DIR}
            ${OPENSSL_INCLUDES})
        add_executable(testmain_lightning ${TEST_LIST})
-       target_link_libraries(testmain_lightning ${GMOCK_MAIN_PATH} re gtest ${LIBS})
+       target_link_libraries(testmain_lightning ${GMOCK_MAIN_PATH} re mstch gtest ${LIBS})
        add_test(lightning-tests testmain_lightning)
     endif()
 
@@ -110,7 +107,8 @@ if( MASTER_PROJECT )
     # -------------------------------------------------------------------------
     find_package(Doxygen)
     if(DOXYGEN_FOUND)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.bootstrap.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy-boot.js Documentation/html/doxy-boot.js COPYONLY)
     add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating API documentation with Doxygen" VERBATIM

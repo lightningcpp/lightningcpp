@@ -19,7 +19,7 @@
 #include <functional>
 #include <type_traits>
 
-#include "httpconfig.h"
+#include "constant.h"
 #include "request.h"
 #include "response.h"
 
@@ -78,9 +78,13 @@ public:
             if (  _s == http_status::OK ) {
                 response.status( _s );
                 return;
-            }//TODO find out it it is a match
+            }
         }
-        response.status( _s );
+        if( _s == http::http_status::_NO_MATCH ) {
+            response.status( http::http_status::NOT_FOUND );
+        } else {
+            response.status( _s );
+        }
         error_delegates_( request, response );
     }
 

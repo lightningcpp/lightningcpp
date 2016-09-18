@@ -280,7 +280,7 @@ TEST ( HttpServerTest, TestResponse ) {
     Response _response;
     size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
     EXPECT_EQ ( static_cast< size_t > ( result_header_ss.tellp() ), _position );
-    EXPECT_EQ ( _response.parameters_.size(), 2U );
+    EXPECT_EQ ( _response.parameter_size(), 2U );
     EXPECT_EQ ( _response.parameter ( header::CONTENT_LENGTH ), "121" );
     EXPECT_EQ ( _response.parameter ( header::CONTENT_TYPE ), "text/plain" );
 
@@ -620,9 +620,8 @@ TEST ( HttpServerTest, TestPersistentConnectionV11Mixed ) {
             _result = std::string ( _buffer.data(), _position, len - _position );
         }
 
-        while ( _result.size() < in.tellg() ) {
+        while ( _result.size() < static_cast< size_t >( in.tellg() ) ) {
             size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
-
             if ( len > 0 ) {
                 _result += std::string ( _buffer.data(), 0, len );
             }

@@ -13,21 +13,22 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef FILE_H
-#define FILE_H
+#ifndef HTTP_MOD_FILE_H
+#define HTTP_MOD_FILE_H
 
 #include <sys/stat.h>
 
 #include <fstream>
 #include <string>
 
-#include "../httpconfig.h"
+#include "../constant.h"
 #include "../request.h"
 #include "../response.h"
 
+///@cond DOC_INTERNAL
 namespace http {
 namespace mod {
-namespace file {
+namespace _file_utils {
 static inline void parse_filename ( const std::string & path, std::string & filename, std::string & extension ) {
     std::size_t last_slash_pos = path.find_last_of ( "/" );
     std::size_t last_dot_pos = path.find_last_of ( "." );
@@ -42,14 +43,23 @@ static inline void parse_filename ( const std::string & path, std::string & file
 
     } else { throw http_status::BAD_REQUEST; }
 }
-}//namespace file
+}//namespace _file_utils
 }//namespace mod
 }//namespace http
+///@endcond DOC_INTERNAL
 
 namespace http {
 namespace mod {
+/**
+ * @brief The file module.
+ */
 class File  {
 public:
+    /**
+     * @brief File
+     * @param docroot
+     * @param prefix
+     */
     File( const std::string & docroot, const std::string & prefix = "" ) : docroot_( docroot ), prefix_( prefix ) {}
     File ( const File& ) = delete;
     File ( File&& ) = default;
@@ -84,7 +94,7 @@ public:
 
         } else {
             //get the filename and extension
-            file::parse_filename ( ss_.str(), filename_, extension_ );
+            _file_utils::parse_filename ( ss_.str(), filename_, extension_ );
         }
 
         if ( S_ISREG ( filestatus.st_mode ) ) {
@@ -148,6 +158,6 @@ private:
         response.istream ( std::move ( is ) );
     }
 };
-}//mod http
+}//namespace mod
 }//namespace http
-#endif // FILE_H
+#endif // HTTP_MOD_FILE_H

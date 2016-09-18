@@ -42,7 +42,7 @@ TEST ( ModFileTest, TestExecuteNotFound ) {
 TEST ( ModFileTest, ParseFilename ) {
 
     std::string filename_, extension_;
-    file::parse_filename ( "/foo.bar", filename_, extension_ );
+    _file_utils::parse_filename ( "/foo.bar", filename_, extension_ );
     ASSERT_EQ ( "foo.bar", filename_ );
     ASSERT_EQ ( "bar", extension_ );
 }

@@ -13,41 +13,30 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef HTTP_MOD_EXEC_H
-#define HTTP_MOD_EXEC_H
 
-#include <memory>
 #include <string>
 
-#include "../constant.h"
-#include "../request.h"
-#include "../response.h"
+#include "../src/mod/mstch.h"
+
+#include <gtest/gtest.h>
 
 namespace http {
 namespace mod {
 
-/**
- * @brief The Exec class
- */
-class Exec  {
-public:
-    /**
-     * @brief Exec
-     * @param f
-     */
-    Exec ( std::function< http_status ( http::Request&, http::Response& ) >&& f ) : _f ( std::move ( f ) ) {}
-    Exec ( const Exec& ) = delete;
-    Exec ( Exec&& ) = default;
-    Exec& operator= ( const Exec& ) = delete;
-    Exec& operator= ( Exec&& ) = default;
-    ~Exec() {}
+TEST ( ModMstchTest, TestCreateMstchMap ) {
 
-    http_status execute ( Request& request, Response& response ) {
-        return _f ( request, response );
-    }
-private:
-    std::function< http_status ( http::Request&, http::Response& ) > _f;
-};
+//    Mstch mstch( "{{#names}}Hi {{name}}!\n{{/names}}", mstch::map {
+//                     {"names", mstch::array{
+//                       mstch::map{{"name", std::string{"Chris"}}},
+//                       mstch::map{{"name", std::string{"Mark"}}},
+//                       mstch::map{{"name", std::string{"Scott"}}},
+//                     } } } );
+
+//    Request _request( "/foo/bar" );
+//    Response _response;
+
+//    EXPECT_EQ( http::http_status::OK, mstch.execute( _request, _response ) );
+//    EXPECT_EQ( "",  _response.str() );
+}
 }//namespace mod
 }//namespace http
-#endif // HTTP_MOD_EXEC_H

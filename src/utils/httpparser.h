@@ -21,16 +21,17 @@
 #include <iostream>
 #include <sstream>
 
-#include "../httpconfig.h"
+#include "../constant.h"
 #include "../request.h"
 #include "../response.h"
-
-#include <gtest/gtest_prod.h>
 
 //TODO request without headers
 namespace http {
 namespace utils {
 
+/**
+ * @brief The HttpParser class
+ */
 class HttpParser {
 public:
 	HttpParser() {}
@@ -96,19 +97,12 @@ public:
         return _position;
     }
 
-private:
-	FRIEND_TEST ( HttpParserTest, RequestParserType );
-	FRIEND_TEST ( HttpParserTest, ResponseParserType );
-	FRIEND_TEST ( HttpParserTest, RequestParserTypeLessThen );
-	FRIEND_TEST ( HttpParserTest, ParseRequestLine );
-	FRIEND_TEST ( HttpParserTest, ParseResponseLine );
-	FRIEND_TEST ( HttpParserTest, ParseRequestLineAndParameter );
-	FRIEND_TEST ( HttpParserTest, ParseRequestLineAndParameterAndFormData );
+    ///@cond DOC_INTERNAL
+    enum class request_parser_type {
+        REQUEST_METHOD, REQUEST_URI, REQUEST_PROTOCOL, REQUEST_VERSION_MAJOR,
+        REQUEST_VERSION_MINOR, REQUEST_KEY, REQUEST_VALUE, REQUEST_END
+    };
 
-	enum class request_parser_type {
-		REQUEST_METHOD, REQUEST_URI, REQUEST_PROTOCOL, REQUEST_VERSION_MAJOR,
-		REQUEST_VERSION_MINOR, REQUEST_KEY, REQUEST_VALUE, REQUEST_END
-	};
     friend HttpParser::request_parser_type & operator ++ ( HttpParser::request_parser_type & t ) {
         switch ( t ) {
         case HttpParser::request_parser_type::REQUEST_METHOD:
@@ -435,6 +429,7 @@ private:
 			return parser_state.get_buffer ( _last_token_size == 0? std::string() : std::string ( buffer.data(), parser_state.start_pos_, _last_token_size ) );
 		}
 	}
+    ///@endcond DOC_INTERNAL
 };
 }//namespace utils
 }//namespace http

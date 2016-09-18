@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "../src/httpconfig.h"
+#include "../src/constant.h"
 #include "../src/request.h"
 
 #include <gtest/gtest.h>

@@ -16,8 +16,9 @@
 #ifndef HTTP_CONNECTION_H
 #define HTTP_CONNECTION_H
 
-#include "httpconfig.h"
+#include "constant.h"
 #include "socket.h"
+
 #include "utils/httpparser.h"
 
 namespace http {
@@ -86,8 +87,6 @@ public:
     void read ( const asio::error_code& e, std::size_t size ) {
         if( !e ) {
             size_t _body_length = body_length();
-            std::cout << "connection, size: "  << _body_length << std::endl;
-
             request_.write ( buffer_, 0, size );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
 

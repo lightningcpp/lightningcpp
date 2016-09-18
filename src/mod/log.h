@@ -13,9 +13,12 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef HTTP_MOD_EXEC_H
-#define HTTP_MOD_EXEC_H
+#ifndef HTTP_MOD_LOG_H
+#define HTTP_MOD_LOG_H
 
+#include <cstdio>
+
+#include <map>
 #include <memory>
 #include <string>
 
@@ -23,31 +26,28 @@
 #include "../request.h"
 #include "../response.h"
 
+#include "http.h"
+
 namespace http {
 namespace mod {
 
-/**
- * @brief The Exec class
- */
-class Exec  {
+class Log : Http {
 public:
-    /**
-     * @brief Exec
-     * @param f
-     */
-    Exec ( std::function< http_status ( http::Request&, http::Response& ) >&& f ) : _f ( std::move ( f ) ) {}
-    Exec ( const Exec& ) = delete;
-    Exec ( Exec&& ) = default;
-    Exec& operator= ( const Exec& ) = delete;
-    Exec& operator= ( Exec&& ) = default;
-    ~Exec() {}
+    Log() {}
+    Log( const Log& ) = delete;
+    Log( Log&& ) = default;
+    Log& operator= ( const Log& ) = delete;
+    Log& operator= ( Log&& ) = default;
+    ~Log() {}
 
     http_status execute ( Request& request, Response& response ) {
-        return _f ( request, response );
+
+        // remotehost rfc931 authuser [date] "request" status bytes
+        printf( "%s rfc931 %s [date] \"request\" %.3u %u", //TODO
+                request.remote_ip(), "anonymous", request.uri(), response.parameter( http::header::CONTENT_LENGTH ) );
+        return http::http_status::OK;
     }
-private:
-    std::function< http_status ( http::Request&, http::Response& ) > _f;
 };
 }//namespace mod
 }//namespace http
-#endif // HTTP_MOD_EXEC_H
+#endif // HTTP_MOD_LOG_H

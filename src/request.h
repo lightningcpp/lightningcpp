@@ -24,7 +24,6 @@
 #include <vector>
 
 #include "constant.h"
-#include "httpconfig.h" //TODO
 #include "utils/stringutils.h"
 
 namespace http {

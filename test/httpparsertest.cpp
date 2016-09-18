@@ -18,7 +18,7 @@
 #include <fstream>
 #include <string>
 
-#include "../src/httpconfig.h"
+#include "../src/constant.h"
 #include "../src/utils/httpparser.h"
 #include "../src/request.h"
 #include "../src/response.h"

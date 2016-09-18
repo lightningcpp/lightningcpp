@@ -17,8 +17,9 @@
 #define CHUNKED_H
 
 #include <array>
+#include <sstream>
 
-#include "../httpconfig.h"
+#include "../constant.h"
 #include "../response.h"
 
 namespace http {
@@ -26,11 +27,75 @@ namespace utils {
 
 class Chunked {
 public:
-    Chunked() {}
+    Chunked( writer_t writer ) : _writer( writer ) {}
 
-    bool write ( buffer_t buffer, Response response ) {
+    void write ( buffer_t buffer, size_t index, size_t size ) {
 
+        for( size_t i=index; i<size; ++i ) {
+            //search size
+            if ( status_ == END ) {
+                std::cout << "END, extra character : " << buffer[i] << std::endl;
+            } else if ( status_ == CHUNK ) {
+                if( chunk_read_ == 0 ) {
+                    status_ = START;
+                    ss_.str("");
+                    ss_.clear();
+                    chunk_size_ = 0;
+                    chunk_read_ = 0;
+                } else {
+                    if( chunk_read_ > size - i ) {
+                        _writer( buffer, i, size - i );
+                        chunk_read_ -= ( size - i );
+                        i = size + 1;
+                    } else {
+                        _writer( buffer, i, chunk_read_ );
+                        i = i + chunk_read_;
+                        chunk_read_ = 0;
+                    }
+                }
+
+            } else if( status_ == START && buffer[i] == '\n' ) {
+                if( ! ss_.str().empty() ) {
+                    status_ = CHUNK;
+                    chunk_size_ = std::stoul( ss_.str(), 0, 16 );
+                    if( chunk_size_ == 0 ) {
+                        status_ = END;
+                    } else if( chunk_size_ > size - i ) {
+                        _writer( buffer, i + 1  /* skip \n */, size - i - 1 );
+                        chunk_read_ = chunk_size_ - ( size - i - 1 );
+                        return;
+
+                    } else {
+                        _writer( buffer, i + 1 /* skip \n */, chunk_size_ );
+                    }
+
+                    if ( i + chunk_size_ < size ) {
+                        i = i + chunk_size_ + 1;
+                        ss_.str("");
+                        ss_.clear();
+                    }
+                }
+            } else if( buffer[i] != '\r' ) {
+                ss_ << buffer[i];
+            }
+        }
     }
+
+    void read( buffer_t buffer, size_t index, size_t size ) {
+        if( size == 0 ) {
+            //TODO _reader( "trailer", 0, trailer.size() );
+        } else {
+            //TODO _reader( "header", 0, header.size() );
+            _reader( buffer, index, size );
+        }
+    }
+
+private:
+    enum status { START, CHUNK, END } status_ = START;
+    size_t chunk_size_ = 0, chunk_read_ = 0;
+    writer_t _writer;
+    writer_t _reader;
+    std::stringstream ss_;
 };
 }//namespace utils
 }//namespace http

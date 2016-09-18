@@ -21,8 +21,6 @@ namespace http {
  -# @ref AsyncClient
  -# @ref Server
 -# @ref Delegates
- -# @ref FileServer
- -# @ref WebSocket
 \n
 @section Description Description
 lightning is a http server/client library written in modern c++ (C++14). The name lightning is from the television series Tom&Jerry
@@ -101,6 +99,10 @@ objects as arguments. The implementation must fill the header parameters of the 
     };
 
 @subsection Delegates Available Delegates
+
+- mod::Match Match a request by uri.
+- mod::Method Filter requests by method.
+
 @subsubsection FileServer File Server
 the with the filedelegate you can serve a local file folder.
 @subsubsection WebSocket WEB-Socket Server

@@ -21,11 +21,9 @@
 #include <string>
 #include <thread>
 
-#include "httpconfig.h"
+#include "constant.h"
 #include "connection.h"
 #include "socket.h"
-
-#include <gtest/gtest_prod.h>
 
 namespace http {
 /**
@@ -79,9 +77,8 @@ public:
 	}
 
 private:
-	FRIEND_TEST ( HttpServerTest, TestCreateServer );
 
-	/* Initiate an asynchronous accept operation. */
+    /* Initiate an asynchronous accept operation. */
 	void start_accept() {
         server_socket_.reset ( new Socket( io_service_ ) );
         acceptor_.async_accept ( server_socket_->socket(),

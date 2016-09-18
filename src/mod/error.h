@@ -13,14 +13,14 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef ERROR_H
-#define ERROR_H
+#ifndef HTTP_MOD_ERROR_H
+#define HTTP_MOD_ERROR_H
 
 #include <map>
 #include <memory>
 #include <string>
 
-#include "../httpconfig.h"
+#include "../constant.h"
 #include "../request.h"
 #include "../response.h"
 
@@ -29,6 +29,9 @@
 namespace http {
 namespace mod {
 
+/**
+ * @brief Create the error response.
+ */
 class Error : Http {
 public:
     Error() {}
@@ -40,13 +43,13 @@ public:
 
     http_status execute ( Request& request, Response& response ) {
         if( _error_delegates.find( response.status() ) != _error_delegates.end() ) {
-            response << _error_delegates[ response.status() ];
+            response << _error_delegates.at( response.status() );
         }
         Http::execute( request, response );
         return response.status();
     }
 private:
-    std::map<http_status, std::string > _error_delegates {
+    const std::map<http_status, std::string > _error_delegates {
         { http_status::BAD_GATEWAY, http::response::BAD_GATEWAY },
         { http_status::BAD_REQUEST, http::response::BAD_REQUEST },
         { http_status::CREATED, http::response::CREATED },
@@ -62,6 +65,6 @@ private:
         { http_status::UNAUTHORIZED, http::response::UNAUTHORIZED }
     };
 };
-}//mod http
+}//namespace mod
 }//namespace http
-#endif // ERROR_H
+#endif // HTTP_MOD_ERROR_H

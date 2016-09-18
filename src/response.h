@@ -22,10 +22,8 @@
 #include <sstream>
 
 #include "constant.h"
-#include "httpconfig.h" //TODO
 #include "mimetypes.h"
-
-#include <gtest/gtest_prod.h>
+#include "utils/stringutils.h"
 
 namespace http {
 
@@ -35,7 +33,9 @@ namespace http {
  */
 class Response {
 public:
-
+    /**
+     * @brief the response class.
+     */
     Response() : body_ostream_( std::make_unique< std::stringstream >() ) {}
     Response ( const Response& ) = delete;
     Response ( Response&& ) = default;
@@ -129,6 +129,13 @@ public:
     void istream ( std::unique_ptr< std::istream > && is )
     { body_istream_ = std::move ( is ); }
 
+    /**
+     * @brief get the ostream as string.
+     * @return
+     */
+    std::string str()
+    { return body_ostream_->str(); }
+
 	/**
 	 * @brief write to the buffer
 	 * @param value
@@ -167,8 +174,6 @@ public:
     }
 
 private:
-	FRIEND_TEST ( HttpServerTest, TestResponse );
-
 	http_status status_ = http_status::OK;
 	short version_major_ = 1;
 	short version_minor_ = 1;

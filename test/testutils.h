@@ -20,7 +20,7 @@
 
 #include <asio.hpp>
 
-#include "../src/httpconfig.h"
+#include "../src/constant.h"
 
 inline void client_header ( const std::string & host, const std::string & port, std::vector< asio::streambuf* > request, asio::streambuf & response ) {
 	asio::io_service io_service;

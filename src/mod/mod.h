@@ -19,12 +19,18 @@
 #include <memory>
 #include <tuple>
 
-#include "../httpconfig.h"
+#include "../constant.h"
 #include "../request.h"
 #include "../response.h"
 
+///@cond DOC_INTERNAL
 namespace http {
 namespace mod {
+namespace _mod_utils {
+
+inline bool stat_is_success( http_status s) {
+    return ( static_cast< int > ( s ) >= 200 && static_cast< int > ( s ) < 300 );
+}
 
 template<std::size_t I = 0, class Rq, class Rs, typename... Tp>
 inline typename std::enable_if<I == sizeof... ( Tp ), http_status>::type
@@ -35,15 +41,31 @@ inline typename std::enable_if<I < sizeof... ( Tp ), http_status>::type
 T_execute_module ( Rq& request, Rs& response, std::tuple<Tp...>& t ) {
     http_status _s = std::get<I> ( t ).execute ( request, response );
 
-    if ( _s != http::http_status::OK ) {
-        return _s;
+    if ( _s != http::http_status::_NO_MATCH ) {
+        if( stat_is_success( _s ) ) {
+            response.status( _s );
+        } else return _s;
 
-    } else { return T_execute_module<I + 1, Rq, Rs, Tp...> ( request, response, t ); }
+    }
+    return T_execute_module<I + 1, Rq, Rs, Tp...> ( request, response, t );
 }
+}//namespace _mod_utils
+}//namespace mod
+}//namespace http
+
+namespace http {
+namespace mod {
 
 template< class... Placeholders >
+/**
+ * @brief The Mod struct executes all the registered modules.
+ */
 struct Mod {
 public:
+    /**
+     * @brief Create a new Mod object.
+     * @param p the modules.
+     */
     Mod ( Placeholders&&... p ) :_modules ( { std::move( p )... } ) {}
     Mod( const Mod& ) = delete;
     Mod ( Mod&& ) = default;
@@ -51,13 +73,13 @@ public:
     Mod& operator= ( Mod&& ) = default;
 
     http_status execute ( http::Request& request, http::Response& response ) {
-        return T_execute_module ( request, response, _modules );
+        return _mod_utils::T_execute_module ( request, response, _modules );
     }
 
 private:
     std::tuple< Placeholders... > _modules;
 };
-
-}//mod http
+}//namespace mod
 }//namespace http
+///@endcond DOC_INTERNAL
 #endif // HTTP_MOD_H

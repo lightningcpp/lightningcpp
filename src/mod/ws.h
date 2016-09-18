@@ -13,41 +13,59 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef WEBSOCKETDELEGATE_H
-#define WEBSOCKETDELEGATE_H
+#ifndef HTTP_MOD_WS_H
+#define HTTP_MOD_WS_H
 
 #include <string>
 #include <vector>
 
 #include <openssl/sha.h>
 
-#include "utils/base64.h"
-#include "request.h"
-#include "response.h"
+#include "../constant.h"
+#include "../request.h"
+#include "../response.h"
+#include "../utils/base64.h"
 
-#include <gtest/gtest_prod.h>
+///@cond DOC_INTERNAL
+namespace http {
+namespace mod {
+namespace _ws_utils {
+
+static const std::string WS_KEY = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+inline std::array< unsigned char, SHA_DIGEST_LENGTH > sha1 ( const unsigned char *input, int length ) {
+
+    // unsigned char * hash_ = new unsigned char[SHA_DIGEST_LENGTH]; //as array<>
+    std::array< unsigned char, SHA_DIGEST_LENGTH > hash_;
+    SHA1 ( input, length, hash_.data() );
+    return hash_;
+}
+inline std::string calculate_key ( const std::string & request_key ) {
+    std::stringstream ss_;
+    ss_ << request_key << WS_KEY;
+    std::string raw_key_ = ss_.str();
+
+    const std::string key_string_ = ss_.str();
+    std::array< unsigned char, SHA_DIGEST_LENGTH > result_ = sha1 ( reinterpret_cast< const unsigned char *> ( key_string_.c_str() ), key_string_.size() );
+    return Base64::base64_encode ( result_.data(), SHA_DIGEST_LENGTH );
+}
+}//namespace _ws_utils
+}//namespace mod
+}//namespace http
+///@endcond DOC_INTERNAL
 
 namespace http {
-namespace delegate {
+namespace mod {
 
-class WebSocketDelegate {
+class WS  {
 public:
-	/**
-	 * @brief WebSocketDelegate CTOR
-	 */
-	explicit WebSocketDelegate ( std::vector< std::string > & protocols ) : protocols_ ( protocols ) {}
-	WebSocketDelegate ( const WebSocketDelegate& ) = delete;
-	WebSocketDelegate ( WebSocketDelegate&& ) = delete;
-	WebSocketDelegate& operator= ( const WebSocketDelegate& ) = delete;
-	WebSocketDelegate& operator= ( WebSocketDelegate&& ) = delete;
-	~WebSocketDelegate() {}
+    explicit WS ( std::vector< std::string > & protocols ) : protocols_ ( protocols ) {}
+    WS ( const WS& ) = delete;
+    WS ( WS&& ) = default;
+    WS& operator= ( const WS& ) = delete;
+    WS& operator= ( WS&& ) = default;
+    ~WS() {}
 
-	/**
-	 * @brief execute request
-	 * @param request
-	 * @param response
-	 */
-    void execute ( Request & request, Response & response ) {
+    http_status execute ( Request& request, Response& response ) {
         std::cout << "WebSocket:" << request.uri() << std::endl;
 
         for ( auto & item : request.parameter_map() ) {
@@ -58,7 +76,7 @@ public:
                 request.contains_parameter ( "Upgrade" ) && request.parameter ( "Upgrade" ) == "websocket" ) {
             std::cout << "WebSocket Request" << std::endl;
             response.status ( http_status::SWITCHING_PROTOCOL );
-            response.parameter ( "Sec-WebSocket-Accept", calculate_key ( request.parameter ( "Sec-Websocket-Key" ) ) );
+            response.parameter ( "Sec-WebSocket-Accept", _ws_utils::calculate_key ( request.parameter ( "Sec-Websocket-Key" ) ) );
             response.parameter ( "Upgrade", "websocket" );
             response.parameter ( "Connection", "Upgrade" );
 
@@ -72,36 +90,18 @@ public:
 
                 if ( ! response.contains_parameter ( "Sec-WebSocket-Protocol" ) ) {
                     std::cout << "no valid protocol found." << std::endl;
+                    //TODO return http::http_status::TODO
                 }
             }
 
         } else {
             std::cout << "Regular Request" << std::endl;
         }
+        return http::http_status::OK;
     }
-
 private:
-	const std::string _key = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-	std::vector< std::string > protocols_;
-	FRIEND_TEST ( WebSocketDelegateTest, CalculateKey );
-        std::string calculate_key ( const std::string & request_key ) {
-                std::stringstream ss_;
-                ss_ << request_key << _key;
-                std::string raw_key_ = ss_.str();
-
-                const std::string key_string_ = ss_.str();
-                std::array< unsigned char, SHA_DIGEST_LENGTH > result_ = sha1 ( reinterpret_cast< const unsigned char *> ( key_string_.c_str() ), key_string_.size() );
-            return Base64::base64_encode ( result_.data(), SHA_DIGEST_LENGTH );
-        }
-        FRIEND_TEST ( WebSocketDelegateTest, SHA1 );
-        std::array< unsigned char, SHA_DIGEST_LENGTH > sha1 ( const unsigned char *input, int length ) {
-
-                // unsigned char * hash_ = new unsigned char[SHA_DIGEST_LENGTH]; //as array<>
-                std::array< unsigned char, SHA_DIGEST_LENGTH > hash_;
-                SHA1 ( input, length, hash_.data() );
-                return hash_;
-        }
+    std::vector< std::string > protocols_;
 };
-}//namespace delegate
+}//namespace mod
 }//namespace http
-#endif // WEBSOCKETDELEGATE_H
+#endif // HTTP_MOD_WS_H
