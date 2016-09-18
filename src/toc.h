@@ -98,14 +98,12 @@ objects as arguments. The implementation must fill the header parameters of the 
         }
     };
 
-@subsection Delegates Available Delegates
+@subsection Delegates Available delegates
 
 - mod::Match Match a request by uri.
 - mod::Method Filter requests by method.
+- mod::Mstch Mustache template engine.
 
-@subsubsection FileServer File Server
-the with the filedelegate you can serve a local file folder.
-@subsubsection WebSocket WEB-Socket Server
 */
 }
 #endif // TOC_H

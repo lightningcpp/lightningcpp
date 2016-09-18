@@ -35,7 +35,7 @@ public:
     Http& operator= ( Http&& ) = default;
     ~Http() {}
 
-    http_status execute ( Request& request, Response& response ) {
+    static http_status execute ( Request& request, Response& response ) {
 
         //set the status line
         response.version_major ( request.version_major() );

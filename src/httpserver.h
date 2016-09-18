@@ -58,7 +58,7 @@ public:
 		start_accept();
 
 		// Create a pool of threads to run all of the io_services.
-		for ( std::size_t i = 0; i < HTTP_SERVER_THREAD_POOL_SIZE; ++i ) {
+		for ( std::size_t i = 0; i < SERVER_THREAD_POOL_SIZE; ++i ) {
 			std::shared_ptr<std::thread> thread ( new std::thread (
 					std::bind ( static_cast<size_t ( asio::io_service::* ) () > ( &asio::io_service::run ), &io_service_ ) ) );
 			threads_[i] = thread;
@@ -101,7 +101,7 @@ private:
 	/* Acceptor used to listen for incoming connections. */
 	asio::ip::tcp::acceptor acceptor_;
 	/* The Thread pool. */
-	std::array<std::shared_ptr<std::thread>, HTTP_SERVER_THREAD_POOL_SIZE > threads_;
+	std::array<std::shared_ptr<std::thread>, SERVER_THREAD_POOL_SIZE > threads_;
 
     server_socket_ptr server_socket_;
 

@@ -83,7 +83,7 @@ TEST ( HttpParserTest, RequestParserTypeLessThen ) {
 
 TEST ( HttpParserTest, ParseRequestLine ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/simple.dump" ), &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
 	http::Request _request;
@@ -100,7 +100,7 @@ TEST ( HttpParserTest, ParseRequestLine ) {
 
 TEST ( HttpParserTest, ParseResponseLine ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_response.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/response/soap_browse_response.dump" ), &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
 	http::Response _response;
@@ -116,7 +116,7 @@ TEST ( HttpParserTest, ParseResponseLine ) {
 
 TEST ( HttpParserTest, ParseRequestLineAndParameter ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/simple.dump" ), &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
 	http::Request _request;
@@ -144,7 +144,7 @@ TEST ( HttpParserTest, ParseRequestLineAndParameter ) {
 
 TEST ( HttpParserTest, ParseRequestLineAndParameterAndFormData ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/form_request_post.dump" ), &_buffer );
 	HttpParser _parser;
 	HttpParser::RequestParserState _state;
 	http::Request _request;
@@ -186,7 +186,7 @@ TEST ( HttpParserTest, ParseRequestLineAndParameterAndFormData ) {
 
 TEST ( HttpParserTest, ParseSimpleRequest ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/simple.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Request _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
@@ -209,7 +209,7 @@ TEST ( HttpParserTest, ParseSimpleRequest ) {
 
 TEST ( HttpParserTest, ParseSoapResponse ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_response.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/response/soap_browse_response.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Response _response;
 	size_t _position = _parser.parse_response ( _response, _buffer, 0, _size );
@@ -227,7 +227,7 @@ TEST ( HttpParserTest, ParseSoapResponse ) {
 
 TEST ( HttpParserTest, ParseSoapLongResponse ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/response/soap_browse_long_response.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/response/soap_browse_long_response.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Response _response;
 	size_t _position = _parser.parse_response ( _response, _buffer, 0, _size );
@@ -245,7 +245,7 @@ TEST ( HttpParserTest, ParseSoapLongResponse ) {
 
 TEST ( HttpParserTest, ParseFormGetRequest ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_get.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/form_request_get.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Request _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
@@ -275,7 +275,7 @@ TEST ( HttpParserTest, ParseFormGetRequest ) {
 
 TEST ( HttpParserTest, ParseFormPostRequest ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/form_request_post.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Request _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
@@ -310,7 +310,7 @@ TEST ( HttpParserTest, ParseFormPostRequest ) {
 
 TEST ( HttpParserTest, ParseFormSoapPost ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/soap_browse_request.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/soap_browse_request.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Request _request;
 	size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
@@ -618,7 +618,7 @@ TEST ( HttpParserTest, ParseMultiJunks ) {
 
 TEST ( HttpParserTest, ParseChunked ) {
 	buffer_t _buffer;
-    get_file ( HTTP_TESTFILES + "/raw/request/soap_browse_request.dump", &_buffer );
+    get_file ( TESTFILES + std::string( "/raw/request/soap_browse_request.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Request _request;
 
@@ -659,7 +659,7 @@ TEST ( HttpParserTest, ParseChunked ) {
 
 TEST ( HttpParserTest, ParseChunkedWithBody ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/form_request_post.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Request _request;
 
@@ -716,7 +716,7 @@ TEST ( HttpParserTest, ParseChunkedWithBody ) {
 
 TEST ( HttpParserTest, ParseChunkedWithNewBody ) {
 	buffer_t _buffer;
-    size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
+    size_t _size = get_file ( TESTFILES + std::string( "/raw/request/form_request_post.dump" ), &_buffer );
 	HttpParser _parser;
 	http::Request _request;
 
@@ -778,7 +778,7 @@ TEST ( HttpParserTest, MultiParse ) {
 	HttpParser _parser;
 	{
 		buffer_t _buffer;
-        size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/simple.dump", &_buffer );
+        size_t _size = get_file ( TESTFILES + std::string( "/raw/request/simple.dump" ), &_buffer );
 		http::Request _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 		EXPECT_EQ ( _position, _size );
@@ -800,7 +800,7 @@ TEST ( HttpParserTest, MultiParse ) {
 
 	{
 		buffer_t _buffer;
-        size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_get.dump", &_buffer );
+        size_t _size = get_file ( TESTFILES + std::string( "/raw/request/form_request_get.dump" ), &_buffer );
 		http::Request _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 		EXPECT_EQ ( _position, _size );
@@ -829,7 +829,7 @@ TEST ( HttpParserTest, MultiParse ) {
 
 	{
 		buffer_t _buffer;
-        size_t _size = get_file ( HTTP_TESTFILES + "/raw/request/form_request_post.dump", &_buffer );
+        size_t _size = get_file ( TESTFILES + std::string( "/raw/request/form_request_post.dump" ), &_buffer );
 		http::Request _request;
 		size_t _position = _parser.parse_request ( _request, _buffer, 0, _size );
 

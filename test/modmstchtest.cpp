@@ -25,18 +25,12 @@ namespace mod {
 
 TEST ( ModMstchTest, TestCreateMstchMap ) {
 
-//    Mstch mstch( "{{#names}}Hi {{name}}!\n{{/names}}", mstch::map {
-//                     {"names", mstch::array{
-//                       mstch::map{{"name", std::string{"Chris"}}},
-//                       mstch::map{{"name", std::string{"Mark"}}},
-//                       mstch::map{{"name", std::string{"Scott"}}},
-//                     } } } );
+    Mstch mstch( "{{mustache}} templating", bustache::object{{"mustache", "bustache"}} );
+    Request _request( "/foo/bar" );
+    Response _response;
 
-//    Request _request( "/foo/bar" );
-//    Response _response;
-
-//    EXPECT_EQ( http::http_status::OK, mstch.execute( _request, _response ) );
-//    EXPECT_EQ( "",  _response.str() );
+    EXPECT_EQ( http::http_status::OK, mstch.execute( _request, _response ) );
+    EXPECT_EQ( "bustache templating",  _response.str() );
 }
 }//namespace mod
 }//namespace http

@@ -62,7 +62,6 @@ public:
 
                     if ( size - body_start_ <= _body_length ) {
                         request_.write ( buffer_, body_start_, _body_length );
-                        //TODO response_ = std::make_shared< HttpResponse >();
                         callback_ ( request_, response_ );
 
                         size_t _buffer_size = response_.header ( buffer_ );

@@ -36,7 +36,6 @@ static const std::string    PUT     =   "PUT";
 static const std::string    TRACE   =   "TRACE";
 } //method
 
-
 /**
  * The http status types.
  * @brief http status types.
@@ -231,10 +230,24 @@ using namespace std::placeholders;
 class Request;
 class Response;
 
+
+#ifndef HTTP_BUFFER_SIZE
 static const size_t BUFFER_SIZE = 8192;
+#else
+static const size_t BUFFER_SIZE = HTTP_BUFFER_SIZE;
+#endif
+
+#ifndef HTTP_CLIENT_TIMEOUT
 static const size_t CLIENT_TIMEOUT = 3;
-static const size_t HTTP_SERVER_THREAD_POOL_SIZE = 10;
-static const std::string HTTP_TESTFILES = TESTFILES;
+#else
+static const size_t CLIENT_TIMEOUT = HTTP_CLIENT_TIMEOUT;
+#endif
+
+#ifndef HTTP_SERVER_THREAD_POOL_SIZE
+static const size_t SERVER_THREAD_POOL_SIZE = 10;
+#else
+static const size_t SERVER_THREAD_POOL_SIZE = HTTP_SERVER_THREAD_POOL_SIZE;
+#endif
 
 typedef std::array< char, BUFFER_SIZE > buffer_t;
 

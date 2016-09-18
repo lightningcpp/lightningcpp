@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include <mstch/mstch.hpp>
+#include <bustache/model.hpp>
 
 #include "../constant.h"
 #include "../request.h"
@@ -36,23 +36,34 @@ namespace _mstch_utils {
 
 namespace http {
 namespace mod {
+/**
+ * @brief The Mstch module.
 
+Mustache template handling using [{{ bustache }}](https://github.com/jamboree/bustache).
+Boost needs to be installed in your project to use bustache.
+
+Example Usage:
+
+    Mstch mstch( "{{mustache}} templating", bustache::object{{"mustache", "bustache"}} );
+    ## result "bustache templating" ##
+
+ */
 class Mstch  {
 public:
-//    explicit Mstch ( const std::string & t, mstch::map context ) : template_ ( t ), context_( context ) {}
-//    Mstch ( const Mstch& ) = delete;
-//    Mstch ( Mstch&& ) = default;
-//    Mstch& operator= ( const Mstch& ) = delete;
-//    Mstch& operator= ( Mstch&& ) = default;
-//    ~Mstch() {}
+    explicit Mstch ( const std::string & t, bustache::object&& context ) : template_ ( bustache::format( t ) ), context_( context ) {}
+    Mstch ( const Mstch& ) = delete;
+    Mstch ( Mstch&& ) = default;
+    Mstch& operator= ( const Mstch& ) = delete;
+    Mstch& operator= ( Mstch&& ) = default;
+    ~Mstch() {}
 
-//    http_status execute ( Request&, Response& response ) {
-//        response << mstch::render(template_, context_ );
-//        return http::http_status::OK;
-//    }
-//private:
-//    const std::string template_;
-//    const mstch::map context_;
+    http_status execute ( Request&, Response& response ) {
+        response << template_( context_ );
+        return http::http_status::OK;
+    }
+private:
+    const bustache::format template_;
+    const bustache::object context_;
 };
 }//namespace mod
 }//namespace http

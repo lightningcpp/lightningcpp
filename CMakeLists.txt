@@ -44,9 +44,8 @@ add_definitions(-DHTTP_CPP_RELEASE="${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VE
 include( cmake/external/gtest.cmake )
 include( cmake/external/re2.cmake )
 include( cmake/external/asio.cmake )
-include( cmake/external/mstch.cmake )
-
-SET( LIBS ${LIBS} ${MSTCH_LIBRARIES} )
+include( cmake/external/bustache.cmake )
+#include( cmake/external/ctemplate.cmake )
 
 #set( LIGHTNING_INCLUDES  )
 #set( LIGHTNING_LIBS LIGHTNING_LIBS} )
@@ -57,6 +56,8 @@ SET( LIBS ${LIBS} ${MSTCH_LIBRARIES} )
 find_package(OpenSSL REQUIRED)
 set(LIBS ${LIBS} ${OPENSSL_LIBRARIES})
 set(LIBS ${LIBS} -lssl -lcrypto -luuid -lpthread -lm) #needed for ubuntu
+find_package(Boost 1.54.0)
+set(LIBS ${LIBS} ${Boost_LIBRARIES})
 
 # -------------------------------------------------------------------------
 # -----------------------      Compile Code         -----------------------
@@ -80,11 +81,11 @@ if( MASTER_PROJECT )
         set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_RELEASE} -O3)
     endif()
 
-    include_directories( ${ROOT}/src ${ASIO_INCLUDE_DIR} ${RE2_INCLUDE_DIR} ${MSTCH_INCLUDE_DIRS} ${OPENSSL_INCLUDES} )
+    include_directories( ${ROOT}/src ${ASIO_INCLUDE_DIR} ${RE2_INCLUDE_DIR} ${BUSTACHE_INCLUDE_DIR} ${OPENSSL_INCLUDES} )
 
     #create the test server
     add_executable( httpserver main.cpp ${HTTP_SRC_LIST} )
-    target_link_libraries( httpserver re mstch ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
+    target_link_libraries( httpserver re bustache ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
 
     # -------------------------------------------------------------------------
     # -----------------------        Test Code          -----------------------
@@ -98,7 +99,7 @@ if( MASTER_PROJECT )
            ${ASIO_INCLUDE_DIR}
            ${OPENSSL_INCLUDES})
        add_executable(testmain_lightning ${TEST_LIST})
-       target_link_libraries(testmain_lightning ${GMOCK_MAIN_PATH} re mstch gtest ${LIBS})
+       target_link_libraries(testmain_lightning ${GMOCK_MAIN_PATH} re bustache gtest ${LIBS})
        add_test(lightning-tests testmain_lightning)
     endif()
 
