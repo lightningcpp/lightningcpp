@@ -81,7 +81,7 @@ namespace method {
 /** @brief Method with string. */
 struct S{
     template< typename... M >
-    S( const std::string method, M&&... mods ) :
+    S( const std::string & method, M&&... mods ) :
         method_ ( method ),
         delegate_ ( std::bind( &http::mod::Mod< M... >::execute, std::make_shared< http::mod::Mod< M... > >( std::move( mods )... ), _1, _2 ) ) {}
 
@@ -208,7 +208,6 @@ public:
     }
 private:
     http_connection_t delegates_;
-//    std::vector< http_connection_t > delegates_;
 };
 }//namespace mod
 }//namespace http

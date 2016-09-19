@@ -16,7 +16,6 @@
 #ifndef HTTP_MOD_EXEC_H
 #define HTTP_MOD_EXEC_H
 
-#include <memory>
 #include <string>
 
 #include "../constant.h"
@@ -27,15 +26,28 @@ namespace http {
 namespace mod {
 
 /**
- * @brief The Exec class
+ * @brief Execute a delegate method.
+
+The CTOR takes a std::function object of the type http_connection_t. The method must
+return a HTTP status.
+
+Example Usage:
+
+    Exec x( [] ( Request&, Response& ) {
+        ## code here ##
+        return http::http_status::OK;
+    } );
+
+You can use std::bind to set the delegate with any existing method.
+
  */
 class Exec  {
 public:
     /**
-     * @brief Exec
-     * @param f
+     * @brief Create the Exec Object with a delegate method.
+     * @param f delegate function pointer
      */
-    Exec ( std::function< http_status ( http::Request&, http::Response& ) >&& f ) : _f ( std::move ( f ) ) {}
+    Exec ( auto&& f ) : _f ( std::move ( f ) ) {}
     Exec ( const Exec& ) = delete;
     Exec ( Exec&& ) = default;
     Exec& operator= ( const Exec& ) = delete;
@@ -46,7 +58,7 @@ public:
         return _f ( request, response );
     }
 private:
-    std::function< http_status ( http::Request&, http::Response& ) > _f;
+    http_connection_t _f;
 };
 }//namespace mod
 }//namespace http

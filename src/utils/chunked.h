@@ -44,11 +44,11 @@ public:
                     chunk_read_ = 0;
                 } else {
                     if( chunk_read_ > size - i ) {
-                        _writer( buffer, i, size - i );
+                        _writer( buffer.data()+i, size - i );
                         chunk_read_ -= ( size - i );
                         i = size + 1;
                     } else {
-                        _writer( buffer, i, chunk_read_ );
+                        _writer( buffer.data()+i, chunk_read_ );
                         i = i + chunk_read_;
                         chunk_read_ = 0;
                     }
@@ -61,12 +61,12 @@ public:
                     if( chunk_size_ == 0 ) {
                         status_ = END;
                     } else if( chunk_size_ > size - i ) {
-                        _writer( buffer, i + 1  /* skip \n */, size - i - 1 );
+                        _writer( buffer.data()+i+1  /* skip \n */, size - i - 1 );
                         chunk_read_ = chunk_size_ - ( size - i - 1 );
                         return;
 
                     } else {
-                        _writer( buffer, i + 1 /* skip \n */, chunk_size_ );
+                        _writer( buffer.data()+i+1 /* skip \n */, chunk_size_ );
                     }
 
                     if ( i + chunk_size_ < size ) {
@@ -86,7 +86,7 @@ public:
             //TODO _reader( "trailer", 0, trailer.size() );
         } else {
             //TODO _reader( "header", 0, header.size() );
-            _reader( buffer, index, size );
+            _reader( buffer.data()+index, size );
         }
     }
 

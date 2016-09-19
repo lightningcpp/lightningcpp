@@ -230,28 +230,13 @@ using namespace std::placeholders;
 class Request;
 class Response;
 
-
-#ifndef HTTP_BUFFER_SIZE
-static const size_t BUFFER_SIZE = 8192;
-#else
 static const size_t BUFFER_SIZE = HTTP_BUFFER_SIZE;
-#endif
-
-#ifndef HTTP_CLIENT_TIMEOUT
-static const size_t CLIENT_TIMEOUT = 3;
-#else
 static const size_t CLIENT_TIMEOUT = HTTP_CLIENT_TIMEOUT;
-#endif
-
-#ifndef HTTP_SERVER_THREAD_POOL_SIZE
-static const size_t SERVER_THREAD_POOL_SIZE = 10;
-#else
 static const size_t SERVER_THREAD_POOL_SIZE = HTTP_SERVER_THREAD_POOL_SIZE;
-#endif
 
 typedef std::array< char, BUFFER_SIZE > buffer_t;
 
-typedef std::function< void( buffer_t&, const int&, const int& ) > writer_t;
+typedef std::function< void( char*, std::streamsize ) > writer_t;
 typedef std::function< void ( Request&, Response& ) > http_delegate_t;
 typedef std::function< http_status ( http::Request&, http::Response& ) > http_connection_t;
 }

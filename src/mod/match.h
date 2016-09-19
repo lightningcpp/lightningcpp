@@ -143,7 +143,7 @@ template< class... Args > struct Match : public _match_utils::T_Match_Impl< size
      * @param uri The uri to match.
      * @param names The names of the placeholders in the regex.
      */
-    Match ( const std::string uri, Names... names ) : _match_utils::T_Match_Impl< sizeof... ( Args ), Args... > ( uri, names... ) {}
+    Match ( const std::string & uri, Names... names ) : _match_utils::T_Match_Impl< sizeof... ( Args ), Args... > ( uri, names... ) {}
 
     Match( const Match& ) = delete;
     Match ( Match&& ) = default;

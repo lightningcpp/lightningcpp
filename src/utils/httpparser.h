@@ -198,7 +198,7 @@ public:
 		}
 	};
 
-	RequestParserState parser_state_; //TODO handle multiple states
+    RequestParserState parser_state_; //TODO handle multiple states
     static size_t parse_request_status_line ( RequestParserState & parser_state, http::Request & request, buffer_t & buffer, size_t start, size_t end ) {
         parser_state.start_pos_ = start;
 

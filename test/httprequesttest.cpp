@@ -56,7 +56,7 @@ TEST ( HttpRequestTest, HeadersToArray ) {
 	_request.parameter ( "SOAPACTION", "\"urn:schemas-upnp-org:service:ContentDirectory:1#Browse\"" );
 
 	buffer_t _array;
-	size_t _size = _request.header ( _array );
+    size_t _size = _request.header ( _array.data(), BUFFER_SIZE );
 	EXPECT_EQ ( 131U, _size );
 	std::string _result ( _array.data(), 0, _size );
 	EXPECT_EQ ( static_cast< size_t > ( _ss.tellp() ), _result.size() );

@@ -87,7 +87,7 @@ private:
     template< class Request >
     void write ( Request & request ) {
         request.parameter ( header::HOST, host_ ); //TODO set headers in one place
-        size_t _position = request.header ( buffer_ );
+        size_t _position = request.header ( buffer_.data(), BUFFER_SIZE );
         //TODO check that all bytes are written
         /*size_t _written =*/ socket.write_some ( asio::buffer ( buffer_, _position ) );
     }

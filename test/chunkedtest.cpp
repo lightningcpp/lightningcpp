@@ -30,8 +30,8 @@ namespace utils {
 
 TEST ( ChunkedTest, WriteChunked ) {
     std::stringstream _attribute_stream;
-    Chunked chunked( [&_attribute_stream] ( buffer_t buffer, size_t index, size_t size ) {
-        _attribute_stream << std::string( buffer.data(), index, size );
+    Chunked chunked( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
+        _attribute_stream << std::string( buffer, size );
     });
     std::stringstream _request_stream;
     _request_stream << "4\r\n";
@@ -53,8 +53,8 @@ TEST ( ChunkedTest, WriteChunked ) {
 }
 TEST ( ChunkedTest, WriteChunkedFile ) {
     std::stringstream _attribute_stream;
-    Chunked chunked( [&_attribute_stream] ( buffer_t buffer, size_t index, size_t size ) {
-        _attribute_stream.write( buffer.data()+index, size );
+    Chunked chunked( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
+        _attribute_stream.write( buffer, size );
     });
     std::ifstream _is ( TESTFILES + std::string( "raw/chunked/chunkedimage.raw" ), std::ifstream::binary );
     buffer_t _buffer;
@@ -69,8 +69,8 @@ TEST ( ChunkedTest, WriteChunkedFile ) {
 }
 TEST ( ChunkedTest, WriteChunkedTrailer ) {
     std::stringstream _attribute_stream;
-    Chunked chunked( [&_attribute_stream] ( buffer_t buffer, size_t index, size_t size ) {
-        _attribute_stream << std::string( buffer.data(), index, size );
+    Chunked chunked( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
+        _attribute_stream << std::string( buffer, size );
     });
     std::stringstream _request_stream;
     _request_stream << "4\r\n";

@@ -5,7 +5,7 @@
 
 #include <string>
 
-static const std::string base64_chars { "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" };
+static const std::string base64_chars = { "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" };
 
 class Base64 {
 public:

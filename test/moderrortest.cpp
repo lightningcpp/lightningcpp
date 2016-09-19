@@ -34,7 +34,7 @@ TEST ( ModErrorTest, TestExecute ) {
     std::stringstream _sbuf;
     buffer_t _buf;
     while( _response.tellp() > _response.tellg() ) {
-        size_t _size = _response.read( _buf );
+        size_t _size = _response.read( _buf.data(), BUFFER_SIZE );
         _sbuf << std::string( _buf.data(), 0, _size );
     }
     EXPECT_EQ( "<html><head><title>Not Found</title></head><body><h1>404 Not Found</h1></body></html>", _sbuf.str() );

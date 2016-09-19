@@ -8,7 +8,7 @@ ExternalProject_Add(
       INSTALL_COMMAND ""
       UPDATE_COMMAND ""
       PATCH_COMMAND ""
-      #BUILD_BYPRODUCTS jamboree_bustache/src/re2-build/libre2.a
+      BUILD_BYPRODUCTS jamboree_bustache-prefix/src/jamboree_bustache-build/libbustache.a
     )
     ExternalProject_Get_Property(jamboree_bustache source_dir)
     set(BUSTACHE_INCLUDE_DIR ${source_dir}/include )

@@ -50,6 +50,11 @@ Example Usage:
  */
 class Mstch  {
 public:
+    /**
+     * @brief Create a Mstch delegate.
+     * @param t the template
+     * @param context the data
+     */
     explicit Mstch ( const std::string & t, bustache::object&& context ) : template_ ( bustache::format( t ) ), context_( context ) {}
     Mstch ( const Mstch& ) = delete;
     Mstch ( Mstch&& ) = default;

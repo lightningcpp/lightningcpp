@@ -40,7 +40,7 @@ public:
     Log& operator= ( Log&& ) = default;
     ~Log() {}
 
-    http_status execute ( Request& request, Response& response ) {
+    static http_status execute ( Request& request, Response& response ) {
 
         // remotehost rfc931 authuser [date] "request" status bytes
         printf( "%s rfc931 %s [date] \"request\" %.3u %u", //TODO

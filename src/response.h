@@ -28,13 +28,12 @@
 namespace http {
 
 /**
- * @brief The HttpResponse class
- * <p>the http response. This class is not copyable only movable.</p>
+ * @brief Response class
  */
 class Response {
 public:
     /**
-     * @brief the response class.
+     * @brief Response CTOR.
      */
     Response() : body_ostream_( std::make_unique< std::stringstream >() ) {}
     Response ( const Response& ) = delete;
@@ -92,20 +91,20 @@ public:
      * @param buffer
      * @return
      */
-    size_t header ( buffer_t & buffer ) {
+    size_t header ( char* buffer, std::streamsize size ) {
         // create status line: Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-        int _position = snprintf ( buffer.data(), BUFFER_SIZE, "%s/%d.%d %d %s\r\n",
+        int _position = snprintf ( buffer, size, "%s/%d.%d %d %s\r\n",
             protocol_.c_str(), version_major_, version_minor_, static_cast< int > ( status_ ), status_reason_phrases.at( status_ ).c_str() );
 
-        if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
+        if ( _position < 0 && static_cast< size_t > ( _position ) > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
 
         for ( auto & _header : parameters_ ) {
-            _position += snprintf ( buffer.data() +_position, BUFFER_SIZE-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
+            _position += snprintf ( buffer+_position, size-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
 
-            if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
+            if ( _position < 0 && static_cast< size_t > ( _position ) > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
         }
 
-        _position += snprintf ( buffer.data()+_position, BUFFER_SIZE-_position, "\r\n" );
+        _position += snprintf ( buffer+_position, size-_position, "\r\n" );
         return _position;
     }
 
@@ -115,16 +114,16 @@ public:
     auto tellg()
     { return (  body_istream_ != nullptr ? body_istream_->tellg() : body_ostream_->tellg() ); }
 
-    auto read( buffer_t & buffer ) {
+    auto read( char* buffer, std::streamsize size ) {
         if( body_istream_ ) {
-            return body_istream_->readsome( buffer.data(), BUFFER_SIZE );
+            return body_istream_->readsome( buffer, size ); //TODO not some
         } else {
-            return body_ostream_->readsome( buffer.data(), BUFFER_SIZE );
+            return body_ostream_->readsome( buffer, size ); //TODO not some
         }
     }
 
-    void write( buffer_t & buffer, size_t index, size_t size )
-    { body_ostream_->write( buffer.data()+index, size ); }
+    void write( char* buffer, std::streamsize size )
+    { body_ostream_->write( buffer, size ); }
 
     void istream ( std::unique_ptr< std::istream > && is )
     { body_istream_ = std::move ( is ); }

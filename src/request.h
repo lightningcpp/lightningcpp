@@ -29,13 +29,13 @@
 namespace http {
 
 /**
- * @brief Http Request class.
+ * @brief Request class.
  */
 class Request {
 public:
 
     /**
-     * @brief HttpRequest
+     * @brief Request CTOR
      */
     Request() :
         method_ ( std::string ( method::GET ) ), uri_ ( "" ), protocol_ ( "HTTP" ), remote_ip_ ( std::string ( "" ) ),
@@ -45,8 +45,8 @@ public:
         out_body_ ( std::shared_ptr< std::stringstream > ( new std::stringstream() ) ) {}
 
     /**
-     * @brief HttpRequest
-     * @param path
+     * @brief Request CTOR
+     * @param path the path for this request.
      */
     Request ( const std::string & path ) :
         method_ ( std::string ( method::GET ) ), uri_ ( path ), protocol_ ( "HTTP" ), remote_ip_ ( std::string ( "" ) ),
@@ -173,19 +173,19 @@ public:
 	 * @param buffer
 	 * @return
 	 */
-    size_t header ( buffer_t & buffer ) {
+    size_t header ( char* buffer, std::streamsize size ) {
         // create status line
-        int _position = snprintf ( buffer.data(), BUFFER_SIZE, "%s %s %s/%d.%d\r\n", method_.c_str(), uri_.c_str(), protocol_.c_str(), http_version_major_, http_version_minor_ );
+        int _position = snprintf ( buffer, size, "%s %s %s/%d.%d\r\n", method_.c_str(), uri_.c_str(), protocol_.c_str(), http_version_major_, http_version_minor_ );
 
-        if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
+        if ( _position < 0 && static_cast< size_t > ( _position ) > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
 
         for ( auto & _header : parameters_ ) {
-            _position += snprintf ( buffer.data() +_position, BUFFER_SIZE-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
+            _position += snprintf ( buffer+_position, size-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
 
-            if ( _position < 0 && static_cast< size_t > ( _position ) > BUFFER_SIZE ) { throw http_status::INTERNAL_SERVER_ERROR; }
+            if ( _position < 0 && static_cast< size_t > ( _position ) > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
         }
 
-        _position += snprintf ( buffer.data()+_position, BUFFER_SIZE-_position, "\r\n" );
+        _position += snprintf ( buffer+_position, size-_position, "\r\n" );
         return _position;
     }
 
@@ -195,8 +195,8 @@ public:
 	 * @param index
 	 * @param count
 	 */
-    void write ( buffer_t & buffer, const size_t & index, const size_t & count ) {
-        out_body_->write( buffer.data()+index, count );
+    void write ( char* buffer, std::streamsize size ) {
+        out_body_->write( buffer, size );
     }
 
     auto tellp()
@@ -211,11 +211,12 @@ public:
 	 */
     template< class T >
     void operator<< ( const T & in ) {
-		( *std::dynamic_pointer_cast<std::stringstream> ( out_body_ ) ) << in;
+        out_body_ << in;
     }
 
-    std::string str()
-    { return ( *std::dynamic_pointer_cast<std::stringstream> ( out_body_ ) ).str(); }
+    std::string str() const
+    { return ( out_body_->str() ); }
+
     /* ------------------------------------------------------------------------------------------------------------------ */
 
 

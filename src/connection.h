@@ -56,19 +56,19 @@ public:
                 size_t _body_length = body_length();
                 if ( _body_length == 0 ) {
                     callback_ ( request_, response_ );
-                    size_t _buffer_size = response_.header ( buffer_ );
+                    size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                     socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
                 } else {
 
                     if ( size - body_start_ <= _body_length ) {
-                        request_.write ( buffer_, body_start_, _body_length );
+                        request_.write ( buffer_.data()+body_start_, _body_length );
                         callback_ ( request_, response_ );
 
-                        size_t _buffer_size = response_.header ( buffer_ );
+                        size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                         socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
 
                     } else if ( size - body_start_ > 0 ) {
-                        request_.write ( buffer_, body_start_, size - body_start_ );
+                        request_.write ( buffer_.data()+body_start_, size - body_start_ );
                         socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
 
                     } else {
@@ -86,11 +86,11 @@ public:
     void read ( const asio::error_code& e, std::size_t size ) {
         if( !e ) {
             size_t _body_length = body_length();
-            request_.write ( buffer_, 0, size );
+            request_.write ( buffer_.data(), size );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
 
                 callback_ ( request_, response_ );
-                size_t _buffer_size = response_.header ( buffer_ );
+                size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
 
             } else if( static_cast< size_t >( request_.tellp() ) < _body_length ) {
@@ -99,7 +99,7 @@ public:
             } else {
                 std::cout << "parse_content: Wrong size: " << request_.tellp() << ", " << _body_length << std::endl;
                 response_.status( http_status::BAD_REQUEST ); //TODO
-                size_t _buffer_size = response_.header ( buffer_ );
+                size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
             }
         }
@@ -115,11 +115,11 @@ public:
                 } else socket_->close();
 
             } else if( static_cast< size_t >( response_.tellg() ) < _body_length ) {
-                size_t _write_position = response_.read ( buffer_ );
+                size_t _write_position = response_.read ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _write_position, std::bind( &Connection::write, shared_from_this(), _1 ) );
             } else {
                 std::cout << "send entity: Wrong size." << std::endl;
-                response_.status( http_status::BAD_REQUEST ); //TOOD
+                response_.status( http_status::BAD_REQUEST ); //TODO
                 socket_->close();
             }
         }

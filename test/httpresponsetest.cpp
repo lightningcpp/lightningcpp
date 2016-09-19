@@ -49,7 +49,7 @@ TEST ( HttpResponseTest, HeadersToArray ) {
 	_response.parameter ( "SOAPACTION", "\"urn:schemas-upnp-org:service:ContentDirectory:1#Browse\"" );
 
 	buffer_t _array;
-	size_t _size = _response.header ( _array );
+    size_t _size = _response.header ( _array.data(), BUFFER_SIZE );
 	EXPECT_EQ ( static_cast< size_t > ( _ss.tellp() ), _size );
 	std::string _result ( _array.data(), 0, _size );
 	EXPECT_EQ ( static_cast< size_t > ( _ss.tellp() ), _result.size() );
@@ -73,7 +73,7 @@ TEST ( HttpResponseTest, BodyToArray ) {
     size_t _size = 0;
     std::stringstream _ss_result;
     do {
-        size_t _chunk_size =_response.read ( _array );
+        size_t _chunk_size =_response.read ( _array.data(), BUFFER_SIZE );
         _ss_result.write( _array.data(), _chunk_size );
         _size += _chunk_size;
     } while( _size < _test_string.size() );
@@ -115,7 +115,7 @@ TEST ( HttpResponseTest, LargeBodyToArray ) {
 
 		do {
 			buffer_t _array;
-			_size = _response.read ( _array );
+            _size = _response.read ( _array.data(), BUFFER_SIZE );
 			_size_sum += _size;
 			_result_ios.write ( _array.data(), _size );
 			//_created_file.write( _array.data(), _size );

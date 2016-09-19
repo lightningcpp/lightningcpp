@@ -11,7 +11,6 @@ namespace http {
 @mainpage lightning http libraries
 @section TOC Table of Contents
 <hr/>
--# @ref TOC
 -# @ref Description
 -# @ref Dependencies
  -# @ref Native
