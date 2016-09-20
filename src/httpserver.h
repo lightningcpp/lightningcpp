@@ -27,7 +27,7 @@
 
 namespace http {
 /**
- * @brief The HttpServer class
+ * @brief Setup ASIO for the HTTP server.
  *
  * \msc
  *  HttpServer, HttpSession,Request,Response,HttpConnection;
@@ -88,11 +88,8 @@ private:
 	/* Handle completion of an asynchronous accept operation. */
 	void handle_accept ( const asio::error_code& e ) {
 		if ( !e ) {
-            std::shared_ptr< Connection > _session =
-                    std::shared_ptr< Connection >( new Connection( std::move( server_socket_ ), request_handler_ ) );
-            _session->start();
+            std::make_shared< Connection >( std::move( server_socket_ ), request_handler_ )->start();
 		}
-
 		start_accept();
 	}
 

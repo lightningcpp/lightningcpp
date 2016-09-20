@@ -25,12 +25,41 @@ namespace http {
 
 typedef std::function< void ( Request&, Response & ) > callback_ptr;
 
+/**
+ * @brief class representing a server connection.
+
+a connection class is created for each connection. After connection close or error the
+object will be destoryed.
+
+ * the request execution call flow:
+ *\msc
+ *  Server, Connection, Response, Server, HeaderParameter, Delegate;
+ *
+ *  Server->Connection [label="start", URL="\ref Socket::start()"];
+ *  Socket->Connection [label="connect", URL="\ref Connection::connect(std::error_code&, std::streamsize)"];
+ *  Connection->Socket [label="read", URL="\ref Connection::connect(std::error_code&, std::streamsize)"];
+ *
+ *  T->WebServer2 [label="Request, Response", URL="\ref WebServer2::execute( Request&, Response& )"];
+ *  WebServer2->WebServer2Delegate [label="execute(Request&, Response&)"];
+ *  WebServer2Delegate->Delegate [label="execute( \n Request&, \n Response&, \n Args... )" ];
+ *  WebServer2Delegate<-Delegate [label="bool" ];
+ *  WebServer2Delegate->HeaderParameter [label="set header parameter"];
+ *  WebServer2Delegate<-HeaderParameter [label="void"];
+ *  WebServer2<-WebServer2Delegate [label="void"];
+ *  T<-WebServer2 [label="void"];
+ *\endmsc
+ */
 class Connection : public std::enable_shared_from_this< Connection > {
 public:
-
+    /**
+     * @brief Connection CTOR.
+     * @param socket the socket for this connection.
+     * @param callback the server callback method for requests.
+     */
     Connection ( socket_ptr && socket, callback_ptr callback ) :
         socket_ ( std::move( socket ) ), callback_ ( callback ) {}
 
+    /** @brief start the connection */
     void start() {
         request_.reset();
         response_.reset();
@@ -39,12 +68,12 @@ public:
     }
 
     /**
-     * @brief Parse request.
-     * @param buffer Reference to the buffer.
-     * @param size Size of buffer
+     * @brief Connect with new request.
+     * @param e the error code.
+     * @param size Size of buffer.
      * @return
      */
-    void connect ( const asio::error_code& e, std::size_t size ) {
+    void connect ( const std::error_code& e, std::streamsize size ) {
         if( !e ) {
             size_t body_start_ = http_parser_.parse_request ( request_, buffer_, 0, size );
 
