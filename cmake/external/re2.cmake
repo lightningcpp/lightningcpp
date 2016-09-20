@@ -39,7 +39,7 @@ find_package(PkgConfig)
     ExternalProject_Get_Property(re2 binary_dir)
     set(RE2_LIBRARIES ${binary_dir}/${CMAKE_FIND_LIBRARY_PREFIXES}re2.a)
     set(RE2_LIBRARY re)
-    add_library(${RE2_LIBRARY} UNKNOWN IMPORTED)
+    add_library(${RE2_LIBRARY} STATIC IMPORTED)
     set_property(TARGET ${RE2_LIBRARY} PROPERTY IMPORTED_LOCATION ${RE2_LIBRARIES} )
     add_dependencies(${RE2_LIBRARY} re2)
 
