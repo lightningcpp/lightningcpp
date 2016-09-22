@@ -66,7 +66,7 @@ public:
      * @brief Create a new Mod object.
      * @param p the modules.
      */
-    Mod ( Placeholders&&... p ) :_modules ( { std::move( p )... } ) {}
+    Mod ( Placeholders&&... p ) :_modules ( std::move( p )... ) {}
     Mod( const Mod& ) = delete;
     Mod ( Mod&& ) = default;
     Mod& operator= ( const Mod& ) = delete;

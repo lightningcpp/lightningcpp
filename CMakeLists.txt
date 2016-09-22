@@ -1,14 +1,7 @@
 # -------------------------------------------------------------------------
 # Build lightning Project
 # -------------------------------------------------------------------------
-# Example Usage: TODO TODO TODO TODO
-# cmake .. -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=/usr/bin/g++-6 -Dbuild_tests=true -DCMAKE_BUILD_TYPE=debug -DTESTFILES=~/testfiles/
-
-# cmake .. -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=/usr/bin/g++-6
-#          -DCMAKE_BUILD_TYPE=debug -DNDEBUG
-
-# -------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.2.2)
+cmake_minimum_required(VERSION 3.5.0)
 
 project(lightning)
 
@@ -22,11 +15,11 @@ SET(PATCH_VERSION "0" CACHE PATCH_VERSION "The package build number." )
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 option(build_example_server "Build the example server." OFF)
 option(build_tests "Build all http unit tests." OFF)
-SET(HTTP_BUFFER_SIZE "8192" CACHE TESTFILES "The HTTP character buffer size.")
-SET(HTTP_CLIENT_TIMEOUT "3" CACHE TESTFILES "the HTTP connection timeout in seconds.")
-SET(HTTP_SERVER_THREAD_POOL_SIZE "10" CACHE TESTFILES "The number of threads created on the ASIO service.")
-SET(TESTFILES "${PROJECT_SOURCE_DIR}/test/files" CACHE TESTFILES "The path to the testfiles.")
-SET(DOCFILES "${PROJECT_BINARY_DIR}/doc/" CACHE TESTFILES "The path to the documentation files.")
+SET(HTTP_BUFFER_SIZE "8192" CACHE STRING "The HTTP character buffer size.")
+SET(HTTP_CLIENT_TIMEOUT "3" CACHE STRING "The HTTP connection timeout in seconds.")
+SET(HTTP_SERVER_THREAD_POOL_SIZE "10" CACHE STRING "The number of threads created on the ASIO service.")
+SET(TESTFILES "${PROJECT_SOURCE_DIR}/test/files" CACHE PATH "The path to the testfiles.")
+SET(DOCFILES "${PROJECT_BINARY_DIR}/doc/" CACHE PATH "The path to the documentation files.")
 add_definitions( -DHTTP_BUFFER_SIZE=${HTTP_BUFFER_SIZE} -DHTTP_CLIENT_TIMEOUT=${HTTP_CLIENT_TIMEOUT}
                  -DHTTP_SERVER_THREAD_POOL_SIZE=${HTTP_SERVER_THREAD_POOL_SIZE}
                  -DTESTFILES="${TESTFILES}/" -DDOCFILES="${DOCFILES}/"

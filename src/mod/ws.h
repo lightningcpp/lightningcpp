@@ -59,9 +59,9 @@ namespace mod {
 class WS  {
 public:
     explicit WS ( std::vector< std::string > & protocols ) : protocols_ ( protocols ) {}
-    WS ( const WS& ) = delete;
+    WS ( const WS& ) = default; //TODO
     WS ( WS&& ) = default;
-    WS& operator= ( const WS& ) = delete;
+    WS& operator= ( const WS& ) = default; //TODO
     WS& operator= ( WS&& ) = default;
     ~WS() {}
 

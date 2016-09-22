@@ -55,7 +55,7 @@ T_execute_method ( Rq& request, Rs& response, std::tuple<Tp...>& t ) {
 template< class... Placeholders >
 struct MethodChain {
 public:
-    MethodChain ( Placeholders&&... p ) :_modules ( { std::move( p )... } ) {}
+    MethodChain ( Placeholders&&... p ) :_modules ( std::move( p )... ) {}
     MethodChain ( const MethodChain& ) = delete;
     MethodChain ( MethodChain&& ) = default;
     MethodChain& operator= ( const MethodChain& ) = delete;

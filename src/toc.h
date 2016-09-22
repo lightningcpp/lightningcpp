@@ -27,17 +27,54 @@ where lightning is the orange cat beside of Tomcat.
 
 This library is licesensed under the [GNU Lesser General Public License](https://www.gnu.org/licenses/lgpl-3.0.txt)
 
-@section Dependencies Dependencies
-Squawk server and client is built using the following 3rd party software:
-
-- [ASIO](http://think-async.com)
-- [RE2](https://github.com/google/re2) RE2 backtracking regular expression engine.
-- []()mstch (optional)
-
-@subsection Native Native dependencies
-The deveopment build of these libraries have to be installed on the build system:
 @section Build Build and Installation
-lightning must be compiled with a C++14 compliant compiler.
+this library does not contain any c files that need compilation. You can include the header files in your project.
+Depending on the used functionality additional libaries are needed for the compilation of the client code.
+
+@subsection SyncClient HTTP sync client
+To build the libarary you need to have the [ASIO](http://think-async.com) headers available, boost is not required for ASIO.
+For the regexp pattern matching you have to include googles [RE2](https://github.com/google/re2) RE2 backtracking regular
+expression engine. for the basic usage also C++14 compliant compiler is needed.
+
+include lightning with cmake using ExternalPackage_Add:
+
+    ExternalProject_Add(
+      lightningcpp
+      URL "https://github.com/lightningcpp/lightningcpp/archive/master.zip"
+      CMAKE_ARGS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+      INSTALL_COMMAND ""
+      UPDATE_COMMAND ""
+      PATCH_COMMAND ""
+    )
+    ExternalProject_Get_Property(lightningcpp source_dir)
+    set(LIGHTNING_INCLUDE_DIR ${source_dir}/src/)
+
+    include( cmake/external/re2.cmake )
+    include( cmake/external/asio.cmake )
+
+//    include( cmake/external/bustache.cmake )
+//    SET( INCLUDES ${INCLUDES} ${RE2_INCLUDE_DIR} ${ASIO_INCLUDE_DIR}
+//                  ${BUSTACHE_INCLUDE_DIR} )
+
+@subsection compileroptions Compiler options
+At compile time you can set the following options.
+
+option(build_example_server "Build the example server." OFF)
+
+option(build_tests "Build all http unit tests." OFF)
+
+HTTP_BUFFER_SIZE The HTTP character buffer size. [8192 bytes]
+
+HTTP_CLIENT_TIMEOUT HTTP connection timeout in seconds. [3 sec]
+
+HTTP_SERVER_THREAD_POOL_SIZE The number of threads created on the ASIO service. [10 threads]
+
+these options have to be set when running the test cases or example server.
+
+TESTFILES The path to the testfiles. [${PROJECT_SOURCE_DIR}/test/files]
+
+DOCFILES TESTFILES The path to the documentation files. [${PROJECT_BINARY_DIR}/doc/]
+
 @section Usage
 @subsection SyncClient HTTP sync client
 @subsection AsyncClient HTTP async client
@@ -103,6 +140,12 @@ objects as arguments. The implementation must fill the header parameters of the 
 - mod::Method Filter requests by method.
 - mod::Mstch Mustache template engine.
 
+@section Dependencies Dependencies
+Squawk server and client is built using the following 3rd party software:
+
+- [ASIO](http://think-async.com)
+- [RE2](https://github.com/google/re2) RE2 backtracking regular expression engine.
+- []()mstch (optional)
 */
 }
 #endif // TOC_H

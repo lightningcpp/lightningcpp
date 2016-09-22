@@ -145,9 +145,9 @@ template< class... Args > struct Match : public _match_utils::T_Match_Impl< size
      */
     Match ( const std::string & uri, Names... names ) : _match_utils::T_Match_Impl< sizeof... ( Args ), Args... > ( uri, names... ) {}
 
-    Match( const Match& ) = delete;
+    Match( const Match& ) = default; //TODO
     Match ( Match&& ) = default;
-    Match& operator= ( const Match& ) = delete;
+    Match& operator= ( const Match& ) = default; //TODO
     Match& operator= ( Match&& ) = default;
 };
 }//namespace mod
