@@ -25,7 +25,8 @@ namespace mod {
 
 TEST ( ModMstchTest, TestCreateMstchMap ) {
 
-    Mstch mstch( "{{mustache}} templating", bustache::object{{"mustache", "bustache"}} );
+    std::string _tmpl = "{{mustache}} templating";
+    Mstch mstch( _tmpl, bustache::object{{"mustache", "bustache"}} );
     Request _request( "/foo/bar" );
     Response _response;
 
@@ -72,7 +73,7 @@ TEST ( ModMstchTest, TestCreateMstchLiteralXml ) {
 </colors>
 </rainbow>)xml";
 
-Mstch mstch( s1, bustache::object{
+    Mstch mstch( s1, bustache::object{
         {"header", "Colors"},
         {"items",
         bustache::array {

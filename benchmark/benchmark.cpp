@@ -17,7 +17,7 @@
 #include <nonius/main.h++>
 #include <nonius/nonius.h++>
 
-NONIUS_BENCHMARK("BM_HTTP_Parser", [] {
+NONIUS_BENCHMARK("BM_HTTP_Parser", []( nonius::chronometer meter ) {
       /*
       POST /ctl/ContentDir HTTP/1.0
       Content-Type: text/xml; charset="utf-8"
@@ -155,25 +155,29 @@ NONIUS_BENCHMARK("BM_HTTP_Parser", [] {
           request2[i] = peer0_1[i];
       }
 
+    meter.measure([ &request, &request2 ] {
       http::Request http_request;
       http::utils::HttpParser http_parser;
       size_t state = http_parser.parse_request ( http_request, request, 0, sizeof ( peer0_0 ) );
-      assert ( 0U == state );
+      if ( 0U != state ) std::cout << "wrong length 0 != " << state << std::endl;
       state = http_parser.parse_request ( http_request, request2, 0, sizeof ( peer0_1 ) );
-      assert ( 2U == state );
+      if ( 2U != state ) std::cout << "wrong length 2 != " << state << std::endl;
+    });
 })
 
-NONIUS_BENCHMARK("BM_GET_File", [] {
+NONIUS_BENCHMARK("BM_GET_File", [] ( nonius::chronometer meter ) {
     //create the server
     http::Server< http::HttpServer > server ( "127.0.0.1", "9999" );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
-    http::HttpClient client_ ( "localhost", "9999" );
-    http::Request request_ ( "/files/The%20Divine%20Comedy.txt" );
-    std::stringstream _sstream;
-    client_.get ( request_, _sstream );
-    std::ifstream f1 ( std::string ( TESTFILES ) + "files/The Divine Comedy.txt", std::ifstream::binary );
-    if( request_.method() != http::method::GET ) {
-        std::cerr << "wrong method in request: " << request_.method() << std::endl;
-    }
+    meter.measure([] {
+        http::HttpClient client_ ( "localhost", "9999" );
+        http::Request request_ ( "/files/The%20Divine%20Comedy.txt" );
+        std::stringstream _sstream;
+        client_.get ( request_, _sstream );
+        std::ifstream f1 ( std::string ( TESTFILES ) + "files/The Divine Comedy.txt", std::ifstream::binary );
+        if( request_.method() != http::method::GET ) {
+            std::cerr << "wrong method in request: " << request_.method() << std::endl;
+        }
+    });
 })

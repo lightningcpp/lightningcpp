@@ -55,7 +55,9 @@ public:
      * @param t the template
      * @param context the data
      */
-    explicit Mstch ( const std::string & t, bustache::object&& context ) : template_ ( bustache::format( t ) ), context_( context ) {}
+    Mstch ( const std::string & t, bustache::object&& context ) : template_ ( bustache::format{ t } ), context_( std::move( context ) ) {
+        std::cout << "bustache: " << t << std::endl;
+    }
     Mstch ( const Mstch& ) = delete;
     Mstch ( Mstch&& ) = default;
     Mstch& operator= ( const Mstch& ) = delete;
@@ -63,6 +65,7 @@ public:
     ~Mstch() {}
 
     http_status execute ( Request&, Response& response ) {
+        std::cout << template_( context_ );
         response << template_( context_ );
         return http::http_status::OK;
     }
