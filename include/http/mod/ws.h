@@ -56,8 +56,15 @@ inline std::string calculate_key ( const std::string & request_key ) {
 namespace http {
 namespace mod {
 
+/**
+ * @brief The Web-Socket class.
+ */
 class WS  {
 public:
+    /**
+     * @brief WS CTOR
+     * @param protocols the web service protocols.
+     */
     explicit WS ( std::vector< std::string > & protocols ) : protocols_ ( protocols ) {}
     WS ( const WS& ) = default; //TODO
     WS ( WS&& ) = default;
@@ -65,6 +72,12 @@ public:
     WS& operator= ( WS&& ) = default;
     ~WS() {}
 
+    /**
+     * @brief execute request
+     * @param request request object for this transaction.
+     * @param response response object for this transaction.
+     * @return
+     */
     http_status execute ( Request& request, Response& response ) {
         std::cout << "WebSocket:" << request.uri() << std::endl;
 

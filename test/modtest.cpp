@@ -18,9 +18,9 @@
 #include <tuple>
 #include <vector>
 
-#include "../src/mod/http.h"
-#include "../src/mod/match.h"
-#include "../src/mod/mod.h"
+#include "../include/http/mod/http.h"
+#include "../include/http/mod/match.h"
+#include "../include/http/mod/mod.h"
 
 #include <gtest/gtest.h>
 

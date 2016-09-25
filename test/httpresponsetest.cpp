@@ -16,7 +16,7 @@
 
 #include <fstream>
 
-#include "../src/response.h"
+#include "../include/http/response.h"
 
 #include "testutils.h"
 

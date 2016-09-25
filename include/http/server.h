@@ -27,6 +27,8 @@
 #include "mod/error.h"
 #include "mod/http.h"
 
+#include "linux/log.h"
+
 namespace http {
 
 template< typename T >
@@ -34,7 +36,7 @@ template< typename T >
  * @brief The WebServer2 class.
  *
  * the request execution call flow:
- *\msc
+ *\m s c
  *  T, WebServer2, WebServer2Delegate, HeaderParameter, Delegate;
  *
  *  T->WebServer2 [label="Request, Response", URL="\ref WebServer2::execute( Request&, Response& )"];
@@ -45,7 +47,7 @@ template< typename T >
  *  WebServer2Delegate<-HeaderParameter [label="void"];
  *  WebServer2<-WebServer2Delegate [label="void"];
  *  T<-WebServer2 [label="void"];
- *\endmsc
+ *\ e n d m s c
  */
 class Server : T {
 public:
@@ -72,6 +74,7 @@ public:
     }
 
     void request ( Request & request, Response & response ) {
+        //http::log( "request %s", request.remote_ip() );
         http_status _s = http_status::INTERNAL_SERVER_ERROR;
         for( auto & d : delegates_ ) {
             _s = d( request, response );

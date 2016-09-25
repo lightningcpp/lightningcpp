@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "../src/mod/mstch.h"
+#include "../include/http/mod/mstch.h"
 
 #include <gtest/gtest.h>
 

@@ -69,6 +69,7 @@ private:
     /** Socket for the connection. */
     asio::ip::tcp::socket socket_;
 };
+/** \brief Socket ptr */
 typedef std::unique_ptr< Socket > socket_ptr;
 }//namespace http
 #endif // HTTP_SOCKET_H

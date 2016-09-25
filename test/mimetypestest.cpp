@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "../src/mimetypes.h"
+#include "../include/http/mimetypes.h"
 #include <gtest/gtest.h>
 
 TEST ( MimeTypeParseTest2, GetTypeByExtension ) {

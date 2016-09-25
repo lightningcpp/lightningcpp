@@ -29,7 +29,7 @@ namespace http {
 /**
  * @brief Setup ASIO for the HTTP server.
  *
- * \msc
+ * \ m s c
  *  HttpServer, HttpSession,Request,Response,HttpConnection;
  *
  *  HttpServer->HttpSession [label="handle_accept", URL="\ref HttpSession::start()"];
@@ -38,12 +38,17 @@ namespace http {
  *  HttpConnection->HttpConnection [label="write", URL="\ref start", ID="2"];
  *  HttpConnection->HttpSession [label="parse: HttpSession::parse_request ( buffer_t&, const size_t)", URL="\ref HttpSession::parse_request ( buffer_t&, const size_t)", ID="2"];
  *  HttpSession=>HttpConnection [label="return: HttpConnection"
- *\endmsc
-
+ *\ e n d m s c
  *
  */
 class HttpServer {
 public:
+    /**
+     * @brief HttpServer CTOR
+     * @param address address to bind.
+     * @param protocol server protocol.
+     * @param request_handler delegate for request exectution.
+     */
     HttpServer ( const std::string & address, const std::string & protocol, http_delegate_t && request_handler ) :
         acceptor_ ( io_service_ ), request_handler_ ( std::move ( request_handler ) ) {
 

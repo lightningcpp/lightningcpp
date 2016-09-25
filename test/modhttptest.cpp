@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "../src/mod/http.h"
+#include "../include/http/mod/http.h"
 
 #include <gtest/gtest.h>
 

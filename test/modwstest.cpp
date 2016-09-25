@@ -16,9 +16,9 @@
 
 #include <string>
 
-#include "../src/mod/match.h"
-#include "../src/mod/ws.h"
-#include "../src/utils/base64.h"
+#include "../include/http/mod/match.h"
+#include "../include/http/mod/ws.h"
+#include "../include/http/utils/base64.h"
 
 #include <gtest/gtest.h>
 

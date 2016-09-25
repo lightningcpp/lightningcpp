@@ -80,6 +80,11 @@ namespace mod {
 namespace method {
 /** @brief Method with string. */
 struct S{
+    /**
+     * @brief S CTOR
+     * @param method HTTP method.
+     * @param mods modules to execute.
+     */
     template< typename... M >
     S( const std::string & method, M&&... mods ) :
         method_ ( method ),
@@ -105,41 +110,49 @@ private:
 
 /** @brief Method CONNECT. */
 struct CONNECT : S {
+    /** @brief Method CONNECT. */
     template< typename... M >
     CONNECT( M&&... mods ) : S( http::method::CONNECT, std::move( mods... ) ) {}
 };
 /** @brief Method DELETE. */
 struct DELETE : S {
+    /** @brief Method DELETE. */
     template< typename... M >
     DELETE( M&&... mods ) : S( http::method::DELETE, std::move( mods... ) ) {}
 };
 /** @brief Method GET. */
 struct GET : S {
+    /** @brief Method GET. */
     template< typename... M >
     GET( M&&... mods ) : S( http::method::GET, std::move( mods... ) ) {}
 };
 /** @brief Method HEAD. */
 struct HEAD : S {
+    /** @brief Method HEAD. */
     template< typename... M >
     HEAD( M&&... mods ) : S( http::method::HEAD, std::move( mods... ) ) {}
 };
 /** @brief Method OPTIONS. */
 struct OPTIONS : S {
+    /** @brief Method OPTIONS. */
     template< typename... M >
     OPTIONS( M&&... mods ) : S( http::method::OPTIONS, std::move( mods... ) ) {}
 };
 /** @brief Method POST. */
 struct POST : S {
+    /** @brief Method POST. */
     template< typename... M >
     POST( M&&... mods ) : S( http::method::POST, std::move( mods... ) ) {}
 };
 /** @brief Method PUT. */
 struct PUT : S {
+    /** @brief Method PUT. */
     template< typename... M >
     PUT( M&&... mods ) : S( http::method::PUT, std::move( mods... ) ) {}
 };
 /** @brief Method TRACE. */
 struct TRACE : S {
+    /** @brief Method TRACE. */
     template< typename... M >
     TRACE( M&&... mods ) : S( http::method::TRACE, std::move( mods... ) ) {}
 };
@@ -182,7 +195,7 @@ class Method {
 public:
     /**
      * @brief Method class.
-     * @param delegates Map with the name and delegates to execute.
+     * @param methods Map with the name and delegates to execute.
      */
     template< typename... M >
     Method( M&&... methods ) : delegates_ ( std::bind(

@@ -4,14 +4,14 @@
 #include <sstream>
 #include <memory>
 
-#include "src/server.h"
-#include "src/httpserver.h"
-#include "src/request.h"
-#include "src/response.h"
-#include "src/mod/file.h"
-#include "src/mod/match.h"
-#include "src/mod/http.h"
-#include "src/mod/ws.h"
+#include "../include/http/server.h"
+#include "../include/http/httpserver.h"
+#include "../include/http/request.h"
+#include "../include/http/response.h"
+#include "../include/http/mod/file.h"
+#include "../include/http/mod/match.h"
+#include "../include/http/mod/http.h"
+#include "../include/http/mod/ws.h"
 
 void signalHandler( int signum ) {
     std::cout << "Interrupt signal (" << signum << ") received.\n";

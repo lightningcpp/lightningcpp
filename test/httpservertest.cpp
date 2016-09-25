@@ -19,8 +19,8 @@
 #include <string>
 #include <vector>
 
-#include "../src/httpserver.h"
-#include "../src/utils/httpparser.h"
+#include "../include/http/httpserver.h"
+#include "../include/http/utils/httpparser.h"
 
 #include <gtest/gtest.h>
 

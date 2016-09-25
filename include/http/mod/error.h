@@ -34,13 +34,22 @@ namespace mod {
  */
 class Error : Http {
 public:
+    /** \brief Error constructor */
     Error() {}
     Error ( const Error& ) = delete;
+    /** \brief Error move constructor.*/
     Error ( Error&& ) = default;
     Error& operator= ( const Error& ) = delete;
+    /** \brief Error asign move operation.*/
     Error& operator= ( Error&& ) = default;
     ~Error() {}
 
+    /**
+     * @brief execute request
+     * @param request request object for this transaction.
+     * @param response response object for this transaction.
+     * @return
+     */
     http_status execute ( Request& request, Response& response ) {
         if( _error_delegates.find( response.status() ) != _error_delegates.end() ) {
             response << _error_delegates.at( response.status() );

@@ -17,9 +17,9 @@
 #include <string>
 #include <fstream>
 
-#include "../src/httpclient.h"
-#include "../src/httpserver.h"
-#include "../src/server.h"
+#include "../include/http/httpclient.h"
+#include "../include/http/httpserver.h"
+#include "../include/http/server.h"
 
 #include <gtest/gtest.h>
 

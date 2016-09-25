@@ -18,10 +18,10 @@
 #include <string>
 #include <memory>
 
-#include "../src/server.h"
-#include "../src/httpserver.h"
-#include "../src/mod/match.h"
-#include "../src/mod/http.h"
+#include "../include/http/server.h"
+#include "../include/http/httpserver.h"
+#include "../include/http/mod/match.h"
+#include "../include/http/mod/http.h"
 
 #include "testutils.h"
 

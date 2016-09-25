@@ -49,11 +49,19 @@ public:
      */
     Exec ( auto&& f ) : _f ( std::move ( f ) ) {}
     Exec ( const Exec& ) = delete;
+    /** \brief Exec move constructor.*/
     Exec ( Exec&& ) = default;
     Exec& operator= ( const Exec& ) = delete;
+    /** \brief Exec asign move operation.*/
     Exec& operator= ( Exec&& ) = default;
     ~Exec() {}
 
+    /**
+     * @brief execute request
+     * @param request request object for this transaction.
+     * @param response response object for this transaction.
+     * @return
+     */
     http_status execute ( Request& request, Response& response ) {
         return _f ( request, response );
     }

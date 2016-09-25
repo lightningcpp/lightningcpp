@@ -23,6 +23,7 @@
 
 namespace http {
 
+/** \brief type definition for the server delegate pointer. */
 typedef std::function< void ( Request&, Response & ) > callback_ptr;
 
 /**
@@ -33,20 +34,31 @@ object will be destoryed.
 
  * the request execution call flow:
  *\msc
- *  Server, Connection, Response, Server, HeaderParameter, Delegate;
+ *  Server, Connection, Socket, Response, Server;
  *
- *  Server->Connection [label="start", URL="\ref Socket::start()"];
- *  Socket->Connection [label="connect", URL="\ref Connection::connect(std::error_code&, std::streamsize)"];
- *  Connection->Socket [label="read", URL="\ref Connection::connect(std::error_code&, std::streamsize)"];
- *
- *  T->WebServer2 [label="Request, Response", URL="\ref WebServer2::execute( Request&, Response& )"];
- *  WebServer2->WebServer2Delegate [label="execute(Request&, Response&)"];
- *  WebServer2Delegate->Delegate [label="execute( \n Request&, \n Response&, \n Args... )" ];
- *  WebServer2Delegate<-Delegate [label="bool" ];
- *  WebServer2Delegate->HeaderParameter [label="set header parameter"];
- *  WebServer2Delegate<-HeaderParameter [label="void"];
- *  WebServer2<-WebServer2Delegate [label="void"];
- *  T<-WebServer2 [label="void"];
+ *  Server rbox Connection [label="wait for connection", textbgcolour="#ffb000"];
+ *  Server->Server [label="establish", URL="\ref Server::start ()"];
+ *  Server->Connection [label="start", URL="\ref Connection::start ()"];
+ *  Connection->Socket [label="read", URL="\ref Socket::read ( buffer_t &, delegate_t )"];
+ *  Connection rbox Socket [label="connect, read request for connection", textbgcolour="#00ff00"];
+ *  Socket->Connection [label="connect", URL="\ref Connection::connect"];
+ *  Connection->Socket [label="read", URL="\ref Socket::read ( buffer_t&, http_delegate_t )"];
+ *  Socket->Connection [label="read", URL="\ref void Connection::read (const std::error_code &e, std::size_t size)"];
+ *  Server rbox Connection [label="process request", textbgcolour="#ffb000"];
+ *  Connection=>Server [label="execute", URL="\ref void Connection::read (const std::error_code &e, std::size_t size)"];
+ *  Server=>Response [label="write attribute", URL="\ref void Connection::read (const std::error_code &e, std::size_t size)"];
+ *  Response>>Server [label=""];
+ *  Server>>Connection [label="Response"];
+ *  Connection rbox Response [label="send response", textbgcolour="#ff0000"];
+ *  Connection=>Response [label="read header", URL="\ref void Response::header (const std::error_code &e, std::size_t size)"];
+ *  Connection<<Response [label="buffer"];
+ *  Connection->Socket [label="write header", URL="\ref void Socket::write (const std::error_code &e, std::size_t size)"];
+ *  Socket->Connection [label="write", URL="\ref void Connection::write ( const std::error_code& )"];
+ *  Connection=>Response [label="read attribute", URL="\ref void Response::header (const std::error_code &e, std::size_t size)"];
+ *  Connection<<Response [label="buffer"];
+ *  Connection->Socket [label="write attr", URL="\ref void Socket::write (const std::error_code &e, std::size_t size)"];
+ *  Connection rbox Socket [label="close or reset connection", textbgcolour="#ffb000"];
+ *  Connection->Connection [label="close|start", URL="\ref Connection::start ()"];
  *\endmsc
  */
 class Connection : public std::enable_shared_from_this< Connection > {
@@ -112,7 +124,7 @@ public:
      * @brief parse request input content
      * @return
      */
-    void read ( const asio::error_code& e, std::size_t size ) {
+    void read ( const std::error_code& e, std::size_t size ) {
         if( !e ) {
             size_t _body_length = body_length();
             request_.write ( buffer_.data(), size );
@@ -134,7 +146,11 @@ public:
         }
     }
 
-    void write ( const asio::error_code& e ) {
+    /**
+     * @brief parse request output content.
+     * @param e
+     */
+    void write ( const std::error_code& e ) {
         if( !e ) {
             size_t _body_length = response_length();
             if( static_cast< size_t >( response_.tellg() ) == _body_length ) { //finish request
@@ -174,6 +190,7 @@ private:
     }
 
 };
+/** \brief socket pointer */
 typedef std::unique_ptr< Socket > server_socket_ptr;
 }//namespace http
 #endif //namespace HTTP_CONNECTION_H

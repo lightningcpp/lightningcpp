@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 ExternalProject_Add(
-  asio
+  asio_master
   URL "https://github.com/chriskohlhoff/asio/archive/master.zip"
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
@@ -9,6 +9,9 @@ ExternalProject_Add(
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
 )
-ExternalProject_Get_Property(asio source_dir)
+ExternalProject_Get_Property(asio_master source_dir)
 set(ASIO_INCLUDE_DIR ${source_dir}/asio/include/)
-message( ${ASIO_INCLUDE_DIR} )
+set(ASIO_LIBRARY asio)
+add_library(${ASIO_LIBRARY} INTERFACE IMPORTED)
+#set_property(TARGET ${ASIO_LIBRARY} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${ASIO_INCLUDE_DIR} )
+add_dependencies(${ASIO_LIBRARY} asio_master )

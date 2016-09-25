@@ -16,12 +16,12 @@
 
 #include <string>
 
-#include "../src/request.h"
-#include "../src/response.h"
+#include "../include/http/request.h"
+#include "../include/http/response.h"
 
-#include "../src/mod/exec.h"
-#include "../src/mod/method.h"
-#include "../src/utils/base64.h"
+#include "../include/http/mod/exec.h"
+#include "../include/http/mod/method.h"
+#include "../include/http/utils/base64.h"
 
 #include <gtest/gtest.h>
 

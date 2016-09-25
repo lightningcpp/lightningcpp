@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "../src/mod/error.h"
+#include "../include/http/mod/error.h"
 
 #include <gtest/gtest.h>
 

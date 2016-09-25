@@ -18,13 +18,13 @@
 #include <string>
 #include <fstream>
 
-#include "../src/httpclient.h"
-#include "../src/httpserver.h"
-#include "../src/server.h"
-#include "../src/mod/http.h"
-#include "../src/mod/match.h"
-#include "../src/mod/exec.h"
-#include "../src/mod/file.h"
+#include "../include/http/httpclient.h"
+#include "../include/http/httpserver.h"
+#include "../include/http/server.h"
+#include "../include/http/mod/http.h"
+#include "../include/http/mod/match.h"
+#include "../include/http/mod/exec.h"
+#include "../include/http/mod/file.h"
 
 #include "testutils.h"
 
@@ -150,7 +150,7 @@ TEST ( IntegrationTest, GetFileNotFound ) {
 
 TEST ( IntegrationTest, CustomGetFileNotFound ) {
 
-//    //create the server
+//    //create the server TODO
 //    WebServer2< HttpServer > server ( "127.0.0.1", 9999 );
 //    server.bind_error_delegate ( http_status::NOT_FOUND, ErrorDelegate<>::bind ( "404" ) );
 //    delegate::FileDelegate file_delegate ( TESTFILES );
@@ -164,7 +164,7 @@ TEST ( IntegrationTest, CustomGetFileNotFound ) {
 //    EXPECT_EQ ( "404", _sstream.str() );
 }
 
-//TEST ( IntegrationTest, CustomFileDelegateGetFileNotFound ) {
+//TEST ( IntegrationTest, CustomFileDelegateGetFileNotFound ) { TODO
 
 //    //create the server
 //    WebServer2< HttpServer > server ( "127.0.0.1", 9999 );

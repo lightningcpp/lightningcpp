@@ -16,7 +16,7 @@
 
 #include <string>
 
-#include "../src/utils/stringutils.h"
+#include "../include/http/utils/stringutils.h"
 
 #include <gtest/gtest.h>
 
