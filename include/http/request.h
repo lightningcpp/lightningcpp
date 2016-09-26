@@ -173,18 +173,17 @@ public:
 	 * @param buffer
 	 * @return
 	 */
-    size_t header ( char* buffer, std::streamsize size ) {
+    std::streamsize header ( char* buffer, std::streamsize size ) {
         // create status line
         int _position = snprintf ( buffer, size, "%s %s %s/%d.%d\r\n", method_.c_str(), uri_.c_str(), protocol_.c_str(), http_version_major_, http_version_minor_ );
 
-        if ( _position < 0 && static_cast< size_t > ( _position ) > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
+        if ( _position < 0 && _position > size ) { std::cout << "buffer to smal for header. "; return 0; }
 
         for ( auto & _header : parameters_ ) {
             _position += snprintf ( buffer+_position, size-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
 
-            if ( _position < 0 && static_cast< size_t > ( _position ) > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
+            if ( _position < 0 && _position > size ) { std::cout << "buffer to smal for header. "; return 0; }
         }
-
         _position += snprintf ( buffer+_position, size-_position, "\r\n" );
         return _position;
     }

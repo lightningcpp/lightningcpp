@@ -15,8 +15,8 @@ SET(PATCH_VERSION "0" CACHE PATCH_VERSION "The package build number." )
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 option(build_example_server "Build the example server." OFF )
 option(build_tests "Build all http unit tests." OFF )
-option(build_documentation "Build the documentation." ON )
-option(build_benchmark "Build the benchmarks and execute." ON )
+option(build_documentation "Build the documentation." OFF )
+option(build_benchmark "Build the benchmarks and execute." OFF )
 SET(HTTP_BUFFER_SIZE "8192" CACHE STRING "The HTTP character buffer size.")
 SET(HTTP_CLIENT_TIMEOUT "3" CACHE STRING "The HTTP connection timeout in seconds.")
 SET(HTTP_SERVER_THREAD_POOL_SIZE "10" CACHE STRING "The number of threads created on the ASIO service.")
@@ -72,6 +72,7 @@ if ( build_example_server OR build_tests OR build_benchmark )
     # -----------------------        Test Code          -----------------------
     # -------------------------------------------------------------------------
     if (build_tests)
+        enable_testing()
         add_subdirectory ( test )
     endif()
 
