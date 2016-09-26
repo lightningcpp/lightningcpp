@@ -82,6 +82,8 @@ if ( build_example_server OR build_tests OR build_benchmark )
     if (build_benchmark)
         add_subdirectory ( benchmark )
     endif(build_benchmark)
+
+
 endif()
 
 # -------------------------------------------------------------------------
@@ -89,5 +91,9 @@ endif()
 # -------------------------------------------------------------------------
 
 if (build_documentation)
+    add_custom_target(cppcheck /usr/bin/cppcheck --enable=all --inconclusive --xml --xml-version=2 ${HeaderFiles} 2> cppcheck.xml
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating code analysis with CppCheck" VERBATIM
+    )
     add_subdirectory ( doc )
 endif(build_documentation)
