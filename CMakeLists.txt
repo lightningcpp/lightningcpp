@@ -91,7 +91,7 @@ endif()
 # -------------------------------------------------------------------------
 
 if (build_documentation)
-    add_custom_target(cppcheck /usr/bin/cppcheck --enable=all --inconclusive --xml --xml-version=2 ${HeaderFiles} 2> cppcheck.xml
+    add_custom_target(cppcheck /usr/bin/cppcheck -DHTTP_BUFFER_SIZE=${HTTP_BUFFER_SIZE} -DHTTP_CLIENT_TIMEOUT=${HTTP_CLIENT_TIMEOUT} -DHTTP_SERVER_THREAD_POOL_SIZE=${HTTP_SERVER_THREAD_POOL_SIZE} --enable=all --inconclusive --xml --xml-version=2 ${HeaderFiles} 2> cppcheck.xml
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generating code analysis with CppCheck" VERBATIM
     )
