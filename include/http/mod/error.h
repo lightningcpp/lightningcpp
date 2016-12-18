@@ -35,7 +35,7 @@ namespace mod {
 class Error : Http {
 public:
     /** \brief Error constructor */
-    Error() {}
+    explicit Error() {}
     Error ( const Error& ) = delete;
     /** \brief Error move constructor.*/
     Error ( Error&& ) = default;

@@ -186,7 +186,7 @@ TEST ( IntegrationTest, MultiThreadingTest ) {
     Server< HttpServer > server ( "127.0.0.1", "9999" );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
-    for ( int j = 0; j<10; ++j ) { //TODO greater loop for "Too many open files" exception
+    for ( int j = 0; j<1; ++j ) { //TODO greater loop for "Too many open files" exception
 
         std::list< std::thread > threads_;
         std::atomic< int > count1 ( 0 );

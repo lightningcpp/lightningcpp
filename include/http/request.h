@@ -65,10 +65,12 @@ public:
     void parameter ( const std::string & name, const std::string & value )
     { parameters_[name] = value; }
 	/** @brief Get a request paremeter */
-    std::string parameter ( const std::string & name )
-    { return parameters_[name]; }
+    std::string parameter ( const std::string & name ) const {
+        if( parameters_.find( name ) == parameters_.end() ) return "";
+        else return parameters_.at( name );
+    }
 	/** @brief Contains request parameter by key. */
-    bool contains_parameter ( const std::string & name )
+    bool contains_parameter ( const std::string & name ) const
     { return parameters_.find ( name ) != parameters_.end(); }
 	/** @brief Get the request parameter names. */
     std::vector<std::string> parameter_names() const {

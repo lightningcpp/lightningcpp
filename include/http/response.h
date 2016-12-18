@@ -46,10 +46,12 @@ public:
 	void parameter ( const std::string & key, const std::string & value )
 	{ parameters_[key] = value; }
 	/** @brief Get parameter by key. */
-	std::string parameter ( const std::string & key )
-	{ return parameters_[key]; }
+    std::string parameter ( const std::string & key ) const {
+        if( parameters_.find( key ) == parameters_.end() ) return "";
+        else return parameters_.at( key );
+    }
 	/** @brief Check if response contains parameter. */
-	bool contains_parameter ( const std::string & key )
+    bool contains_parameter ( const std::string & key ) const
 	{ return ( parameters_.find ( key ) != parameters_.end() ); }
     /** @brief parameter size. */
     size_t parameter_size () const { return parameters_.size(); }
@@ -96,12 +98,12 @@ public:
         int _position = snprintf ( buffer, size, "%s/%d.%d %d %s\r\n",
             protocol_.c_str(), version_major_, version_minor_, static_cast< int > ( status_ ), status_reason_phrases.at( status_ ).c_str() );
 
-        if ( _position < 0 && static_cast< size_t > ( _position ) > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
+        if ( _position < 0 && _position > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
 
         for ( auto & _header : parameters_ ) {
             _position += snprintf ( buffer+_position, size-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
 
-            if ( _position < 0 && static_cast< size_t > ( _position ) > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
+            if ( _position < 0 && _position > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
         }
 
         _position += snprintf ( buffer+_position, size-_position, "\r\n" );

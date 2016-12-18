@@ -47,7 +47,7 @@ public:
      * @brief Create the Exec Object with a delegate method.
      * @param f delegate function pointer
      */
-    Exec ( auto&& f ) : _f ( std::move ( f ) ) {}
+    explicit Exec ( auto&& f ) : _f ( std::move ( f ) ) {}
     Exec ( const Exec& ) = delete;
     /** \brief Exec move constructor.*/
     Exec ( Exec&& ) = default;

@@ -18,6 +18,7 @@ target_link_libraries(abc -pthread )
 include_directories( ${LIGHTNING_SOURCES} ${INCLUDES} ${NONIUS_INCLUDE_DIR} )
 SET(BENCHMARK_LIST benchmark.cpp  )
 add_executable(benchmark_main ${BENCHMARK_LIST} )
+target_compile_options( benchmark_main PRIVATE -O3 )
 target_link_libraries(benchmark_main re2 nonius asio weighttp ${LIBS} )
 
 add_custom_target(bench
