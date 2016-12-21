@@ -670,4 +670,277 @@ TEST ( HttpServerTest, TestPersistentConnectionV11Mixed ) {
         EXPECT_EQ ( _test_string, _result );
     }
 }
+
+TEST ( HttpServerTest, TestPostBody ) {
+
+    std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
+    std::stringstream result_header_ss;
+    result_header_ss << "HTTP/1.1 200 OK\r\n";
+    result_header_ss << "Content-Length: 121\r\n";
+    result_header_ss << "Content-Type: text/plain\r\n\r\n";
+
+    bool _call_back_called = false;
+    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+        EXPECT_EQ ( "POST", request.method() );
+        EXPECT_EQ ( "/browse.xml", request.uri() );
+        EXPECT_EQ ( "HTTP", request.protocol() );
+        EXPECT_EQ ( 1, request.version_major() );
+        EXPECT_EQ ( 1, request.version_minor() );
+
+        EXPECT_EQ ( 3U, request.parameter_map().size() );
+        EXPECT_EQ ( static_cast< long >( _test_string.size() ), std::atol( request.parameter( http::header::CONTENT_LENGTH ).c_str() ) );
+
+        EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
+        EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
+
+        if( _call_back_called ) {
+            response.status ( http::http_status::OK );
+            response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
+            response.parameter ( header::CONTENT_LENGTH, std::to_string ( _test_string.size() ) );
+            response << _test_string;
+        } else {
+
+            std::string _body = request.str();
+            EXPECT_EQ ( _test_string, _body );
+        }
+        _call_back_called = true;
+    } );
+
+    /** send a request **/
+
+    using asio::ip::tcp;
+
+    asio::io_service io_service;
+    tcp::resolver resolver ( io_service );
+    tcp::resolver::query query ( "127.0.0.1", "9000" );
+    tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
+
+    tcp::socket socket ( io_service );
+    asio::connect ( socket, endpoint_iterator );
+
+
+    // Send the first request.
+    {
+        asio::streambuf request;
+        std::ostream request_stream ( &request );
+        request_stream << "POST /browse.xml HTTP/1.1\r\n";
+        request_stream << "Host: localhost\r\n";
+        request_stream << "Content-Length: " << _test_string.size() << "\r\n";
+        request_stream << "Accept: */*\r\n\r\n" << _test_string;
+
+        asio::write ( socket, request );
+        buffer_t _buffer;
+        asio::error_code error;
+
+        size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
+        EXPECT_FALSE ( error );
+        EXPECT_TRUE ( _call_back_called );
+
+        utils::HttpParser _parser;
+        Response _response;
+        size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
+        std::cout << _response << std::endl;
+        EXPECT_EQ ( 0U, _position );
+        EXPECT_EQ ( http_status::OK, _response.status() );
+    }
+}
+    TEST ( HttpServerTest, TestPostBodyNonPersistent ) {
+
+        std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
+        std::stringstream result_header_ss;
+        result_header_ss << "HTTP/1.1 200 OK\r\n";
+        result_header_ss << "Content-Length: 121\r\n";
+        result_header_ss << "Content-Type: text/plain\r\n\r\n";
+
+        bool _call_back_called = false;
+        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+            EXPECT_EQ ( "POST", request.method() );
+            EXPECT_EQ ( "/browse.xml", request.uri() );
+            EXPECT_EQ ( "HTTP", request.protocol() );
+            EXPECT_EQ ( 1, request.version_major() );
+            EXPECT_EQ ( 1, request.version_minor() );
+
+            EXPECT_EQ ( 3U, request.parameter_map().size() );
+            EXPECT_EQ ( static_cast< long >( _test_string.size() ), std::atol( request.parameter( http::header::CONTENT_LENGTH ).c_str() ) );
+
+            EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
+            EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
+
+//            if( _call_back_called ) {
+//                response.status ( http::http_status::OK );
+//                response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
+//                response.parameter ( header::CONTENT_LENGTH, std::to_string ( _test_string.size() ) );
+//                response << _test_string;
+//            } else {
+
+                std::string _body = request.str();
+                EXPECT_EQ ( _test_string.size(), _body.size() );
+                EXPECT_EQ ( _test_string, _body );
+//            }
+            _call_back_called = true;
+        } );
+
+        /** send a request **/
+
+        using asio::ip::tcp;
+
+        asio::io_service io_service;
+        tcp::resolver resolver ( io_service );
+        tcp::resolver::query query ( "127.0.0.1", "9000" );
+        tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
+
+
+
+        // Send the first request.
+        {
+            tcp::socket socket ( io_service );
+            asio::connect ( socket, endpoint_iterator );
+
+            asio::streambuf request;
+            std::ostream request_stream ( &request );
+            request_stream << "POST /browse.xml HTTP/1.1\r\n";
+            request_stream << "Host: localhost\r\n";
+            request_stream << "Content-Length: " << _test_string.size() << "\r\n";
+            request_stream << "Accept: */*\r\n\r\n" << _test_string;
+
+            asio::write ( socket, request );
+            buffer_t _buffer;
+            asio::error_code error;
+
+            size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
+            EXPECT_FALSE ( error );
+            EXPECT_TRUE ( _call_back_called );
+
+            utils::HttpParser _parser;
+            Response _response;
+            size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
+            std::cout << _response << std::endl;
+            EXPECT_EQ ( 0U, _position );
+            EXPECT_EQ ( http_status::OK, _response.status() );
+        }
+        {
+            tcp::socket socket ( io_service );
+            asio::connect ( socket, endpoint_iterator );
+
+            asio::streambuf request;
+            std::ostream request_stream ( &request );
+            request_stream << "POST /browse.xml HTTP/1.1\r\n";
+            request_stream << "Host: localhost\r\n";
+            request_stream << "Content-Length: " << _test_string.size() << "\r\n";
+            request_stream << "Accept: */*\r\n\r\n" << _test_string;
+
+            asio::write ( socket, request );
+            buffer_t _buffer;
+            asio::error_code error;
+
+            size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
+            EXPECT_FALSE ( error );
+            EXPECT_TRUE ( _call_back_called );
+
+            utils::HttpParser _parser;
+            Response _response;
+            size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
+            std::cout << _response << std::endl;
+            EXPECT_EQ ( 0U, _position );
+            EXPECT_EQ ( http_status::OK, _response.status() );
+        }
+}
+    TEST ( HttpServerTest, TestPostBodyPersistent ) {
+
+        std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
+        std::stringstream result_header_ss;
+        result_header_ss << "HTTP/1.1 200 OK\r\n";
+        result_header_ss << "Content-Length: 121\r\n";
+        result_header_ss << "Content-Type: text/plain\r\n\r\n";
+
+        bool _call_back_called = false;
+        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+            EXPECT_EQ ( "POST", request.method() );
+            EXPECT_EQ ( "/browse.xml", request.uri() );
+            EXPECT_EQ ( "HTTP", request.protocol() );
+            EXPECT_EQ ( 1, request.version_major() );
+            EXPECT_EQ ( 1, request.version_minor() );
+
+            EXPECT_EQ ( 3U, request.parameter_map().size() );
+            EXPECT_EQ ( static_cast< long >( _test_string.size() ), std::atol( request.parameter( http::header::CONTENT_LENGTH ).c_str() ) );
+
+            EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
+            EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
+
+//            if( _call_back_called ) {
+//                response.status ( http::http_status::OK );
+//                response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
+//                response.parameter ( header::CONTENT_LENGTH, std::to_string ( _test_string.size() ) );
+//                response << _test_string;
+//            } else {
+
+                std::string _body = request.str();
+                EXPECT_EQ ( _test_string.size(), _body.size() );
+                EXPECT_EQ ( _test_string, _body );
+//            }
+            _call_back_called = true;
+        } );
+
+        /** send a request **/
+
+        using asio::ip::tcp;
+
+        asio::io_service io_service;
+        tcp::resolver resolver ( io_service );
+        tcp::resolver::query query ( "127.0.0.1", "9000" );
+        tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
+
+        tcp::socket socket ( io_service );
+        asio::connect ( socket, endpoint_iterator );
+
+
+        // Send the first request.
+        {
+            asio::streambuf request;
+            std::ostream request_stream ( &request );
+            request_stream << "POST /browse.xml HTTP/1.1\r\n";
+            request_stream << "Host: localhost\r\n";
+            request_stream << "Content-Length: " << _test_string.size() << "\r\n";
+            request_stream << "Accept: */*\r\n\r\n" << _test_string;
+
+            asio::write ( socket, request );
+            buffer_t _buffer;
+            asio::error_code error;
+
+            size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
+            EXPECT_FALSE ( error );
+            EXPECT_TRUE ( _call_back_called );
+
+            utils::HttpParser _parser;
+            Response _response;
+            size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
+            std::cout << _response << std::endl;
+            EXPECT_EQ ( 0U, _position );
+            EXPECT_EQ ( http_status::OK, _response.status() );
+        }
+        {
+            asio::streambuf request;
+            std::ostream request_stream ( &request );
+            request_stream << "POST /browse.xml HTTP/1.1\r\n";
+            request_stream << "Host: localhost\r\n";
+            request_stream << "Content-Length: " << _test_string.size() << "\r\n";
+            request_stream << "Accept: */*\r\n\r\n" << _test_string;
+
+            asio::write ( socket, request );
+            buffer_t _buffer;
+            asio::error_code error;
+
+            size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
+            EXPECT_FALSE ( error );
+            EXPECT_TRUE ( _call_back_called );
+
+            utils::HttpParser _parser;
+            Response _response;
+            size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
+            std::cout << _response << std::endl;
+            EXPECT_EQ ( 0U, _position );
+            EXPECT_EQ ( http_status::OK, _response.status() );
+        }
+}
+
 }//namespace http

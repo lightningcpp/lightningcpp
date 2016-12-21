@@ -82,8 +82,6 @@ if ( build_example_server OR build_tests OR build_benchmark )
     if (build_benchmark)
         add_subdirectory ( benchmark )
     endif(build_benchmark)
-
-
 endif()
 
 # -------------------------------------------------------------------------

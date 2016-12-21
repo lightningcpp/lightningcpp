@@ -252,7 +252,7 @@ public:
         parameters_.clear();
         attributes_.clear();
         if( out_body_ ) {
-            out_body_->str();
+            out_body_->str( "" );
             out_body_->clear();
         }
     }
