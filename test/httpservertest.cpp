@@ -943,4 +943,69 @@ TEST ( HttpServerTest, TestPostBody ) {
         }
 }
 
+    TEST ( HttpServerTest, TestPostUpnpContentDirectory ) {
+
+        std::string _test_string = "<?xml version=\"1.0\"?>\r\n<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><SOAP-ENV:Body><m:Browse xmlns:m=\"urn:schemas-upnp-org:service:ContentDirectory:1\"><ObjectID xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">0</ObjectID><BrowseFlag xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">BrowseDirectChildren</BrowseFlag><Filter xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">*</Filter><StartingIndex xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"ui4\">0</StartingIndex><RequestedCount xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"ui4\">200</RequestedCount><SortCriteria xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\"></SortCriteria></m:Browse></SOAP-ENV:Body></SOAP-ENV:Envelope>\r\n";
+
+        bool _call_back_called = false;
+        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+            EXPECT_EQ ( "POST", request.method() );
+            EXPECT_EQ ( "/ctl/ContentDir", request.uri() );
+            EXPECT_EQ ( "HTTP", request.protocol() );
+            EXPECT_EQ ( 1, request.version_major() );
+            EXPECT_EQ ( 1, request.version_minor() );
+
+            EXPECT_EQ ( 9U, request.parameter_map().size() );
+            EXPECT_EQ ( 848, std::atol( request.parameter( http::header::CONTENT_LENGTH ).c_str() ) );
+
+            EXPECT_EQ ( "192.168.0.17:9000", request.parameter ( http::header::HOST ) );
+
+            std::string _body = request.str();
+            EXPECT_EQ ( _test_string, _body );
+            _call_back_called = true;
+        } );
+
+        /** send a request **/
+
+        using asio::ip::tcp;
+
+        asio::io_service io_service;
+        tcp::resolver resolver ( io_service );
+        tcp::resolver::query query ( "127.0.0.1", "9000" );
+        tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
+
+        tcp::socket socket ( io_service );
+        asio::connect ( socket, endpoint_iterator );
+
+
+        // Send the first request.
+        {
+            asio::streambuf request;
+            std::ostream request_stream ( &request );
+//            request_stream << "POST /browse.xml HTTP/1.1\r\n";
+//            request_stream << "Host: localhost\r\n";
+
+            std::stringstream _ss;
+            _ss << TESTFILES << "/raw/request/upnp_soap_content_directory.dump";
+            std::ifstream _file( _ss.str(), std::ifstream::binary);
+            ASSERT_TRUE( _file );
+            copy_stream( _file, request_stream );
+
+            asio::write ( socket, request );
+            buffer_t _buffer;
+            asio::error_code error;
+
+            size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
+            EXPECT_FALSE ( error );
+            EXPECT_TRUE ( _call_back_called );
+
+            utils::HttpParser _parser;
+            Response _response;
+            size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
+            std::cout << _response << std::endl;
+            EXPECT_EQ ( 0U, _position );
+            EXPECT_EQ ( http_status::OK, _response.status() );
+        }
+    }
+
 }//namespace http

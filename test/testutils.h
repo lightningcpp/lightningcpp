@@ -22,6 +22,14 @@
 
 #include "../include/http/constant.h"
 
+inline void copy_stream( std::istream & in, std::ostream & out ) {
+    http::buffer_t _buffer;
+    while( in ) {
+        in.read( _buffer.data(), http::BUFFER_SIZE );
+        out.write( _buffer.data(), in.gcount() );
+    }
+}
+
 inline void client_header ( const std::string & host, const std::string & port, std::vector< asio::streambuf* > request, asio::streambuf & response ) {
 	asio::io_service io_service;
 	asio::ip::tcp::resolver resolver ( io_service );
