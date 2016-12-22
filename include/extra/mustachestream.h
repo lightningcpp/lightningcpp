@@ -1,0 +1,4 @@
+#ifndef MUSTACHESTREAM_H
+#define MUSTACHESTREAM_H
+
+#endif // MUSTACHESTREAM_H
