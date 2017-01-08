@@ -44,7 +44,7 @@ public:
      * @param delegate
      */
     void read ( buffer_t & buffer, auto delegate ) {
-            socket_.async_read_some ( asio::buffer ( buffer ), strand_.wrap ( delegate ) );
+            socket_.async_read_some ( asio::buffer ( buffer ), /* strand_.wrap ( */ delegate /*)*/ );
     }
 
     /**
@@ -54,7 +54,7 @@ public:
      * @param delegate
      */
     void write ( buffer_t & buffer, size_t size, auto delegate ) {
-            asio::async_write ( socket_, asio::buffer ( buffer, size ), strand_.wrap ( delegate ) );
+            asio::async_write ( socket_, asio::buffer ( buffer, size ), /*strand_.wrap (*/ delegate /*)*/ );
     }
 
     /**

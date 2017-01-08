@@ -106,7 +106,7 @@ public:
                 } else {
 
                     if ( size - body_start_ <= _body_length ) {
-                        std::cout << "CONNECT: body complete:" << std::string ( buffer_.data(), body_start_, _body_length ) << std::endl;
+                        std::cout << "CONNECT: body complete: (" << body_start_<< "," << _body_length << ") " << std::string ( buffer_.data(), body_start_, _body_length ) << std::endl;
                         request_.write ( buffer_.data()+body_start_, _body_length );
                         callback_ ( request_, response_ );
 
