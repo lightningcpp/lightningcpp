@@ -92,18 +92,21 @@ public:
             std::cout << ">> CONNECT: body_start: " << body_start_ << std::endl;
 
             if ( body_start_ == 0 ) { //continue to read the header.
+                std::cout << "CONNECT: header incomplete" << std::endl;
                 socket_->read( buffer_, std::bind( &Connection::connect, shared_from_this(), _1, _2 ) );
 
             } else {
 
                 size_t _body_length = body_length();
                 if ( _body_length == 0 ) {
+                    std::cout << "CONNECT: without body" << std::endl;
                     callback_ ( request_, response_ );
                     size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                     socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
                 } else {
 
                     if ( size - body_start_ <= _body_length ) {
+                        std::cout << "CONNECT: body complete:" << std::string ( buffer_.data(), _body_length ) << std::endl;
                         request_.write ( buffer_.data()+body_start_, _body_length );
                         callback_ ( request_, response_ );
 
@@ -111,6 +114,7 @@ public:
                         socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
 
                     } else if ( size - body_start_ > 0 ) {
+                        std::cout << "CONNECT: read more:" << std::string ( buffer_.data(), body_start_, size - body_start_ ) << std::endl;
                         request_.write ( buffer_.data()+body_start_, size - body_start_ );
                         socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
 
@@ -128,20 +132,22 @@ public:
      */
     void read ( const std::error_code& e, std::size_t size ) {
         if( !e ) {
-            std::cout << "code socket " << std::string( buffer_.data(), size ) << std::endl;
+            std::cout << "READ: " << size << std::endl;
             size_t _body_length = body_length();
             request_.write ( buffer_.data(), size );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
 
+                std::cout << "READ: complete: " << std::endl;
                 callback_ ( request_, response_ );
                 size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
 
             } else if( static_cast< size_t >( request_.tellp() ) < _body_length ) {
+                std::cout << "READ: more: " << std::endl;
                 socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
 
             } else {
-                std::cout << "parse_content: Wrong size: " << request_.tellp() << ", " << _body_length << std::endl;
+                std::cout << "READ: parse_content: Wrong size: " << request_.tellp() << ", " << _body_length << std::endl;
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
@@ -159,6 +165,7 @@ public:
             size_t _body_length = response_length();
             if( static_cast< size_t >( response_.tellg() ) == _body_length ) { //finish request
                 if( request_.persistent() ) {
+                    std::cout << "WRITE: persistent" << std::endl;
                     start(); //restart this connection
 
                 } else socket_->close();
