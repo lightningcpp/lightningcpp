@@ -118,7 +118,7 @@ public:
                     }
                 }
             }
-        } else std::cout << "ERROR(connect): " << e << std::endl;
+        } else std::cout << "ERROR(connect): " << e.message() << std::endl;
     }
 
     /**
@@ -145,7 +145,7 @@ public:
                 size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
             }
-        } else std::cout << "ERROR(read): " << e << std::endl;
+        } else std::cout << "ERROR(read): " << e.message() << std::endl;
     }
 
     /**
@@ -170,7 +170,7 @@ public:
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 socket_->close();
             }
-        } else std::cout << "ERROR (WRITE(e)): " << e << std::endl;
+        } else std::cout << "ERROR (WRITE(e)): " << e.message() << std::endl;
     }
 
 private:
