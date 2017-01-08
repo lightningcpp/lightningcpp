@@ -87,26 +87,21 @@ public:
      */
     void connect ( const std::error_code& e, std::streamsize size ) {
         if( !e ) {
-            std::cout << "CONNECT: " << size << std::endl;
             size_t body_start_ = http_parser_.parse_request ( request_, buffer_, 0, size );
-            std::cout << ">> CONNECT: body_start: " << body_start_ << std::endl;
 
             if ( body_start_ == 0 ) { //continue to read the header.
-                std::cout << "CONNECT: header incomplete" << std::endl;
                 socket_->read( buffer_, std::bind( &Connection::connect, shared_from_this(), _1, _2 ) );
 
             } else {
 
                 size_t _body_length = body_length();
                 if ( _body_length == 0 ) {
-                    std::cout << "CONNECT: without body" << std::endl;
                     callback_ ( request_, response_ );
                     size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                     socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
                 } else {
 
                     if ( size - body_start_ == _body_length ) {
-                        std::cout << "CONNECT: body complete: (" << body_start_<< "," << _body_length << ") \n" << request << "std::endl" << std::string ( buffer_.data(), body_start_, _body_length ) << std::endl;
                         request_.write ( buffer_.data()+body_start_, _body_length );
                         callback_ ( request_, response_ );
 
@@ -114,7 +109,6 @@ public:
                         socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
 
                     } else if ( size - body_start_ > 0 ) {
-                        std::cout << "CONNECT: read more:" << std::string ( buffer_.data(), body_start_, size - body_start_ ) << std::endl;
                         request_.write ( buffer_.data()+body_start_, size - body_start_ );
                         socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
 
@@ -132,22 +126,18 @@ public:
      */
     void read ( const std::error_code& e, std::size_t size ) {
         if( !e ) {
-            std::cout << "READ: " << size << std::endl;
             size_t _body_length = body_length();
             request_.write ( buffer_.data(), size );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
 
-                std::cout << "READ: complete: " << std::endl;
                 callback_ ( request_, response_ );
                 size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
 
             } else if( static_cast< size_t >( request_.tellp() ) < _body_length ) {
-                std::cout << "READ: more: " << std::endl;
                 socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
 
             } else {
-                std::cout << "READ: parse_content: Wrong size: " << request_.tellp() << ", " << _body_length << std::endl;
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
@@ -161,11 +151,9 @@ public:
      */
     void write ( const std::error_code& e ) {
         if( !e ) {
-            std::cout << "WRITE: no size" << std::endl;
             size_t _body_length = response_length();
             if( static_cast< size_t >( response_.tellg() ) == _body_length ) { //finish request
                 if( request_.persistent() ) {
-                    std::cout << "WRITE: persistent" << std::endl;
                     start(); //restart this connection
 
                 } else socket_->close();
@@ -174,7 +162,6 @@ public:
                 size_t _write_position = response_.read ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _write_position, std::bind( &Connection::write, shared_from_this(), _1 ) );
             } else {
-                std::cout << "send entity: Wrong size." << std::endl;
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 socket_->close();
             }
