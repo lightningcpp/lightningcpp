@@ -105,7 +105,7 @@ public:
                     socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
                 } else {
 
-                    if ( size - body_start_ <= _body_length ) {
+                    if ( size - body_start_ == _body_length ) {
                         std::cout << "CONNECT: body complete: (" << body_start_<< "," << _body_length << ") \n" << request << "std::endl" << std::string ( buffer_.data(), body_start_, _body_length ) << std::endl;
                         request_.write ( buffer_.data()+body_start_, _body_length );
                         callback_ ( request_, response_ );
