@@ -87,6 +87,7 @@ public:
      */
     void connect ( const std::error_code& e, std::streamsize size ) {
         if( !e ) {
+            std::cout << "CONNECT: " << size << std::endl;
             size_t body_start_ = http_parser_.parse_request ( request_, buffer_, 0, size );
 
             if ( body_start_ == 0 ) { //continue to read the header.
@@ -117,7 +118,7 @@ public:
                     }
                 }
             }
-        }
+        } else std::cout << "ERROR(connect): " << e << std::endl;
     }
 
     /**
@@ -126,6 +127,7 @@ public:
      */
     void read ( const std::error_code& e, std::size_t size ) {
         if( !e ) {
+            std::cout << "READ: " << size << std::endl;
             size_t _body_length = body_length();
             request_.write ( buffer_.data(), size );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
@@ -143,7 +145,7 @@ public:
                 size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
             }
-        }
+        } else std::cout << "ERROR(read): " << e << std::endl;
     }
 
     /**
@@ -152,6 +154,7 @@ public:
      */
     void write ( const std::error_code& e ) {
         if( !e ) {
+            std::cout << "WRITE: no size" << std::endl;
             size_t _body_length = response_length();
             if( static_cast< size_t >( response_.tellg() ) == _body_length ) { //finish request
                 if( request_.persistent() ) {
@@ -167,7 +170,7 @@ public:
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 socket_->close();
             }
-        }
+        } else std::cout << "ERROR (WRITE(e)): " << e << std::endl;
     }
 
 private:
