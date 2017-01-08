@@ -16,6 +16,8 @@
 #ifndef HTTP_SOCKET_H
 #define HTTP_SOCKET_H
 
+#include <iostream>
+
 namespace http {
 
 /**
@@ -59,6 +61,7 @@ public:
      * @brief Close the connection.
      */
     void close() {
+            std::cout << "code socket " << std::endl;
             asio::error_code ignored_ec;
             socket_.shutdown ( asio::ip::tcp::socket::shutdown_both, ignored_ec );
     }

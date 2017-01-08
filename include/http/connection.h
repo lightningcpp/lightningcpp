@@ -89,6 +89,7 @@ public:
         if( !e ) {
             std::cout << "CONNECT: " << size << std::endl;
             size_t body_start_ = http_parser_.parse_request ( request_, buffer_, 0, size );
+            std::cout << ">> CONNECT: body_start: " << body_start_ << std::endl;
 
             if ( body_start_ == 0 ) { //continue to read the header.
                 socket_->read( buffer_, std::bind( &Connection::connect, shared_from_this(), _1, _2 ) );
@@ -127,7 +128,7 @@ public:
      */
     void read ( const std::error_code& e, std::size_t size ) {
         if( !e ) {
-            std::cout << "READ: " << size << std::endl;
+            std::cout << "code socket " << std::string( buffer_.data(), size ) << std::endl;
             size_t _body_length = body_length();
             request_.write ( buffer_.data(), size );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
