@@ -61,7 +61,6 @@ public:
      * @brief Close the connection.
      */
     void close() {
-            std::cout << "code socket " << std::endl;
             asio::error_code ignored_ec;
             socket_.shutdown ( asio::ip::tcp::socket::shutdown_both, ignored_ec );
     }
