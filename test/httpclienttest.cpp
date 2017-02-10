@@ -24,6 +24,29 @@
 #include <gtest/gtest.h>
 
 namespace http {
+
+TEST ( HttpClientTest, SSL_Request ) {
+
+    HttpClient< Https > client_ ( "www.google.com", "https" );
+    Request request_ ( "/images/branding/googlelogo/1x/googlelogo_color_150x54dp.png" );
+    request_.version_minor ( 0 );
+    //TODO std::stringstream _sstream;
+    std::ofstream _sstream( "/tmp/google-logo.png" );
+    Response _response = client_.get ( request_, _sstream );
+    EXPECT_EQ ( http_status::OK, _response.status() );
+    EXPECT_EQ ( 3170U, std::stoul ( _response.parameter ( header::CONTENT_LENGTH ) ) );
+    //EXPECT_EQ ( _expected, _sstream.str() );
+}
+
+TEST ( HttpClientTest, Simple_SSL_Request ) {
+
+    std::ofstream _sstream( "/tmp/google-logo.png" );
+    Response _response = http::get ( "https://www.google.com//images/branding/googlelogo/1x/googlelogo_color_150x54dp.png", _sstream );
+    EXPECT_EQ ( http_status::OK, _response.status() );
+    EXPECT_EQ ( 3170U, std::stoul ( _response.parameter ( header::CONTENT_LENGTH ) ) );
+    //EXPECT_EQ ( _expected, _sstream.str() );
+}
+
 //TODO
 //TEST ( HttpClientTest, SimpleRequestV1_0 ) {
 

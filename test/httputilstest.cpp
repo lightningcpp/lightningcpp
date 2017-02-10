@@ -14,13 +14,13 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-//#include <string>
+#include <string>
 
-//#include "../src/httputils.h"
+// #include "../src/httputils.h"
 
-//#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 
-//namespace http {
+namespace http {
 
 
 //TEST ( HttpUtilsTest, TestParseIp ) {
@@ -50,10 +50,12 @@
 //    std::string path3 = utils::parse_path ( "http://127.0.0.1:8080" );
 //    EXPECT_EQ ( "/", path3 );
 //}
+
+
 //TEST ( HttpUtilsTest, TestUrlEncode ) {
 //    EXPECT_EQ ( "%22%2FAardvarks%20lurk%2C%20OK%3F%3D%22", http::utils::UrlEscape::urlEncode ( "\"/Aardvarks lurk, OK?=\"" ) );
 //}
 //TEST ( HttpUtilsTest, TestSha256Encode ) {
 //    EXPECT_EQ ( "j7bZM0LXZ9eXeZruTqWm2DIvDYVUU3wxPPpp%2BiXxzQc%3D", http::utils::UrlEscape::urlEncode ( "j7bZM0LXZ9eXeZruTqWm2DIvDYVUU3wxPPpp+iXxzQc=" ) );
 //}
-//}//namespace http
+}//namespace http

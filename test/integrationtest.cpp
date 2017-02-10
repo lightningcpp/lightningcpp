@@ -33,7 +33,7 @@
 namespace http {
 
 TEST ( IntegrationTest, GetSimpleException ) {
-	HttpClient client_ ( "localhost", "9999" );
+    HttpClient< Http > client_ ( "localhost", "9999" );
 	Request request_ ( "/foo/bar" );
 	request_.version_minor ( 0 );
 	std::stringstream _sstream;
@@ -49,7 +49,7 @@ TEST ( IntegrationTest, GetSimpleSmalFile ) {
         return http::http_status::OK;
     } ), http::mod::Http() );
 
-	HttpClient client_ ( "localhost", "9999" );
+    HttpClient< Http > client_ ( "localhost", "9999" );
 	Request request_ ( "/simple.txt" );
 	std::stringstream _sstream;
 	client_.get ( request_, _sstream );
@@ -62,7 +62,7 @@ TEST ( IntegrationTest, GetSimpleLargeFile ) {
     Server< HttpServer > server ( "127.0.0.1", "9999" );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
-    HttpClient client_ ( "localhost", "9999" );
+    HttpClient< Http > client_ ( "localhost", "9999" );
     Request request_ ( "/files/The%20Divine%20Comedy.txt" );
     std::stringstream _sstream;
     client_.get ( request_, _sstream );
@@ -78,7 +78,7 @@ TEST ( IntegrationTest, GetSimpleLargeFileAsFile ) {
     Server< HttpServer > server ( "127.0.0.1", "9999" );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
-    HttpClient client_ ( "localhost", "9999" );
+    HttpClient< Http > client_ ( "localhost", "9999" );
     Request request_ ( "/files/The%20Divine%20Comedy.txt" );
     std::fstream _sstream ( _target_file, std::fstream::binary | std::fstream::out );
     client_.get ( request_, _sstream );
@@ -95,7 +95,7 @@ TEST ( IntegrationTest, RepeatGetSimpleLargeFile ) {
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
     for ( int i = 0; i<100; ++i ) {
-        HttpClient client_ ( "localhost", "9999" );
+        HttpClient< Http > client_ ( "localhost", "9999" );
         Request request_ ( "/files/The%20Divine%20Comedy.txt" );
         std::stringstream _sstream;
         client_.get ( request_, _sstream );
@@ -118,14 +118,14 @@ TEST ( IntegrationTest, GetReMatchFile ) {
     } ), http::mod::Http() );
 
     {
-        HttpClient client_ ( "localhost", "9999" );
+        HttpClient< Http > client_ ( "localhost", "9999" );
         Request request_ ( "/foo" );
         std::stringstream _sstream;
         client_.get ( request_, _sstream );
         EXPECT_EQ ( "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL", _sstream.str() );
     }
     {
-        HttpClient client_ ( "localhost", "9999" );
+        HttpClient< Http > client_ ( "localhost", "9999" );
         Request request_ ( "/foo/bar" );
         std::stringstream _sstream;
         client_.get ( request_, _sstream );
@@ -140,7 +140,7 @@ TEST ( IntegrationTest, GetFileNotFound ) {
     Server< HttpServer > server ( "127.0.0.1", "9999" );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
-    HttpClient client_ ( "localhost", "9999" );
+    HttpClient< Http > client_ ( "localhost", "9999" );
     Request request_ ( "/foo.txt" );
     std::stringstream _sstream;
     Response _response = client_.get ( request_, _sstream );
@@ -156,7 +156,7 @@ TEST ( IntegrationTest, CustomGetFileNotFound ) {
 //    delegate::FileDelegate file_delegate ( TESTFILES );
 //    server.bind ( "*", &delegate::FileDelegate::execute, &file_delegate );
 
-//    HttpClient client_ ( "localhost", "9999" );
+//    HttpClient< Http > client_ ( "localhost", "9999" );
 //    HttpRequest request_ ( "/foo.txt" );
 //    std::stringstream _sstream;
 //    HttpResponse _response = client_.get ( request_, _sstream );
@@ -172,7 +172,7 @@ TEST ( IntegrationTest, CustomGetFileNotFound ) {
 //    server.bind_error_delegate ( http_status::NOT_FOUND, std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) );
 //    server.bind( "*", &delegate::FileDelegate::execute, &file_delegate );
 
-//    HttpClient client_ ( "localhost", "9999" );
+//    HttpClient< Http > client_ ( "localhost", "9999" );
 //    HttpRequest request_ ( "/foo.txt" );
 //    std::stringstream _sstream;
 //    HttpResponse _response = client_.get ( request_, _sstream );
@@ -196,7 +196,7 @@ TEST ( IntegrationTest, MultiThreadingTest ) {
         for ( int i = 0; i<100; ++i ) {
             std::thread th1 ( [&count1] () {
                 ++count1;
-                HttpClient client_ ( "localhost", "9999" );
+                HttpClient< Http > client_ ( "localhost", "9999" );
                 Request request_ ( "/files/The%20Divine%20Comedy.txt" );
                 std::stringstream _sstream;
                 client_.get ( request_, _sstream );
@@ -209,7 +209,7 @@ TEST ( IntegrationTest, MultiThreadingTest ) {
         for ( int i = 0; i<100; ++i ) {
             std::thread th1 ( [&count2] () {
                 ++count2;
-                HttpClient client_ ( "localhost", "9999" );
+                HttpClient< Http > client_ ( "localhost", "9999" );
                 Request request_ ( "/files/Metamorphosis.txt" );
                 std::stringstream _sstream;
                 client_.get ( request_, _sstream );
@@ -222,7 +222,7 @@ TEST ( IntegrationTest, MultiThreadingTest ) {
         for ( int i = 0; i<100; ++i ) {
             std::thread th1 ( [&count3] () {
                 ++count3;
-                HttpClient client_ ( "localhost", "9999" );
+                HttpClient< Http > client_ ( "localhost", "9999" );
                 Request request_ ( "/files/ALICE%27S%20ADVENTURES%20IN%20WONDERLAND.txt" );
                 std::stringstream _sstream;
                 client_.get ( request_, _sstream );

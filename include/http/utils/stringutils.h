@@ -221,6 +221,56 @@ inline std::tuple<int, int> parseRange ( const std::string & range ) {
 	return std::tuple<int, int> ( 0, -1 );
 }
 
+struct UrlParser {
+    UrlParser( const std::string& url ) {
+        size_t _position = 0;
+        if( url.find( "http://" ) != std::string::npos ) {
+            secure_ = false;
+            proto_ = "http";
+            _position = std::string( "http://" ).size();
+        } else if( url.find( "https://" ) != std::string::npos ) {
+            secure_ = true;
+            proto_ = "https";
+            _position = std::string( "https://" ).size();
+        } else { /*throw exception*/ }
+
+        if( url.find( ":", _position ) != std::string::npos ) {
+            size_t _dash_pos = url.find( ":", _position );
+            size_t _end_port_pos = url.find( "/", _dash_pos );
+            if( _end_port_pos == std::string::npos ) _end_port_pos = url.size();
+            host_ = url.substr( _position, _dash_pos - _position );
+            proto_ = url.substr( _dash_pos + 1, _end_port_pos - _dash_pos - 1 );
+            _position = _end_port_pos;
+        } else {
+            size_t _slash_pos = url.find( "/", _position );
+            if( _slash_pos == std::string::npos ) _slash_pos = url.size();
+            host_ = url.substr( _position, _slash_pos - _position );
+            _position = _slash_pos;
+        }
+
+        if( _position == url.size() ) {
+            path_ = "/";
+        } else {
+            path_ = url.substr( _position, url.size() - _position );
+        }
+    }
+
+    std::string host ()
+    { return host_; }
+    std::string proto ()
+    { return proto_; }
+    std::string path ()
+    { return path_; }
+    bool secure ()
+    { return secure_; }
+
+private:
+    bool secure_ = false;
+    std::string host_;
+    std::string proto_;
+    std::string path_;
+};
+
 }//namespace http
 }//namespace utils
 #endif // STRINGUTILS_H

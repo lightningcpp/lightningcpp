@@ -84,5 +84,45 @@ TEST ( StringUtilsTest, ParseRange ) {
 	EXPECT_EQ ( -1, std::get<1> ( range3 ) );
 }
 
+TEST ( StringUtilsTest, UrlParser ) {
+
+    UrlParser p { "http://www.google.com/index.html"};
+    EXPECT_EQ ( "www.google.com", p.host() );
+    EXPECT_EQ ( "/index.html", p.path() );
+    EXPECT_EQ ( "http", p.proto() );
+    EXPECT_FALSE ( p.secure() );
+}
+TEST ( StringUtilsTest, UrlParserSecure ) {
+
+    UrlParser p { "https://www.google.com/index.html"};
+    EXPECT_EQ ( "www.google.com", p.host() );
+    EXPECT_EQ ( "/index.html", p.path() );
+    EXPECT_EQ ( "https", p.proto() );
+    EXPECT_TRUE ( p.secure() );
+}
+TEST ( StringUtilsTest, UrlSecureNoPath ) {
+
+    UrlParser p { "https://www.google.com"};
+    EXPECT_EQ ( "www.google.com", p.host() );
+    EXPECT_EQ ( "/", p.path() );
+    EXPECT_EQ ( "https", p.proto() );
+    EXPECT_TRUE ( p.secure() );
+}
+TEST ( StringUtilsTest, UrlParserWithPort ) {
+
+    UrlParser p { "http://www.google.com:80/index.html"};
+    EXPECT_EQ ( "www.google.com", p.host() );
+    EXPECT_EQ ( "/index.html", p.path() );
+    EXPECT_EQ ( "80", p.proto() );
+    EXPECT_FALSE ( p.secure() );
+}
+TEST ( StringUtilsTest, UrlParserWithPortNoPath ) {
+
+    UrlParser p { "http://www.google.com:80"};
+    EXPECT_EQ ( "www.google.com", p.host() );
+    EXPECT_EQ ( "/", p.path() );
+    EXPECT_EQ ( "80", p.proto() );
+    EXPECT_FALSE ( p.secure() );
+}
 }//namespace utils
 }//namspace http

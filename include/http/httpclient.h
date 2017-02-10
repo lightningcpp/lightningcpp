@@ -19,6 +19,7 @@
 #include <string>
 
 #include <asio.hpp>
+#include <asio/ssl.hpp>
 
 #include "request.h"
 #include "response.h"
@@ -26,9 +27,10 @@
 
 namespace http {
 
+
 template< class Output, class Enable = void >
 struct Writer {
-	static void result_write ( Output&, buffer_t&, size_t, size_t ) {}
+    static void result_write ( Output&, buffer_t&, size_t, size_t ) {}
 };
 //template<> //TODO
 //struct Writer< http::HttpRequest > {
@@ -38,25 +40,145 @@ struct Writer {
 //};
 template< class Output >
 struct Writer< Output, typename std::enable_if< std::is_base_of< std::ostream, Output >::value >::type > {
-	static void result_write ( Output & output, buffer_t & buffer, size_t position, size_t size ) {
-		output.write ( buffer.data() + position, size );
+    static void result_write ( Output & output, buffer_t & buffer, size_t position, size_t size ) {
+        output.write ( buffer.data() + position, size );
 
-		if ( ! output.good() ) { //TODO
-			std::cout << "write failed" << std::endl;
-		}
-	}
+        if ( ! output.good() ) { //TODO
+            std::cout << "write failed" << std::endl;
+        }
+    }
 };
 
-class HttpClient {
+
+class Http {
 public:
-	HttpClient ( const std::string & host, const std::string & protocol ) : host_ ( host ), protocol_ ( protocol ), io_service(), socket ( io_service ) {}
+    Http ( const std::string & host, const std::string & protocol ) : host_ ( host ), protocol_ ( protocol ), io_service(), socket ( io_service ) {}
+
+protected:
+    std::string host_;
+    std::string protocol_;
+    asio::io_service io_service;
+    asio::ip::tcp::socket socket;
+
+    void connect() {
+        // Get a list of endpoints corresponding to the server name and connect.
+        asio::ip::tcp::resolver resolver ( io_service );
+        asio::ip::tcp::resolver::query query ( host_, protocol_ );
+        asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
+        asio::connect ( socket, endpoint_iterator );
+    }
+};
+
+class Https {
+public:
+    Https ( const std::string & host, const std::string & protocol ) :
+        host_ ( host ), protocol_ ( protocol ), io_service(), ctx( asio::ssl::context::sslv23 ), socket( io_service, ctx ) {}
+
+protected:
+    void connect() {
+
+        asio::ip::tcp::resolver resolver(io_service);
+        asio::ip::tcp::resolver::query query( host_, protocol_ );
+        asio::connect( socket.lowest_layer(), resolver.resolve( query ) );
+        socket.lowest_layer().set_option( asio::ip::tcp::no_delay( true ) );
+
+        // Perform SSL handshake and verify the remote host's
+        // certificate.
+        socket.set_verify_mode( asio::ssl::verify_none );
+        // socket.set_verify_mode( asio::ssl::verify_peer);
+        socket.set_verify_callback( asio::ssl::rfc2818_verification( host_ ) );
+        socket.handshake( asio::ssl::stream<asio::ip::tcp::socket>::client );
+
+//        // Get a list of endpoints corresponding to the server name and connect.
+//        asio::ip::tcp::resolver resolver ( io_service );
+//        asio::ip::tcp::resolver::query query ( host_, protocol_ );
+//        asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
+//        // SSL context
+//        asio::ssl::context ctx( asio::ssl::context::sslv23 );
+//        ctx.load_verify_file("/etc/ssl/certs/ca-certificates.crt");
+
+
+//        std::error_code handshake(
+//            asio::handshake_type type,
+//            const ConstBufferSequence & buffers,
+//            boost::system::error_code & ec);
+
+
+//        socket.set_verify_mode(asio::ssl::verify_peer);
+//        socket.set_verify_callback(
+//            std::bind(&Https::verify_certificate, this, _1, _2));
+
+//        asio::async_connect(socket.lowest_layer(), endpoint_iterator,
+//            std::bind(&Https::handle_connect, this,
+//              std::placeholders::_1 ) );
+//        //asio::connect ( T::socket, endpoint_iterator );
+    }
+
+    bool verify_certificate(bool preverified,
+         asio::ssl::verify_context& ctx) {
+       // The verify callback can be used to check whether the certificate that is
+       // being presented is valid for the peer. For example, RFC 2818 describes
+       // the steps involved in doing this for HTTPS. Consult the OpenSSL
+       // documentation for more details. Note that the callback is called once
+       // for each certificate in the certificate chain, starting from the root
+       // certificate authority.
+
+       // In this example we will simply print the certificate's subject name.
+       char subject_name[256];
+       X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+       X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+       std::cout << "Verifying " << subject_name << "\n";
+
+       return preverified;
+     }
+
+    void handle_connect( const std::error_code& error ) {
+       if (!error) {
+         socket.async_handshake( asio::ssl::stream_base::client,
+             std::bind(&Https::handle_handshake, this,
+               std::placeholders::_1 ) );
+       }
+       else
+       {
+         std::cout << "Connect failed: " << error.message() << "\n";
+       }
+     }
+
+    void handle_handshake( const std::error_code& error ) {
+      if (!error) {
+//        std::cout << "Enter message: ";
+//        std::cin.getline(request_, max_length);
+//        size_t request_length = strlen(request_);
+
+//        asio::async_write(socket_,
+//            asio::buffer(request_, request_length),
+//            std::bind( &client::handle_write, this,
+//              std::placeholders::_1,
+//              std::placeholders::_2 ) );
+      }
+      else {
+        std::cout << "Handshake failed: " << error.message() << "\n";
+      }
+    }
+
+    std::string host_;
+    std::string protocol_;
+    asio::io_service io_service;
+    asio::ssl::context ctx;
+    asio::ssl::stream<asio::ip::tcp::socket> socket;
+};
+
+template< typename T >
+class HttpClient : public T {
+public:
+    HttpClient ( const std::string & host, const std::string & protocol ) : T( host, protocol ) {}
 
     template< class Request, class Output >
     Response get ( Request & request, Output & output ) {
-		if ( ! socket.is_open() ) {
-			// std::cout << "connect: " << host_ << ":" << protocol_ << std::endl; //TODO cout
-			connect();
-		}
+//TODO        if ( ! T::socket.is_open() ) {
+//TODO			// std::cout << "connect: " << host_ << ":" << protocol_ << std::endl; //TODO cout
+            T::connect();
+//		}
 
 		write ( request );
 
@@ -67,29 +189,16 @@ public:
 	}
 
 private:
-	std::string host_;
-	std::string protocol_;
-
-	asio::io_service io_service;
-	asio::ip::tcp::socket socket;
-	buffer_t request_buffer_;
-	buffer_t buffer_;
-	utils::HttpParser http_parser_;
-
-    void connect() {
-        // Get a list of endpoints corresponding to the server name and connect.
-        asio::ip::tcp::resolver resolver ( io_service );
-        asio::ip::tcp::resolver::query query ( host_, protocol_ );
-        asio::ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
-        asio::connect ( socket, endpoint_iterator );
-    }
+    buffer_t request_buffer_;
+    buffer_t buffer_;
+    utils::HttpParser http_parser_;
 
     template< class Request >
     void write ( Request & request ) {
-        request.parameter ( header::HOST, host_ ); //TODO set headers in one place
+        request.parameter ( header::HOST, T::host_ ); //TODO set headers in one place
         size_t _position = request.header ( buffer_.data(), BUFFER_SIZE );
         //TODO check that all bytes are written
-        /*size_t _written =*/ socket.write_some ( asio::buffer ( buffer_, _position ) );
+        /*size_t _written =*/ T::socket.write_some ( asio::buffer ( buffer_, _position ) );
     }
 
 	template< class Output >
@@ -99,7 +208,7 @@ private:
 		int _len;
 
 		do { //TODO when response is garbage
-			_len = socket.read_some ( asio::buffer ( buffer_ ), error );
+            _len = T::socket.read_some ( asio::buffer ( buffer_ ), error );
 			_position = http_parser_.parse_response ( response, buffer_, 0, _len );
 		} while (  _position == 0 && !error );
 
@@ -133,7 +242,7 @@ private:
 
 		if ( _content_length > 0 && !error ) {
 			while ( _read_content < _content_length && !error ) { //get content
-				_len = socket.read_some ( asio::buffer ( buffer_ ), error );
+                _len = T::socket.read_some ( asio::buffer ( buffer_ ), error );
 				Writer< Output >::result_write ( output, buffer_, 0, _len );
 				_read_content += _len;
 			};
@@ -144,5 +253,19 @@ private:
 		output.flush();
 	}
 };
+
+template< class Output >
+static Response get( const std::string& path, Output& output ) {
+    utils::UrlParser p { path };
+    if( p.secure() ) {
+        HttpClient< Https > _client ( p.host(), p.proto() );
+        Request _request ( p.path() );
+        return _client.get ( _request, output );
+    } else {
+        HttpClient< Http > _client ( p.host(), p.proto() );
+        Request _request ( p.path() );
+        return _client.get ( _request, output );
+    }
+}
 }//namespace http
 #endif // HTTPCLIENT_H
