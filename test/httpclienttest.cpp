@@ -47,6 +47,16 @@ TEST ( HttpClientTest, Simple_SSL_Request ) {
     //EXPECT_EQ ( _expected, _sstream.str() );
 }
 
+TEST ( HttpClientTest, Amazon_SSL_Request ) {
+
+    std::ofstream _sstream( "/tmp/cover.jpg" );
+    Response _response = http::get ( "https://images-na.ssl-images-amazon.com/images/I/51QRG0GOwYL.jpg", _sstream );
+    EXPECT_EQ ( http_status::OK, _response.status() );
+    EXPECT_EQ ( 52741U, std::stoul ( _response.parameter ( header::CONTENT_LENGTH ) ) );
+    //EXPECT_EQ ( _expected, _sstream.str() );
+}
+
+
 //TODO
 //TEST ( HttpClientTest, SimpleRequestV1_0 ) {
 

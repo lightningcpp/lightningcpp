@@ -124,5 +124,14 @@ TEST ( StringUtilsTest, UrlParserWithPortNoPath ) {
     EXPECT_EQ ( "80", p.proto() );
     EXPECT_FALSE ( p.secure() );
 }
+TEST ( StringUtilsTest, UrlParserAmazon ) {
+
+    UrlParser p { "https://images-na.ssl-images-amazon.com/images/I/51QRG0GOwYL.jpg"};
+    EXPECT_EQ ( "images-na.ssl-images-amazon.com", p.host() );
+    EXPECT_EQ ( "/images/I/51QRG0GOwYL.jpg", p.path() );
+    EXPECT_EQ ( "https", p.proto() );
+    EXPECT_TRUE ( p.secure() );
+}
+
 }//namespace utils
 }//namspace http

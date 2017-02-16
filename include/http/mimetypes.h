@@ -27,7 +27,7 @@ namespace mime {
 
 enum MIME_TYPE { GIF = 0, HTM = 1, HTML = 2, JPEG = 3, PNG = 4, CRTWO = 5, CSS = 6, JS = 7, MPEG = 8, FLAC = 9,
 				 VORBIS = 10, MUSEPACK = 11, JSON = 12, TEXT = 13, XML = 14, AVI = 15, MP4 = 16, MKV = 17,
-				 VIDEOMPEG = 18, MOV = 19, WMV = 20, VTT = 21, PDF=22, TXT=23
+                 VIDEOMPEG = 18, MOV = 19, WMV = 20, VTT = 21, PDF=22, EPUB=23, TXT=24
 			   };
 
 static struct mapping {
@@ -56,8 +56,9 @@ static struct mapping {
 	{ "mov", "video/quicktime" },
 	{ "wmv", "video/x-ms-wmv" },
 	{ "vtt", "text/vtt" },
-	{ "pdf", "application/pdf" },
-	{ "txt", "text/plain" },
+    { "pdf", "application/pdf" },
+    { "epub", "application/epub+zip" },
+    { "txt", "text/plain" },
 	{ 0, 0 }
 };
 
