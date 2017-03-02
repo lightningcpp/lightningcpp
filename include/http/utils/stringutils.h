@@ -234,7 +234,8 @@ struct UrlParser {
             _position = std::string( "https://" ).size();
         } else { /*throw exception*/ }
 
-        if( url.find( ":", _position ) != std::string::npos ) {
+        if( url.find( ":", _position ) != std::string::npos &&
+            url.find( ":", _position ) < url.find( "/", _position ) ) {
             size_t _dash_pos = url.find( ":", _position );
             size_t _end_port_pos = url.find( "/", _dash_pos );
             if( _end_port_pos == std::string::npos ) _end_port_pos = url.size();

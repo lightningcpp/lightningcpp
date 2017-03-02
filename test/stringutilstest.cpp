@@ -132,6 +132,13 @@ TEST ( StringUtilsTest, UrlParserAmazon ) {
     EXPECT_EQ ( "https", p.proto() );
     EXPECT_TRUE ( p.secure() );
 }
+TEST ( StringUtilsTest, UrlParserDash ) {
 
+    UrlParser p { "https://www.googleapis.com/books/v1/volumes?q=isbn:[Focal Press] The Art of Digital Audio&key=AIzaSy" };
+    EXPECT_EQ ( "www.googleapis.com", p.host() );
+    EXPECT_EQ ( "/books/v1/volumes?q=isbn:[Focal Press] The Art of Digital Audio&key=AIzaSy", p.path() );
+    EXPECT_EQ ( "https", p.proto() );
+    EXPECT_TRUE ( p.secure() );
+}
 }//namespace utils
 }//namspace http
