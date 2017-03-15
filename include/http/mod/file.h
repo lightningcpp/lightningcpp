@@ -21,6 +21,8 @@
 #include <fstream>
 #include <string>
 
+#include "gtest/gtest_prod.h"
+
 #include "../constant.h"
 #include "../request.h"
 #include "../response.h"
@@ -70,7 +72,7 @@ public:
     http_status execute ( Request& request, Response& response ) {
 
         /* test if the path is valid */
-        if ( request.uri().empty() || request.uri() [0] != '/' || request.uri().find ( ".." ) != std::string::npos ) {
+        if ( !valid_path ( request.uri() ) ) {
             return http::http_status::BAD_REQUEST;
         }
 
@@ -156,6 +158,14 @@ private:
         }
 
         response.istream ( std::move ( is ) );
+    }
+    FRIEND_TEST ( ModFileTest, valid_path );
+    static bool valid_path ( const std::string& path ) {
+        if( ! path.empty() && path.find( "/" ) == 0 ) {
+            if( path.substr( 0, path.find_last_of( "/" ) ).find( ".." ) == std::string::npos ) {
+                return true;
+            } return false;
+        } else return false;
     }
 };
 }//namespace mod

@@ -95,6 +95,14 @@ TEST ( ModFileTest, TestNotModified ) {
     request2_.parameter ( http::header::IF_MODIFIED_SINCE, http::utils::time_to_string ( &date_ ) );
     ASSERT_EQ ( http_status::NOT_MODIFIED, fd_.execute ( request2_, response2_ ) );
 }
+TEST ( ModFileTest, valid_path ) {
+    EXPECT_TRUE( File::valid_path( "/index.html" ) );
+    EXPECT_TRUE( File::valid_path( "/foo/bar/index.html" ) );
+    EXPECT_TRUE( File::valid_path( "/foo/bar/...index.html" ) );
+    EXPECT_FALSE( File::valid_path( "/foo/.../...index.html" ) );
+    EXPECT_FALSE( File::valid_path( "index.html" ) );
+    EXPECT_FALSE( File::valid_path( "" ) );
+}
 TEST ( ModFileTest, TestRange ) {
     //TODO
 }
