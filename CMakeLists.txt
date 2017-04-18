@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------
 # Build lightning Project
 # -------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.0)
 
 project(lightning)
 
@@ -46,8 +46,9 @@ if ( build_example_server OR build_tests OR build_benchmark )
     include( cmake/external/re2.cmake )
     include( cmake/external/asio.cmake )
     include( cmake/external/bustache.cmake )
+    include( cmake/external/gtest.cmake )
     SET( INCLUDES ${INCLUDES} ${RE2_INCLUDE_DIR} ${ASIO_INCLUDE_DIR}
-                  ${BUSTACHE_INCLUDE_DIR} )
+                  ${BUSTACHE_INCLUDE_DIR} ${GTEST_INCLUDE_DIR})
 
     # -------------------------------------------------------------------------
     # -----------------------   Find Dependencies       -----------------------
@@ -57,7 +58,7 @@ if ( build_example_server OR build_tests OR build_benchmark )
     find_package(Boost REQUIRED system timer chrono)
 
     SET(LIBS ${LIBS} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES}
-             -lssl -lcrypto -luuid -lpthread -lm ) #needed for ubuntu
+             -lssl -lcrypto -lpthread -lm -lz ) #needed for ubuntu
 
     SET( INCLUDES ${INCLUDES} ${Boost_INCLUDE_DIRS} ${OPENSSL_INCLUDES} )
 

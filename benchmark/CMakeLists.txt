@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------
 # Build lightning documentation
 # -------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.0)
 
 project( benchmark )
 
