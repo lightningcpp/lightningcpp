@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lightningcpp/lightningcpp.svg?branch=master)](https://travis-ci.org/lightningcpp/lightningcpp)
+
 # lightning
 
 lightning is a http server/client library written in modern c++ (C++14). The name lightning is from the television series Tom&Jerry where lightning is the orange cat beside of Tomcat.
