@@ -169,7 +169,7 @@ public:
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 socket_->close();
             }
-        }
+        } else std::cout << "ERROR in write: " << e.message() << std::endl;
     }
 
 private:
