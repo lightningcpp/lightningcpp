@@ -55,7 +55,9 @@ public:
 	{ return ( parameters_.find ( key ) != parameters_.end() ); }
     /** @brief parameter size. */
     size_t parameter_size () const { return parameters_.size(); }
-	/** @brief expire time in seconds. if not set no header will be added. */
+    /** @brief remove parameter. */
+    void erase ( const std::string& key ) { parameters_.erase( key ); }
+    /** @brief expire time in seconds. if not set no header will be added. */
 	void expires ( int seconds ) { expires_ = seconds; }
 	/** @brief expire time in seconds. if not set no header will be added. */
 	int expires () const { return expires_; }

@@ -24,6 +24,20 @@
 
 namespace http {
 
+TEST ( HttpResponseTest, Parameter ) {
+
+    Response response_;
+    response_.parameter( "key1", "value1" );
+    response_.parameter( "key2", "value2" );
+    response_.parameter( "key3", "value3" );
+    response_.parameter( "key4", "value4" );
+
+    EXPECT_EQ ( 4, response_.parameter_size() );
+
+    response_.erase( "key1" );
+    EXPECT_EQ ( 3, response_.parameter_size() );
+}
+
 TEST ( HttpResponseTest, StringStreamSize ) {
 
 	Response response_;
