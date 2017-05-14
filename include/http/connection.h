@@ -152,20 +152,16 @@ public:
     void write ( const std::error_code& e ) {
         if( !e ) {
             size_t _body_length = response_length();
-            std::cout << "connection::write: body length: " << _body_length << std::endl;
             if( static_cast< size_t >( response_.tellg() ) == _body_length ) { //finish request
-                std::cout << "connection::write: end: " << response_.tellg() << std::endl;
                 if( request_.persistent() ) {
                     start(); //restart this connection
 
                 } else socket_->close();
 
             } else if( static_cast< size_t >( response_.tellg() ) < _body_length ) {
-                std::cout << "connection::write: continue: " << response_.tellg() << std::endl;
                 size_t _write_position = response_.read ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _write_position, std::bind( &Connection::write, shared_from_this(), _1 ) );
             } else {
-                std::cout << "connection::write: bigger????: " << response_.tellg() << std::endl;
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 socket_->close();
             }
