@@ -121,7 +121,7 @@ public:
     auto read( char* buffer, std::streamsize size ) {
         if( body_istream_ ) {
             auto _read_size = body_istream_->readsome( buffer, size );
-            std::cout << "Response: read some size: " << _read_size << std::endl;
+            //TODO std::cout << "Response: read some size: " << _read_size << std::endl;
             return _read_size;
         } else {
             return body_ostream_->readsome( buffer, size ); //TODO not some
