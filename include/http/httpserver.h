@@ -52,7 +52,7 @@ public:
     HttpServer ( const std::string & address, const std::string & protocol, http_delegate_t && request_handler ) :
         acceptor_ ( io_service_ ), request_handler_ ( std::move ( request_handler ) ) {
 
-        std::cout << "=== START SERVER Adress=" << address << ", Protocol:" << protocol << "===" << std::endl;
+        //TODO std::cout << "=== START SERVER Adress=" << address << ", Protocol:" << protocol << "===" << std::endl;
 		// Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
 		asio::ip::tcp::resolver resolver ( io_service_ );
         asio::ip::tcp::resolver::query query ( address, protocol );

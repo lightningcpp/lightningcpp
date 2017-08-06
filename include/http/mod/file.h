@@ -131,7 +131,7 @@ private:
 
     void get ( Request & request, Response & response, const std::string & filename, const size_t file_size ) {
 
-        std::cout << "\tget:" << filename << ". " << file_size << std::endl;
+        //TODO std::cout << "\tget:" << filename << ". " << file_size << std::endl;
 
         // Open the file to send back.
         std::unique_ptr < std::ifstream > is = std::make_unique< std::ifstream > ( filename.c_str(), std::ios::in | std::ios::binary );
@@ -142,10 +142,10 @@ private:
 
         // Fill out the reply to be sent to the client.
         if ( request.contains_parameter ( http::header::RANGE ) ) {
-            std::cout << "get Range" << std::endl;
+            //std::cout << "get Range" << std::endl;
             response.status ( http_status::PARTIAL_CONTENT );
             std::tuple<int, int> range = http::utils::parseRange ( request.parameter ( http::header::RANGE ) );
-            std::cout << "\trange: " << std::get<0> ( range ) << "-" << std::get<1> ( range ) << std::endl;
+            //std::cout << "\trange: " << std::get<0> ( range ) << "-" << std::get<1> ( range ) << std::endl;
             response.parameter ( "Content-Range", "bytes " + std::to_string ( std::get<0> ( range ) ) + "-" +
                                  ( std::get<1> ( range ) == -1 ? std::to_string ( file_size - 1 ) :
                                    std::to_string ( std::get<1> ( range ) - 1 ) ) +

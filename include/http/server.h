@@ -74,11 +74,6 @@ public:
     }
 
     void request ( Request & request, Response & response ) {
-        std::cout << request.method() << ":" << request.uri() << " { ";
-        for( auto& name : request.parameter_names() ) {
-            std::cout << name << "=" << request.parameter_map().at( name ) << ", ";
-        }
-        std::cout << std::endl;
 
         //http::log( "request %s", request.remote_ip() );
         http_status _s = http_status::INTERNAL_SERVER_ERROR;

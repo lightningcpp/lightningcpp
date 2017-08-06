@@ -117,7 +117,7 @@ public:
                     }
                 }
             }
-        } else std::cout << "ERROR in connect: " << e.message() << std::endl;
+        }
     }
 
     /**
@@ -142,7 +142,7 @@ public:
                 size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                 socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
             }
-        } else std::cout << "ERROR in read: " << e.message() << std::endl;
+        }
     }
 
     /**
@@ -165,7 +165,7 @@ public:
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 socket_->close();
             }
-        } else std::cout << "ERROR in write: " << e.message() << std::endl;
+        }
     }
 
 private:
