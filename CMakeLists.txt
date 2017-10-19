@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------
 # Build lightning Project
 # -------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.3)
 
 project(lightning)
 
@@ -34,9 +34,12 @@ if ( build_example_server OR build_tests OR build_benchmark )
     FILE(GLOB_RECURSE HeaderFiles "${LIGHTNING_SOURCES}/*.h")
     add_custom_target(headers SOURCES ${HeaderFiles})
 
-    if(CMAKE_COMPILER_IS_GNUCXX)
-        add_definitions(-std=c++14)
-    endif()
+#    if(CMAKE_COMPILER_IS_GNUCXX)
+#        add_definitions(-std=c++14)
+#    endif()
+
+    set(CMAKE_CXX_STANDARD 14)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
     # -------------------------------------------------------------------------
     # ---------------------   External Dependencies       ---------------------
