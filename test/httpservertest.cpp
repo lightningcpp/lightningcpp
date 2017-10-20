@@ -300,7 +300,7 @@ TEST ( HttpServerTest, TestResponse ) {
 
     EXPECT_EQ ( _test_string, _result );
 }
-TEST ( HttpServerTest, TestPersistentConnectionV10 ) {
+TEST ( HttpServerTest, DISABLED_TestPersistentConnectionV10 ) {
 
     std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
     std::stringstream result_header_ss;
@@ -420,7 +420,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV10 ) {
     }
 }
 
-TEST ( HttpServerTest, TestPersistentConnectionV11 ) {
+TEST ( HttpServerTest, DISABLED_TestPersistentConnectionV11 ) {
 
     std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
     std::stringstream result_header_ss;
@@ -538,7 +538,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV11 ) {
     }
 }
 
-TEST ( HttpServerTest, TestPersistentConnectionV11Mixed ) {
+TEST ( HttpServerTest, DISABLED_TestPersistentConnectionV11Mixed ) {
 
     std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
     std::stringstream result_header_ss;
