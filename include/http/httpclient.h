@@ -195,7 +195,10 @@ private:
 
     template< class Request >
     void write ( Request & request ) {
-        request.parameter ( header::HOST, T::host_ );
+        std::string _hostname = std::string( T::host_ );
+        //if( )
+        //.append( ":" ).append( T::protocol_ );
+        request.parameter ( header::HOST, _hostname );
         request.parameter ( header::CONTENT_LENGTH, std::to_string( request.tellp() ) );
         size_t _position = request.header ( buffer_.data(), BUFFER_SIZE );
         //TODO check that all bytes are written

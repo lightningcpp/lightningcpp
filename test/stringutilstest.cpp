@@ -22,6 +22,16 @@
 
 namespace http {
 namespace utils {
+
+TEST ( StringUtilsTest, is_numeric ) {
+    EXPECT_TRUE ( is_numeric( "0" ) );
+    EXPECT_TRUE ( is_numeric( "123" ) );
+    EXPECT_FALSE ( is_numeric( "abc" ) );
+    EXPECT_FALSE ( is_numeric( "abc123" ) );
+    EXPECT_FALSE ( is_numeric( "123abc" ) );
+}
+
+
 TEST ( StringUtilsTest, TrimString ) {
 	std::string v = "  VALUE1 ";
 	EXPECT_EQ ( "VALUE1", trim ( v ) );

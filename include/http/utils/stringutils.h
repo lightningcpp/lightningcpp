@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <regex>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -33,6 +34,12 @@ struct KeyICompare : public std::binary_function< std::string, std::string, bool
 		return strcasecmp ( lhs.c_str(), rhs.c_str() ) < 0 ;
 	}
 };
+
+
+inline bool is_numeric ( const std::string & str ) {
+    static std::regex num_regex("^[[:digit:]]+$");
+    return regex_match(str, num_regex );
+}
 
 inline std::string trim ( const std::string & str ) {
 	std::string my_string = str;
