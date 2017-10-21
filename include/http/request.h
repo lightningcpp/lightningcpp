@@ -200,12 +200,22 @@ public:
         out_body_->write( buffer, size );
     }
 
+    auto gcount()
+    { return out_body_->gcount(); }
+
+    auto good()
+    { return out_body_->good(); }
+
     auto tellp()
     { return out_body_->tellp(); }
 
     auto tellg()
     { return out_body_->tellg(); }
 
+    auto read( char* s, std::streamsize n ) {
+        out_body_->read( s, n );
+        return this;
+    }
 	/**
 	 * @brief operator <<
 	 * @param in

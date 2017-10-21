@@ -47,7 +47,8 @@ inline void client_header ( const std::string & host, const std::string & port, 
 	asio::read_until ( socket, response, "\r\n\r\n" );
 }
 
-inline bool compare_streams ( std::istream & r_stream, std::istream & l_stream ) {
+template< class Stream1 >
+inline bool compare_streams ( std::istream & r_stream, Stream1 & l_stream ) {
 
     bool _result = true;
 	char *lBuffer = new char[http::BUFFER_SIZE]();
