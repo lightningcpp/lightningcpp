@@ -195,10 +195,18 @@ private:
 
     template< class Request >
     void write ( Request & request ) {
-        request.parameter ( header::HOST, T::host_ ); //TODO set headers in one place
+        request.parameter ( header::HOST, T::host_ );
+        request.parameter ( header::CONTENT_LENGTH, std::to_string( request.tellp() ) );
         size_t _position = request.header ( buffer_.data(), BUFFER_SIZE );
         //TODO check that all bytes are written
-        /*size_t _written =*/ T::socket.write_some ( asio::buffer ( buffer_, _position ) );
+        size_t _written = 0;
+        do {
+            _written = T::socket.write_some ( asio::buffer ( buffer_, _position ) );
+        } while( _written < _position );
+        size_t _body_written = 0;
+        do {
+            _body_written = T::socket.write_some ( asio::buffer ( request.str(), request.str().length() ) );
+        } while( _body_written < request.tellp() );
     }
 
 	template< class Output >

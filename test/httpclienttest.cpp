@@ -56,27 +56,61 @@ TEST ( HttpClientTest, Amazon_SSL_Request ) {
     //EXPECT_EQ ( _expected, _sstream.str() );
 }
 
+TEST ( HttpClientTest, post ) {
 
-//TODO
+    //create the server
+    bool _call_back_called = false;
+    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called] ( Request & request, Response & response ) {
+        _call_back_called = true;
+        EXPECT_EQ ( "POST", request.method() );
+        EXPECT_EQ ( "/index.html", request.uri() );
+        EXPECT_EQ ( "HTTP", request.protocol() );
+        EXPECT_EQ ( 1, request.version_major() );
+        EXPECT_EQ ( 1, request.version_minor() );
+
+        EXPECT_EQ ( 2U, request.parameter_map().size() );
+        EXPECT_EQ ( std::to_string( strlen(  "content bla bla..." ) ), request.parameter ( http::header::CONTENT_LENGTH ) );
+        EXPECT_EQ ( "content bla bla...", request.str() );
+
+        response << "1\n22\n333\n4444\n55555\n";
+
+        response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
+        response.parameter ( header::CONTENT_LENGTH, std::to_string ( 0 ) );
+    } );
+
+    std::stringstream _sstream;
+
+    HttpClient< Http > _client ( "127.0.0.1", "9000" );
+    Request _request ( "/index.html" );
+    _request.method( "POST" );
+    _request << "content bla bla...";
+    auto _response = _client.get ( _request, _sstream );
+}
+
+
+////TODO
 //TEST ( HttpClientTest, SimpleRequestV1_0 ) {
 
-//	//create the server
-//	WebServer< HttpServer > server ( "127.0.0.1", 9999 );
-//	server.bind ( "/foo/bar", std::function< void ( HttpRequest&, HttpResponse& ) > ( [] ( HttpRequest&, HttpResponse & response ) {
-//		response.status ( http::http_status::OK );
-//		response << "1\n22\n333\n4444\n55555\n";
-//	} ) );
+//    bool _call_back_called = false;
 
-//	std::string _expected = "1\n22\n333\n4444\n55555\n";
+//    //create the server
+//    Server< HttpServer > server ( "127.0.0.1", "9999" );
+//    server.bind ( "/foo/bar", std::function< void ( Request&, Response& ) > ( [] ( Request&, Response & response ) {
+//        response.status ( http::http_status::OK );
+//        response << "1\n22\n333\n4444\n55555\n";
+//    } ) );
 
-//	HttpClient client_ ( "localhost", "9999" );
-//	HttpRequest request_ ( "/foo/bar" );
-//	request_.version_minor ( 0 );
-//	std::stringstream _sstream;
-//	HttpResponse _response = client_.get ( request_, _sstream );
-//	EXPECT_EQ ( http_status::OK, _response.status() );
-//	EXPECT_EQ ( 20U, std::stoul ( _response.parameter ( header::CONTENT_LENGTH ) ) );
-//	EXPECT_EQ ( _expected, _sstream.str() );
+//    std::string _expected = "1\n22\n333\n4444\n55555\n";
+
+
+//    HttpClient client_ ( "localhost", "9999" );
+//    HttpRequest request_ ( "/foo/bar" );
+//    request_.version_minor ( 0 );
+//    std::stringstream _sstream;
+//    HttpResponse _response = client_.get ( request_, _sstream );
+//    EXPECT_EQ ( http_status::OK, _response.status() );
+//    EXPECT_EQ ( 20U, std::stoul ( _response.parameter ( header::CONTENT_LENGTH ) ) );
+//    EXPECT_EQ ( _expected, _sstream.str() );
 //}
 
 //TEST ( HttpClientTest, SimpleRequestV1_1 ) {

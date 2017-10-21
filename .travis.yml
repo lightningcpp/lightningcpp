@@ -1,74 +1,15 @@
-# Enable C++ support
+sudo: required 
 language: cpp
-# Compiler selection
-compiler:
-  - clang
-  - gcc
-# Build steps
+services:
+  - docker
+before_install:
+  - mkdir $(pwd)/build
+  - docker pull spielhuus/buildimage:latest
+  - sudo docker run -itd --name build -v $(pwd)/lightningcpp:/repo -v $(pwd)/build:/build spielhuus/buildimage
+  - sudo docker exec build apt-get -y update
+  - sudo docker exec build apt-get -y install libboost-all-dev llibcurl4-openssl-dev libcurlpp-dev libssl-dev
+  - sudo docker exec build git clone https://github.com/lightningcpp/lightningcpp.git /repo
 script:
-  - mkdir build
-  - cd build
-  - cmake .. && make
-
-# Ubuntu 14.04 Trusty support
-sudo: required
-dist: trusty
-
-addons:
-  apt:
-    sources:
-    # add PPAs with more up-to-date toolchains
-    - ubuntu-toolchain-r-test
-    - llvm-toolchain-precise-3.6
-    packages:
-    # install toolchains
-    - gcc-5
-    - g++-5
-    - clang-3.6
-    - libboost-dev
-    - libssl-dev
-
-matrix:
-  include:
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.9
-            - libboost-dev
-            - libssl-dev
-      env: COMPILER=g++-4.9
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-5
-            - libboost-dev
-            - libssl-dev
-      env: COMPILER=g++-5
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
-          packages:
-            - clang-3.6
-            - libboost-dev
-            - libssl-dev
-      env: COMPILER=clang++-3.6
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-          packages:
-            - clang-3.7
-            - libboost-dev
-            - libssl-dev
-      env: COMPILER=clang++-3.7
+  - sudo docker exec build cmake -H/repo -B/build -Dbuild_tests=true
+  - sudo docker exec build cmake --build /build
+  - sudo docker exec build /build/test_lightningcpp

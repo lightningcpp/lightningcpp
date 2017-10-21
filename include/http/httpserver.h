@@ -75,11 +75,18 @@ public:
 	HttpServer& operator= ( const HttpServer& ) = delete;
 	HttpServer& operator= ( HttpServer&& ) = delete;
 	~HttpServer() {
-		io_service_.stop();
 
-		//Wait for all threads in the pool to exit.
-		for ( std::size_t i = 0; i < threads_.size(); ++i )
-		{ threads_[i]->join(); }
+                sleep( 5 );
+        io_service_.stop();
+
+        //TODO wait for server to stop
+       sleep( 5 );
+
+        //Wait for all threads in the pool to exit.
+        for ( std::size_t i = 0; i < threads_.size(); ++i )
+        { threads_[i]->join(); }
+
+
 	}
 
 private:

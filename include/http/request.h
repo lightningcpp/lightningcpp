@@ -179,7 +179,7 @@ public:
         // create status line
         int _position = snprintf ( buffer, size, "%s %s %s/%d.%d\r\n", method_.c_str(), uri_.c_str(), protocol_.c_str(), http_version_major_, http_version_minor_ );
 
-        if ( _position < 0 && _position > size ) { std::cout << "buffer to smal for header. "; return 0; }
+        if ( _position < 0 && _position > size ) { std::cout << "buffer to small for header. "; return 0; }
 
         for ( auto & _header : parameters_ ) {
             _position += snprintf ( buffer+_position, size-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
@@ -212,7 +212,7 @@ public:
 	 */
     template< class T >
     void operator<< ( const T & in ) {
-        out_body_ << in;
+        *out_body_ << in;
     }
 
     std::string str() const

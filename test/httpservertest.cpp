@@ -160,7 +160,7 @@ TEST ( HttpServerTest, TestReadBody ) {
     EXPECT_TRUE ( _call_back_called );
 }
 
-TEST ( HttpServerTest, DISABLED_TestReadChunkedEncoding ) { //TODO
+TEST ( HttpServerTest, TestReadChunkedEncoding ) { //TODO
     bool _call_back_called = false;
     HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called] ( Request & request, Response & ) {
         _call_back_called = true;
@@ -300,7 +300,7 @@ TEST ( HttpServerTest, TestResponse ) {
 
     EXPECT_EQ ( _test_string, _result );
 }
-TEST ( HttpServerTest, DISABLED_TestPersistentConnectionV10 ) {
+TEST ( HttpServerTest, TestPersistentConnectionV10 ) {
 
     std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
     std::stringstream result_header_ss;
@@ -420,7 +420,7 @@ TEST ( HttpServerTest, DISABLED_TestPersistentConnectionV10 ) {
     }
 }
 
-TEST ( HttpServerTest, DISABLED_TestPersistentConnectionV11 ) {
+TEST ( HttpServerTest, TestPersistentConnectionV11 ) {
 
     std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
     std::stringstream result_header_ss;
@@ -538,7 +538,7 @@ TEST ( HttpServerTest, DISABLED_TestPersistentConnectionV11 ) {
     }
 }
 
-TEST ( HttpServerTest, DISABLED_TestPersistentConnectionV11Mixed ) {
+TEST ( HttpServerTest, TestPersistentConnectionV11Mixed ) {
 
     std::string _test_string = "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.";
     std::stringstream result_header_ss;
