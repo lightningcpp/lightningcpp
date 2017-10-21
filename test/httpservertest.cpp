@@ -160,7 +160,7 @@ TEST ( HttpServerTest, TestReadBody ) {
     EXPECT_TRUE ( _call_back_called );
 }
 
-TEST ( HttpServerTest, TestReadChunkedEncoding ) { //TODO
+TEST ( HttpServerTest, DISABLED_TestReadChunkedEncoding ) { //TODO
     bool _call_back_called = false;
     HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called] ( Request & request, Response & ) {
         _call_back_called = true;
