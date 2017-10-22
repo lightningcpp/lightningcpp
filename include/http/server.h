@@ -52,8 +52,13 @@ template< typename T >
 class Server : T {
 public:
         Server ( const std::string & ip, const std::string & protocol ) :
-                T ( ip, protocol, http_delegate_t ( std::bind ( &Server::request, this, std::placeholders::_1, std::placeholders::_2 ) ) ) {
-            bind_error( mod::Error(), mod::Http() ); //TODO UGLY
+                T ( ip,
+                    protocol,
+                    http_delegate_t ( std::bind ( &Server::request,
+                                                  this,
+                                                  std::placeholders::_1,
+                                                  std::placeholders::_2 ) ) ) {
+            bind_error( mod::Error(), mod::Http() );
         }
         Server ( const Server& ) = delete;
         Server ( Server&& ) = delete;
@@ -75,8 +80,7 @@ public:
 
     void request ( Request & request, Response & response ) {
 
-        //http::log( "request %s", request.remote_ip() );
-        http_status _s = http_status::INTERNAL_SERVER_ERROR;
+        http_status _s;
         for( auto & d : delegates_ ) {
             _s = d( request, response );
             if (  _s == http_status::OK ) {
@@ -96,6 +100,5 @@ private:
     std::vector< std::function< http_status ( Request&, Response& ) > > delegates_;
     std::function< http_status ( Request&, Response& ) > error_delegates_;
 };
-
 }//namespace http
 #endif // WebServer22_H

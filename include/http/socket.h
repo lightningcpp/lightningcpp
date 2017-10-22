@@ -17,12 +17,15 @@
 #define HTTP_SOCKET_H
 
 #include <iostream>
+#include <memory>
+
+#include <asio.hpp>
+
+#include "constant.h"
 
 namespace http {
 
-/**
- * @brief The Socket class
- */
+/** @brief The Socket class */
 class Socket {
 public:
     Socket ( asio::io_service& io_service ) :
@@ -38,28 +41,22 @@ public:
     auto& socket()
     { return socket_; }
 
-    /**
-     * @brief Read from connection.
-     * @param buffer
-     * @param delegate
-     */
-    void read ( buffer_t & buffer, auto delegate ) {
+    template< class Fn >
+    /** @brief Read from connection. */
+    void read ( buffer_t & buffer /** @param buffer the buffer to read from. */,
+                Fn delegate /** @param delegate the callback after read operation is completed. */ ) {
             socket_.async_read_some ( asio::buffer ( buffer ), /* strand_.wrap ( */ delegate /*)*/ );
     }
 
-    /**
-     * @brief Write to connection.
-     * @param buffer
-     * @param size
-     * @param delegate
-     */
-    void write ( buffer_t & buffer, size_t size, auto delegate ) {
+    template< class Fn >
+    /** @brief Write to connection. */
+    void write ( buffer_t & buffer /** @param buffer the buffer to write to. */,
+                 size_t size /** param size buffer size */,
+                 Fn delegate /** @param delegate the callback after write operation is completed. */ ) {
             asio::async_write ( socket_, asio::buffer ( buffer, size ), /*strand_.wrap (*/ delegate /*)*/ );
     }
 
-    /**
-     * @brief Close the connection.
-     */
+    /** @brief Close the connection. */
     void close() {
             asio::error_code ignored_ec;
             socket_.shutdown ( asio::ip::tcp::socket::shutdown_both, ignored_ec );

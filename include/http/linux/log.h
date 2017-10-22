@@ -3,6 +3,8 @@
 
 #include <syslog.h>
 
+#include <string>
+
 namespace http {
 
 inline namespace _syslog {

@@ -52,7 +52,6 @@ public:
     HttpServer ( const std::string & address, const std::string & protocol, http_delegate_t && request_handler ) :
         acceptor_ ( io_service_ ), request_handler_ ( std::move ( request_handler ) ) {
 
-        //TODO std::cout << "=== START SERVER Adress=" << address << ", Protocol:" << protocol << "===" << std::endl;
 		// Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
 		asio::ip::tcp::resolver resolver ( io_service_ );
         asio::ip::tcp::resolver::query query ( address, protocol );
@@ -65,9 +64,9 @@ public:
 
 		// Create a pool of threads to run all of the io_services.
 		for ( std::size_t i = 0; i < SERVER_THREAD_POOL_SIZE; ++i ) {
-			std::shared_ptr<std::thread> thread ( new std::thread (
-					std::bind ( static_cast<size_t ( asio::io_service::* ) () > ( &asio::io_service::run ), &io_service_ ) ) );
-			threads_[i] = thread;
+            threads_[i] = std::make_shared< std::thread >(
+                std::bind ( static_cast<size_t ( asio::io_service::* ) () > ( &asio::io_service::run ), &io_service_ )
+            );
 		}
 	}
 	HttpServer ( const HttpServer& ) = delete;
@@ -104,12 +103,9 @@ private:
 	asio::io_service io_service_;
 	/* Acceptor used to listen for incoming connections. */
 	asio::ip::tcp::acceptor acceptor_;
-	/* The Thread pool. */
 	std::array<std::shared_ptr<std::thread>, SERVER_THREAD_POOL_SIZE > threads_;
-
     server_socket_ptr server_socket_;
-
-	/** http request handler delegate */
+    /* http request handler delegate */
 	http_delegate_t request_handler_;
 };
 }//namespace http

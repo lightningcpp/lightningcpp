@@ -32,10 +32,10 @@ TEST ( HttpResponseTest, Parameter ) {
     response_.parameter( "key3", "value3" );
     response_.parameter( "key4", "value4" );
 
-    EXPECT_EQ ( 4, response_.parameter_size() );
+    EXPECT_EQ ( 4U, response_.parameter_size() );
 
     response_.erase( "key1" );
-    EXPECT_EQ ( 3, response_.parameter_size() );
+    EXPECT_EQ ( 3U, response_.parameter_size() );
 }
 
 TEST ( HttpResponseTest, StringStreamSize ) {
@@ -84,15 +84,15 @@ TEST ( HttpResponseTest, BodyToArray ) {
 	_response << _test_string;
 
 	buffer_t _array;
-    size_t _size = 0;
+    std::streamsize _size = 0;
     std::stringstream _ss_result;
     do {
-        size_t _chunk_size =_response.read ( _array.data(), BUFFER_SIZE );
+        std::streamsize _chunk_size =_response.read ( _array.data(), BUFFER_SIZE );
         _ss_result.write( _array.data(), _chunk_size );
         _size += _chunk_size;
-    } while( _size < _test_string.size() );
+    } while( static_cast< size_t >( _size ) < _test_string.size() );
 
-    EXPECT_EQ ( _ss_result.str().size(), _size );
+    EXPECT_EQ ( _ss_result.str().size(), static_cast< size_t >( _size ) );
     EXPECT_EQ ( _test_string.size(), _ss_result.str().size() );
     EXPECT_EQ ( _test_string, _ss_result.str() );
 }
@@ -124,8 +124,8 @@ TEST ( HttpResponseTest, LargeBodyToArray ) {
 
 		_response << std::string ( _str, 0, 641414U );
 
-		size_t _size;
-		size_t _size_sum = 0;
+        std::streamsize _size;
+        std::streamsize _size_sum = 0;
 
 		do {
 			buffer_t _array;

@@ -39,7 +39,7 @@ public:
      */
     Request() :
         method_ ( std::string ( method::GET ) ), uri_ ( "" ), protocol_ ( "HTTP" ), remote_ip_ ( std::string ( "" ) ),
-        body_size_ ( 0 ), http_version_major_ ( 1 ), http_version_minor_ ( 1 ),
+        http_version_major_ ( 1 ), http_version_minor_ ( 1 ),
         parameters_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
         attributes_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
         out_body_ ( std::shared_ptr< std::stringstream > ( new std::stringstream() ) ) {}
@@ -50,7 +50,7 @@ public:
      */
     Request ( const std::string & path ) :
         method_ ( std::string ( method::GET ) ), uri_ ( path ), protocol_ ( "HTTP" ), remote_ip_ ( std::string ( "" ) ),
-        body_size_ ( 0 ), http_version_major_ ( 1 ), http_version_minor_ ( 1 ),
+        http_version_major_ ( 1 ), http_version_minor_ ( 1 ),
         parameters_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
         attributes_ ( std::map< std::string, std::string, utils::KeyICompare >() ),
         out_body_ ( std::shared_ptr< std::stringstream > ( new std::stringstream() ) ) {}
@@ -126,16 +126,16 @@ public:
     void uri ( const std::string & uri )
     { uri_ = uri; }
 	/** @brief Set the http major version. */
-    void version_major ( const int & http_version_major )
+    void version_major ( const short & http_version_major )
     { http_version_major_ = http_version_major; }
 	/** @brief Get the http major version. */
-    int version_major() const
+    short version_major() const
     { return http_version_major_; }
 	/** @brief Set the http minor version. */
-    void version_minor ( const int & http_version_minor )
+    void version_minor ( const short & http_version_minor )
     { http_version_minor_ = http_version_minor; }
 	/** @brief Get the http minor version. */
-    int version_minor() const
+    short version_minor() const
     { return http_version_minor_; }
 	/** @brief Get the remote IP. */
     std::string remote_ip() const
@@ -177,16 +177,24 @@ public:
 	 */
     std::streamsize header ( char* buffer, std::streamsize size ) {
         // create status line
-        int _position = snprintf ( buffer, size, "%s %s %s/%d.%d\r\n", method_.c_str(), uri_.c_str(), protocol_.c_str(), http_version_major_, http_version_minor_ );
+        auto _position = snprintf ( buffer, static_cast< size_t >( size ),
+                                   "%s %s %s/%d.%d\r\n", method_.c_str(),
+                                   uri_.c_str(), protocol_.c_str(),
+                                   http_version_major_, http_version_minor_ );
 
         if ( _position < 0 && _position > size ) { std::cout << "buffer to small for header. "; return 0; }
 
         for ( auto & _header : parameters_ ) {
-            _position += snprintf ( buffer+_position, size-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
+            _position += snprintf ( buffer+_position,
+                                    static_cast< size_t >( size ) - static_cast< size_t >( _position ),
+                                    "%s: %s\r\n", _header.first.c_str(),
+                                    _header.second.c_str() );
 
             if ( _position < 0 && _position > size ) { std::cout << "buffer to smal for header. "; return 0; }
         }
-        _position += snprintf ( buffer+_position, size-_position, "\r\n" );
+        _position += snprintf ( buffer+_position,
+                                static_cast< size_t >( size ) - static_cast< size_t >( _position ),
+                                "\r\n" );
         return _position;
     }
 
@@ -269,8 +277,7 @@ public:
 
 private:
 	std::string method_, uri_, protocol_, remote_ip_;
-	size_t body_size_;
-	short http_version_major_, http_version_minor_;
+    short http_version_major_, http_version_minor_;
 
 	std::map< std::string, std::string, utils::KeyICompare > parameters_;
 	std::map< std::string, std::string, utils::KeyICompare > attributes_;

@@ -97,19 +97,23 @@ public:
      */
     size_t header ( char* buffer, std::streamsize size ) {
         // create status line: Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
-        int _position = snprintf ( buffer, size, "%s/%d.%d %d %s\r\n",
+        auto _position = snprintf ( buffer, static_cast< size_t >( size ), "%s/%d.%d %d %s\r\n",
             protocol_.c_str(), version_major_, version_minor_, static_cast< int > ( status_ ), status_reason_phrases.at( status_ ).c_str() );
 
-        if ( _position < 0 && _position > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
+        if ( _position < 0 && _position > size ) { throw http_status::INTERNAL_SERVER_ERROR; } /* TODO */
 
         for ( auto & _header : parameters_ ) {
-            _position += snprintf ( buffer+_position, size-_position, "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
+            _position += snprintf ( buffer+_position,
+                static_cast< size_t >( size ) - static_cast< size_t >( _position ),
+                "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
 
-            if ( _position < 0 && _position > size ) { throw http_status::INTERNAL_SERVER_ERROR; }
+            if ( _position < 0 && _position > size ) { throw http_status::INTERNAL_SERVER_ERROR; } /* TODO */
         }
 
-        _position += snprintf ( buffer+_position, size-_position, "\r\n" );
-        return _position;
+        _position += snprintf ( buffer+_position,
+                                static_cast< size_t >( size ) - static_cast< size_t >( _position ),
+                                "\r\n" );
+        return static_cast< size_t >( _position );
     }
 
     auto tellp()
@@ -183,7 +187,6 @@ private:
 	short version_major_ = 1;
 	short version_minor_ = 1;
 	int expires_ = 0;
-	size_t size_ = 0;
 	time_t last_modified_;
 	std::string protocol_ = "HTTP";
 	std::string remote_ip_;

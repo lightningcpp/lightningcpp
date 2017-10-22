@@ -109,7 +109,7 @@ public:
 		std::ostringstream out;
 
 		for ( std::string::size_type i=0; i < toEncode.length(); ++i ) {
-			short t = toEncode.at ( i );
+            unsigned char t = static_cast< unsigned char >( toEncode.at ( i ) );
 
 			if ( t == 45 ||         // hyphen
 					( t >= 48 && t <= 57 ) ||     // 0-9
@@ -190,12 +190,10 @@ inline std::time_t parse_time_string ( const std::string & time ) {
 			ss >> std::get_time ( &t, "%a %b %d %H:%M:%S %Y" );
 
 			if ( ss.fail() ) {
-				//TODO error code and category
-				throw std::system_error ( EDOM, std::system_category(), "wrong date format: " + time );
+                std::cerr << "wrong date format: " << time << std::endl;
 			}
 		}
 	}
-
 	return ( mktime ( &t ) - timezone );
 }
 

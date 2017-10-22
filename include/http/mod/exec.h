@@ -43,11 +43,9 @@ You can use std::bind to set the delegate with any existing method.
  */
 class Exec  {
 public:
-    /**
-     * @brief Create the Exec Object with a delegate method.
-     * @param f delegate function pointer
-     */
-    explicit Exec ( auto&& f ) : _f ( std::move ( f ) ) {}
+    template< class Fn >
+    /** @brief Create the Exec Object with a delegate method. */
+    explicit Exec ( Fn&& f /** @param f delegate function pointer */) : _f ( std::move ( f ) ) {}
     Exec ( const Exec& ) = delete;
     /** \brief Exec move constructor.*/
     Exec ( Exec&& ) = default;

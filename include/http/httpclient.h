@@ -203,7 +203,7 @@ private:
 
         request.parameter ( header::CONTENT_LENGTH, std::to_string( request.tellp() ) );
         size_t _position = request.header ( buffer_.data(), BUFFER_SIZE );
-        //TODO check that all bytes are written
+        //TODO check that all bytes are written and timeout
         size_t _written = 0;
         do {
             _written = T::socket.write_some ( asio::buffer ( buffer_, _position ) );
@@ -211,14 +211,14 @@ private:
         size_t _body_written = 0;
         do {
             _body_written = T::socket.write_some ( asio::buffer ( request.str(), request.str().length() ) );
-        } while( _body_written < request.tellp() );
+        } while( _body_written < static_cast< size_t >( request.tellp() ) );
     }
 
 	template< class Output >
 	void read ( Response & response, Output & output ) {
-		int _position = 0;
-		asio::error_code error;
-		int _len;
+        asio::error_code error;
+        size_t _position = 0;
+        size_t _len;
 
 		do { //TODO when response is garbage
             _len = T::socket.read_some ( asio::buffer ( buffer_ ), error );

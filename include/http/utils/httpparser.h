@@ -231,12 +231,12 @@ public:
                 ++ parser_state.request_type_;
 
             } else if ( parser_state.request_type_ == request_parser_type::REQUEST_VERSION_MAJOR &&  buffer[i] == '.' ) {
-                request.version_major ( std::stoi ( combine_string ( parser_state, buffer, i ) ) );
+                request.version_major ( static_cast< short >( std::stoi ( combine_string ( parser_state, buffer, i ) ) ) );
                 parser_state.start_pos_ = i + 1;
                 ++ parser_state.request_type_;
 
             } else if ( parser_state.request_type_ == request_parser_type::REQUEST_VERSION_MINOR &&  buffer[i] == '\r' ) {
-                request.version_minor ( std::stoi ( combine_string ( parser_state, buffer, i ) ) );
+                request.version_minor ( static_cast< short >( std::stoi ( combine_string ( parser_state, buffer, i ) ) ) );
                 parser_state.start_pos_ = i + 1;
                 ++ parser_state.request_type_;
 
@@ -260,13 +260,13 @@ public:
 
             } else if ( parser_state.response_type_ == response_parser_type::RESPONSE_VERSION_MAJOR && buffer[i] == '.' ) {
                 std::string _value = combine_string ( parser_state, buffer, i );
-                response.version_major ( std::stoi ( _value ) );
+                response.version_major ( static_cast< short >( std::stoi ( _value ) ) );
                 parser_state.start_pos_ = i + 1;
                 ++ parser_state.response_type_;
 
             } else if ( parser_state.response_type_ == response_parser_type::RESPONSE_VERSION_MINOR && buffer[i] == ' ' ) {
                 std::string _value = combine_string ( parser_state, buffer, i );
-                response.version_minor ( std::stoi ( _value ) );
+                response.version_minor ( static_cast< short >( std::stoi ( _value ) ) );
                 parser_state.start_pos_ = i + 1;
                 ++ parser_state.response_type_;
 

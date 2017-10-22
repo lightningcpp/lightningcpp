@@ -87,7 +87,7 @@ public:
      */
     void connect ( const std::error_code& e, std::streamsize size ) {
         if( !e ) {
-            size_t body_start_ = http_parser_.parse_request ( request_, buffer_, 0, size );
+            size_t body_start_ = http_parser_.parse_request ( request_, buffer_, 0, static_cast< size_t >( size ) );
 
             if ( body_start_ == 0 ) { //continue to read the header.
                 socket_->read( buffer_, std::bind( &Connection::connect, shared_from_this(), _1, _2 ) );
@@ -101,15 +101,15 @@ public:
                     socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
                 } else {
 
-                    if ( size - body_start_ == _body_length ) {
-                        request_.write ( buffer_.data()+body_start_, _body_length );
+                    if ( static_cast< size_t >( size ) - body_start_ == _body_length ) {
+                        request_.write ( buffer_.data()+body_start_, std::streamsize( _body_length ) );
                         callback_ ( request_, response_ );
 
                         size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
                         socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
 
-                    } else if ( size - body_start_ > 0 ) {
-                        request_.write ( buffer_.data()+body_start_, size - body_start_ );
+                    } else if ( static_cast< size_t >( size ) - body_start_ > 0 ) {
+                        request_.write ( buffer_.data()+body_start_, std::streamsize( static_cast< size_t >( size ) - body_start_ ) );
                         socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
 
                     } else {
@@ -127,7 +127,7 @@ public:
     void read ( const std::error_code& e, std::size_t size ) {
         if( !e ) {
             size_t _body_length = body_length();
-            request_.write ( buffer_.data(), size );
+            request_.write ( buffer_.data(), std::streamsize( size ) );
             if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
 
                 callback_ ( request_, response_ );
@@ -159,8 +159,9 @@ public:
                 } else socket_->close();
 
             } else if( static_cast< size_t >( response_.tellg() ) < _body_length ) {
-                size_t _write_position = response_.read ( buffer_.data(), BUFFER_SIZE );
-                socket_->write( buffer_, _write_position, std::bind( &Connection::write, shared_from_this(), _1 ) );
+                auto _write_position = response_.read ( buffer_.data(), std::streamsize( BUFFER_SIZE ) );
+                socket_->write( buffer_, static_cast< size_t >( _write_position ),
+                                std::bind( &Connection::write, shared_from_this(), _1 ) );
             } else {
                 response_.status( http_status::BAD_REQUEST ); //TODO
                 socket_->close();

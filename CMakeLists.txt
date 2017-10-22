@@ -34,10 +34,6 @@ if ( build_example_server OR build_tests OR build_benchmark )
     FILE(GLOB_RECURSE HeaderFiles "${LIGHTNING_SOURCES}/*.h")
     add_custom_target(headers SOURCES ${HeaderFiles})
 
-#    if(CMAKE_COMPILER_IS_GNUCXX)
-#        add_definitions(-std=c++14)
-#    endif()
-
     set(CMAKE_CXX_STANDARD 14)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
 

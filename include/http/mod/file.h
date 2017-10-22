@@ -31,7 +31,7 @@
 namespace http {
 namespace mod {
 namespace _file_utils {
-static inline void parse_filename ( const std::string & path, std::string & filename, std::string & extension ) {
+static inline http_status parse_filename ( const std::string & path, std::string & filename, std::string & extension ) {
     std::size_t last_slash_pos = path.find_last_of ( "/" );
     std::size_t last_dot_pos = path.find_last_of ( "." );
 
@@ -43,7 +43,8 @@ static inline void parse_filename ( const std::string & path, std::string & file
     if ( last_slash_pos != std::string::npos && last_slash_pos < path.size() ) {
         filename = path.substr ( last_slash_pos + 1 );
 
-    } else { throw http_status::BAD_REQUEST; }
+    } else { return http_status::BAD_REQUEST; }
+    return http_status::OK;
 }
 }//namespace _file_utils
 }//namespace mod
@@ -96,7 +97,10 @@ public:
 
         } else {
             //get the filename and extension
-            _file_utils::parse_filename ( ss_.str(), filename_, extension_ );
+            auto _status = _file_utils::parse_filename ( ss_.str(), filename_, extension_ );
+            if( _status != http_status::OK ) { //when the filename can not be parsed.
+                return _status;
+            }
         }
 
         if ( S_ISREG ( filestatus.st_mode ) ) {
@@ -117,32 +121,29 @@ public:
 
             //process request
             if ( request.method() == http::method::GET ) {
-                get ( request, response, ss_.str(), filestatus.st_size );
-
+                auto _status = get ( request, response, ss_.str(), static_cast< size_t >( filestatus.st_size ) );
+                if( _status != http_status::OK )
+                { return _status; }
             } else if ( request.method() != http::method::HEAD )
             { return http::http_status::NOT_IMPLEMENTED; }
-
         } else { return http::http_status::NOT_FOUND; }
-
         return http_status::OK;
     }
 private:
     const std::string docroot_, prefix_;
 
-    void get ( Request & request, Response & response, const std::string & filename, const size_t file_size ) {
-
-        //TODO std::cout << "\tget:" << filename << ". " << file_size << std::endl;
+    http_status get ( Request & request, Response & response, const std::string & filename, const size_t file_size ) {
 
         // Open the file to send back.
-        std::unique_ptr < std::ifstream > is = std::make_unique< std::ifstream > ( filename.c_str(), std::ios::in | std::ios::binary );
+        std::unique_ptr < std::ifstream > is =
+            std::make_unique< std::ifstream > ( filename.c_str(), std::ios::in | std::ios::binary );
 
         if ( !is->is_open() ) {
-            throw http_status::NOT_FOUND;
+            return http_status::NOT_FOUND;
         }
 
         // Fill out the reply to be sent to the client.
         if ( request.contains_parameter ( http::header::RANGE ) ) {
-            //std::cout << "get Range" << std::endl;
             response.status ( http_status::PARTIAL_CONTENT );
             std::tuple<int, int> range = http::utils::parseRange ( request.parameter ( http::header::RANGE ) );
             //std::cout << "\trange: " << std::get<0> ( range ) << "-" << std::get<1> ( range ) << std::endl;
@@ -150,8 +151,9 @@ private:
                                  ( std::get<1> ( range ) == -1 ? std::to_string ( file_size - 1 ) :
                                    std::to_string ( std::get<1> ( range ) - 1 ) ) +
                                  "/" + std::to_string ( file_size ) );
-            response.parameter ( header::CONTENT_LENGTH, ( std::get<1> ( range ) == -1 ? std::to_string ( file_size - std::get<0> ( range ) ) :
-                                 std::to_string ( std::get<1> ( range ) - std::get<0> ( range ) ) ) );
+            response.parameter ( header::CONTENT_LENGTH, ( std::get<1> ( range ) == -1 ?
+                                     std::to_string ( file_size - static_cast< size_t >( std::get<0> ( range ) ) ) :
+                                     std::to_string ( std::get<1> ( range ) - std::get<0> ( range ) ) ) );
             is->seekg ( std::get<0> ( range ), std::ios_base::beg ); //TODO check if range is available
 
         } else {
@@ -160,6 +162,7 @@ private:
         }
 
         response.istream ( std::move ( is ) );
+        return http_status::OK;
     }
     FRIEND_TEST ( ModFileTest, valid_path );
     static bool valid_path ( const std::string& path ) {
