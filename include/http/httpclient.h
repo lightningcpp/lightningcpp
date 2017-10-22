@@ -27,17 +27,11 @@
 
 namespace http {
 
-
 template< class Output, class Enable = void >
 struct Writer {
     static void result_write ( Output&, buffer_t&, size_t, size_t ) {}
 };
-//template<> //TODO
-//struct Writer< http::HttpRequest > {
-//static void result_write( http::HttpRequest & output, buffer_t & buffer, size_t position, size_t size ) {
-//    std::cout << "write request buffer: " << size << std::endl;
-//}
-//};
+
 template< class Output >
 struct Writer< Output, typename std::enable_if< std::is_base_of< std::ostream, Output >::value >::type > {
     static void result_write ( Output & output, buffer_t & buffer, size_t position, size_t size ) {

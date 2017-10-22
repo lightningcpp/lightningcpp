@@ -35,9 +35,9 @@ inline size_t get_file ( const std::string & filename, buffer_t * buffer ) {
 		_file.read ( buffer->data(), BUFFER_SIZE );
 		_file.close();
 
-    } else { std::cout << "Unable to open file:" << filename << std::endl; }
+    } else { assert( false ); }
 
-	return _file.gcount();
+    return static_cast<size_t>( _file.gcount() );
 }
 
 TEST ( HttpParserTest, RequestParserType ) {
@@ -422,7 +422,7 @@ TEST ( HttpParserTest, ParseChunkedHeader ) {
 		_request_stream << "Host: localhost\r\n";
 
 		_request_stream.flush();
-		size_t _size = _request_stream.tellp();
+        size_t _size = static_cast< size_t >( _request_stream.tellp() );
 
 		buffer_t _buffer;
 
@@ -439,7 +439,7 @@ TEST ( HttpParserTest, ParseChunkedHeader ) {
 		_request_stream << "Connection: close\r\n\r\n";
 
 		_request_stream.flush();
-		size_t _size = _request_stream.tellp();
+        size_t _size = static_cast< size_t >( _request_stream.tellp() );
 
 		buffer_t _buffer;
 
@@ -624,19 +624,10 @@ TEST ( HttpParserTest, ParseChunked ) {
 
 	size_t _position = 0;
 	size_t _res_position = 0;
-//    std::cout << "'";
-//    for( size_t i = _position; i<4; i++ ) {
-//        std::cout << ( _buffer[i] == '\n' ? "\\n" : ( _buffer[i] == '\r' ? "\\r" : std::string( _buffer.data(), i, 1 ) ) );
-//    } std::cout << "'" << std::endl;
 	_res_position = _parser.parse_request ( _request, _buffer, _position, _position + 4 );
 
 	do {
 		_position += 4;
-//        std::cout << "'";
-//        for( size_t i = _position; i<_position + 4; i++ ) {
-//            std::cout << ( _buffer[i] == '\n' ? "\\n" : ( _buffer[i] == '\r' ? "\\r" : std::string( _buffer.data(), i, 1 ) ) );
-//        } std::cout << "'" << std::endl;
-
 		_res_position = _parser.parse_request ( _request, _buffer, _position, _position + 4 );
 	} while ( _res_position == 0 );
 
@@ -665,19 +656,10 @@ TEST ( HttpParserTest, ParseChunkedWithBody ) {
 
 	size_t _position = 0;
 	size_t _res_position = 0;
-//    std::cout << "'";
-//    for( size_t i = _position; i<4; i++ ) {
-//        std::cout << ( _buffer[i] == '\n' ? "\\n" : ( _buffer[i] == '\r' ? "\\r" : std::string( _buffer.data(), i, 1 ) ) );
-//    } std::cout << "'" << std::endl;
 	_res_position = _parser.parse_request ( _request, _buffer, _position, _position + 4 );
 
 	do {
 		_position += 4;
-//        std::cout << "'";
-//        for( size_t i = _position; i<_position + 4 && i < _size; ++i ) {
-//            std::cout << ( _buffer[i] == '\n' ? "\\n" : ( _buffer[i] == '\r' ? "\\r" : std::string( _buffer.data(), i, 1 ) ) );
-//        } std::cout << "'" << std::endl;
-
 		if ( _position + 4 >= _size ) {
 			_res_position = _parser.parse_request ( _request, _buffer, _position, _size );
 
@@ -722,24 +704,18 @@ TEST ( HttpParserTest, ParseChunkedWithNewBody ) {
 
 	size_t _position = 0;
 	size_t _res_position = 0;
-//    std::cout << "'";
-//    for( size_t i = _position; i<4; i++ ) {
-//        std::cout << ( _buffer[i] == '\n' ? "\\n" : ( _buffer[i] == '\r' ? "\\r" : std::string( _buffer.data(), i, 1 ) ) );
-//    } std::cout << "'" << std::endl;
 	_res_position = _parser.parse_request ( _request, _buffer, _position, _position + 4 );
 
 	do {
 		_position += 4;
-//        std::cout << "'";
 		size_t target_pos = 0;
 		size_t target_length = 0;
 		buffer_t _buffer2;
 
 		for ( size_t i = _position; i<_position + 4 && i < _size; ++i ) {
-//            std::cout << ( _buffer[i] == '\n' ? "\\n" : ( _buffer[i] == '\r' ? "\\r" : std::string( _buffer.data(), i, 1 ) ) );
 			_buffer2[ target_pos++] = _buffer[i];
 			++target_length;
-		} //std::cout << "'" << std::endl;
+        }
 
 		_res_position = _parser.parse_request ( _request, _buffer2, 0, target_length );
 

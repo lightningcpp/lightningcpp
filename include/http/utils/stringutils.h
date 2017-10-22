@@ -190,7 +190,7 @@ inline std::time_t parse_time_string ( const std::string & time ) {
 			ss >> std::get_time ( &t, "%a %b %d %H:%M:%S %Y" );
 
 			if ( ss.fail() ) {
-                std::cerr << "wrong date format: " << time << std::endl;
+                std::cout << "wrong date format: " << time << std::endl;
 			}
 		}
 	}
@@ -219,11 +219,10 @@ inline std::tuple<int, int> parseRange ( const std::string & range ) {
 				end = std::stoi ( to );
 			}
 
-			return std::tuple<int, int> ( start, end );
+            return std::tuple<int, int> ( start, end );
 		}
 	}
-
-	return std::tuple<int, int> ( 0, -1 );
+    return std::tuple<int, int> ( 0, -1 );
 }
 
 struct UrlParser {

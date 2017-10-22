@@ -20,6 +20,8 @@
 
 #include <gtest/gtest.h>
 
+#include "testutils.h"
+
 namespace http {
 namespace mod {
 
@@ -103,9 +105,67 @@ TEST ( ModFileTest, valid_path ) {
     EXPECT_FALSE( File::valid_path( "index.html" ) );
     EXPECT_FALSE( File::valid_path( "" ) );
 }
-TEST ( ModFileTest, TestRange ) {
-    //TODO
-}
+TEST ( ModFileTest, TestRead ) {
+    File fd_ ( TESTFILES );
+    Request request_ ( "/files/simple.txt" );
 
+    Response response_;
+    ASSERT_EQ ( http_status::OK, fd_.execute ( request_, response_ ) );
+
+    std::stringstream _ss;
+    std::array< char, BUFFER_SIZE > _buffer;
+    auto _size = response_.read( _buffer.data(), BUFFER_SIZE );
+    while( _size > 0 ) {
+        _ss.write( _buffer.data(), _size );
+        _size = response_.read( _buffer.data(), BUFFER_SIZE );
+    }
+    std::ifstream _file ( std::string ( TESTFILES ) + "files/simple.txt", std::ifstream::binary );
+    EXPECT_TRUE( compare_streams( _ss, _file ) );
+}
+TEST ( ModFileTest, TestChunkedFirstLine ) {
+    File fd_ ( TESTFILES );
+    Request request_ ( "/files/simple.txt" );
+    request_.parameter( header::RANGE, "bytes=0-2" );
+
+    Response response_;
+    ASSERT_EQ ( http_status::OK, fd_.execute ( request_, response_ ) );
+
+    EXPECT_EQ( "2", response_.parameter( header::CONTENT_LENGTH ) );
+    std::stringstream _ss;
+    std::array< char, BUFFER_SIZE > _buffer;
+
+    auto _size = response_.read( _buffer.data(),
+        std::stoi( response_.parameter( header::CONTENT_LENGTH ) ) );
+    _ss.write( _buffer.data(), _size );
+    EXPECT_EQ( 2U, _size );
+    EXPECT_EQ( "1\n", _ss.str() );
+}
+TEST ( ModFileTest, TestChunkedFirstRest ) {
+    File fd_ ( TESTFILES );
+    Request request_ ( "/files/simple.txt" );
+    request_.parameter( header::RANGE, "bytes=9-" );
+
+    Response response_;
+    ASSERT_EQ ( http_status::OK, fd_.execute ( request_, response_ ) );
+
+    EXPECT_EQ( "11", response_.parameter( header::CONTENT_LENGTH ) );
+    std::stringstream _ss;
+    std::array< char, BUFFER_SIZE > _buffer;
+
+    auto _size = response_.read( _buffer.data(),
+        std::stoi( response_.parameter( header::CONTENT_LENGTH ) ) );
+    _ss.write( _buffer.data(), _size );
+    EXPECT_EQ( 11U, _size );
+    EXPECT_EQ( "4444\n55555\n", _ss.str() );
+}
+TEST ( ModFileTest, TestChunkedFirstOutOfRange ) {
+    File fd_ ( TESTFILES );
+    Request request_ ( "/files/simple.txt" );
+    request_.parameter( header::RANGE, "bytes=128-" );
+
+    Response response_;
+    ASSERT_EQ ( http_status::REQUEST_RANGE_NOT_SATISFIABLE,
+                fd_.execute ( request_, response_ ) );
+}
 }//namespace mod
 }//namespace http

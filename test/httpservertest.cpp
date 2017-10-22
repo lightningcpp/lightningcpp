@@ -160,7 +160,7 @@ TEST ( HttpServerTest, TestReadBody ) {
     EXPECT_TRUE ( _call_back_called );
 }
 
-TEST ( HttpServerTest, DISABLED_TestReadChunkedEncoding ) { //TODO
+TEST ( HttpServerTest, TestReadChunkedEncoding ) {
     bool _call_back_called = false;
     HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called] ( Request & request, Response & ) {
         _call_back_called = true;
@@ -394,7 +394,6 @@ TEST ( HttpServerTest, TestPersistentConnectionV10 ) {
         EXPECT_FALSE ( error );
 
         size_t len = socket.read_some ( asio::buffer ( _buffer ), error );
-        std::cout << error << std::endl;
         EXPECT_FALSE ( error );
 
         utils::HttpParser _parser;
@@ -606,7 +605,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV11Mixed ) {
         utils::HttpParser _parser;
         Response _response;
         size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
-        std::cout << _response << std::endl;
+
         EXPECT_EQ ( 43U, _position );
         EXPECT_EQ ( http_status::OK, _response.status() );
 
@@ -739,7 +738,6 @@ TEST ( HttpServerTest, TestPostBody ) {
         utils::HttpParser _parser;
         Response _response;
         size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
-        std::cout << _response << std::endl;
         EXPECT_EQ ( 0U, _position );
         EXPECT_EQ ( http_status::OK, _response.status() );
     }
@@ -753,7 +751,7 @@ TEST ( HttpServerTest, TestPostBody ) {
         result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
         bool _call_back_called = false;
-        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
             EXPECT_EQ ( "POST", request.method() );
             EXPECT_EQ ( "/browse.xml", request.uri() );
             EXPECT_EQ ( "HTTP", request.protocol() );
@@ -766,17 +764,10 @@ TEST ( HttpServerTest, TestPostBody ) {
             EXPECT_EQ ( "localhost", request.parameter ( http::header::HOST ) );
             EXPECT_EQ ( "*/*", request.parameter ( http::header::ACCEPT ) );
 
-//            if( _call_back_called ) {
-//                response.status ( http::http_status::OK );
-//                response.parameter ( header::CONTENT_TYPE, mime::mime_type ( mime::TEXT ) );
-//                response.parameter ( header::CONTENT_LENGTH, std::to_string ( _test_string.size() ) );
-//                response << _test_string;
-//            } else {
+            std::string _body = request.str();
+            EXPECT_EQ ( _test_string.size(), _body.size() );
+            EXPECT_EQ ( _test_string, _body );
 
-                std::string _body = request.str();
-                EXPECT_EQ ( _test_string.size(), _body.size() );
-                EXPECT_EQ ( _test_string, _body );
-//            }
             _call_back_called = true;
         } );
 
@@ -814,7 +805,6 @@ TEST ( HttpServerTest, TestPostBody ) {
             utils::HttpParser _parser;
             Response _response;
             size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
-            std::cout << _response << std::endl;
             EXPECT_EQ ( 0U, _position );
             EXPECT_EQ ( http_status::OK, _response.status() );
         }
@@ -840,7 +830,6 @@ TEST ( HttpServerTest, TestPostBody ) {
             utils::HttpParser _parser;
             Response _response;
             size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
-            std::cout << _response << std::endl;
             EXPECT_EQ ( 0U, _position );
             EXPECT_EQ ( http_status::OK, _response.status() );
         }
@@ -854,7 +843,7 @@ TEST ( HttpServerTest, TestPostBody ) {
         result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
         bool _call_back_called = false;
-        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
             EXPECT_EQ ( "POST", request.method() );
             EXPECT_EQ ( "/browse.xml", request.uri() );
             EXPECT_EQ ( "HTTP", request.protocol() );
@@ -914,7 +903,6 @@ TEST ( HttpServerTest, TestPostBody ) {
             utils::HttpParser _parser;
             Response _response;
             size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
-            std::cout << _response << std::endl;
             EXPECT_EQ ( 0U, _position );
             EXPECT_EQ ( http_status::OK, _response.status() );
         }
@@ -937,7 +925,6 @@ TEST ( HttpServerTest, TestPostBody ) {
             utils::HttpParser _parser;
             Response _response;
             size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
-            std::cout << _response << std::endl;
             EXPECT_EQ ( 0U, _position );
             EXPECT_EQ ( http_status::OK, _response.status() );
         }
@@ -948,7 +935,7 @@ TEST ( HttpServerTest, TestPostBody ) {
         std::string _test_string = "<?xml version=\"1.0\"?>\r\n<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><SOAP-ENV:Body><m:Browse xmlns:m=\"urn:schemas-upnp-org:service:ContentDirectory:1\"><ObjectID xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">0</ObjectID><BrowseFlag xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">BrowseDirectChildren</BrowseFlag><Filter xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">*</Filter><StartingIndex xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"ui4\">0</StartingIndex><RequestedCount xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"ui4\">200</RequestedCount><SortCriteria xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\"></SortCriteria></m:Browse></SOAP-ENV:Body></SOAP-ENV:Envelope>\r\n";
 
         bool _call_back_called = false;
-        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
             EXPECT_EQ ( "POST", request.method() );
             EXPECT_EQ ( "/ctl/ContentDir", request.uri() );
             EXPECT_EQ ( "HTTP", request.protocol() );
@@ -1002,7 +989,6 @@ TEST ( HttpServerTest, TestPostBody ) {
             utils::HttpParser _parser;
             Response _response;
             size_t _position = _parser.parse_response ( _response, _buffer, 0, len );
-            std::cout << _response << std::endl;
             EXPECT_EQ ( 0U, _position );
             EXPECT_EQ ( http_status::OK, _response.status() );
         }

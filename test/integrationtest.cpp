@@ -150,43 +150,31 @@ TEST ( IntegrationTest, GetFileNotFound ) {
 
 TEST ( IntegrationTest, CustomGetFileNotFound ) {
 
-//    //create the server TODO
-//    WebServer2< HttpServer > server ( "127.0.0.1", 9999 );
-//    server.bind_error_delegate ( http_status::NOT_FOUND, ErrorDelegate<>::bind ( "404" ) );
-//    delegate::FileDelegate file_delegate ( TESTFILES );
-//    server.bind ( "*", &delegate::FileDelegate::execute, &file_delegate );
+    //create the server
+    Server< HttpServer > server ( "127.0.0.1", "9999" );
+    server.bind_error ( http::mod::Exec( [] ( Request&, Response & response ) {
+        response << "404";
+        response.parameter( http::header::CONNECTION, http::header::CONNECTION_CLOSE );
+        response.parameter( http::header::CONTENT_LENGTH, "3" );
+        return http::http_status::NOT_FOUND;
+    } ) );
+    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
-//    HttpClient< Http > client_ ( "localhost", "9999" );
-//    HttpRequest request_ ( "/foo.txt" );
-//    std::stringstream _sstream;
-//    HttpResponse _response = client_.get ( request_, _sstream );
-//    EXPECT_EQ ( http_status::NOT_FOUND, _response.status() );
-//    EXPECT_EQ ( "404", _sstream.str() );
+    HttpClient< Http > client_ ( "localhost", "9999" );
+    Request request_ ( "/foo.txt" );
+    std::stringstream _sstream;
+    Response _response = client_.get ( request_, _sstream );
+    EXPECT_EQ ( http_status::NOT_FOUND, _response.status() );
+    EXPECT_EQ ( "3", _response.parameter( header::CONTENT_LENGTH ) );
+    EXPECT_EQ ( "404", _sstream.str() );
 }
-
-//TEST ( IntegrationTest, CustomFileDelegateGetFileNotFound ) { TODO
-
-//    //create the server
-//    WebServer2< HttpServer > server ( "127.0.0.1", 9999 );
-//    delegate::FileDelegate file_delegate ( TESTFILES );
-//    server.bind_error_delegate ( http_status::NOT_FOUND, std::bind ( &delegate::FileDelegate::execute, &file_delegate, std::placeholders::_1, std::placeholders::_2 ) );
-//    server.bind( "*", &delegate::FileDelegate::execute, &file_delegate );
-
-//    HttpClient< Http > client_ ( "localhost", "9999" );
-//    HttpRequest request_ ( "/foo.txt" );
-//    std::stringstream _sstream;
-//    HttpResponse _response = client_.get ( request_, _sstream );
-//    EXPECT_EQ ( http_status::NOT_FOUND, _response.status() );
-//    EXPECT_EQ ( static_cast< int > ( http_status::NOT_FOUND ), static_cast< int > ( _response.status() ) );
-//    EXPECT_EQ ( "<html><body>404: Not found</body></html>\n", _sstream.str() );
-//}
 
 TEST ( IntegrationTest, MultiThreadingTest ) {
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
-    for ( int j = 0; j<1; ++j ) { //TODO greater loop for "Too many open files" exception
+    for ( int j = 0; j<25; ++j ) {
 
         std::list< std::thread > threads_;
         std::atomic< int > count1 ( 0 );

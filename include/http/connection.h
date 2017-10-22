@@ -20,6 +20,7 @@
 #include "socket.h"
 
 #include "utils/httpparser.h"
+#include "utils/chunked.h"
 
 namespace http {
 
@@ -69,7 +70,8 @@ public:
      * @param callback the server callback method for requests.
      */
     Connection ( socket_ptr && socket, callback_ptr callback ) :
-        socket_ ( std::move( socket ) ), callback_ ( callback ) {}
+        socket_ ( std::move( socket ) ), callback_ ( callback ),
+        chunked_( std::bind( &Connection::write_chunked, this, _1, _2 ) ) {}
 
     /** @brief start the connection */
     void start() {
@@ -87,10 +89,29 @@ public:
      */
     void connect ( const std::error_code& e, std::streamsize size ) {
         if( !e ) {
-            size_t body_start_ = http_parser_.parse_request ( request_, buffer_, 0, static_cast< size_t >( size ) );
+
+            //parse header
+            size_t body_start_ = http_parser_.parse_request (
+                request_, buffer_, 0, static_cast< size_t >( size ) );
+
 
             if ( body_start_ == 0 ) { //continue to read the header.
                 socket_->read( buffer_, std::bind( &Connection::connect, shared_from_this(), _1, _2 ) );
+
+            } else if( request_.contains_parameter( http::header::TRANSFER_ENCODING ) &&
+                request_.parameter( http::header::TRANSFER_ENCODING ) == "chunked" ) {
+
+                if( chunked_.write( buffer_, body_start_, static_cast< size_t >( size ) ) ) {
+
+                    callback_ ( request_, response_ );
+
+                    size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
+                    socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
+
+                } else {
+
+                    socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
+                }
 
             } else {
 
@@ -126,21 +147,40 @@ public:
      */
     void read ( const std::error_code& e, std::size_t size ) {
         if( !e ) {
-            size_t _body_length = body_length();
-            request_.write ( buffer_.data(), std::streamsize( size ) );
-            if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
 
-                callback_ ( request_, response_ );
-                size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
-                socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
+            if( request_.contains_parameter( http::header::TRANSFER_ENCODING ) &&
+                request_.parameter( http::header::TRANSFER_ENCODING ) == "chunked" ) {
 
-            } else if( static_cast< size_t >( request_.tellp() ) < _body_length ) {
-                socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
+                if( chunked_.write( buffer_, 0, static_cast< size_t >( size ) ) ) {
+
+                    callback_ ( request_, response_ );
+
+                    size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
+                    socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
+
+                } else {
+
+                    socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
+                }
 
             } else {
-                response_.status( http_status::BAD_REQUEST ); //TODO
-                size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
-                socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
+
+                size_t _body_length = body_length();
+                request_.write ( buffer_.data(), std::streamsize( size ) );
+                if( static_cast< size_t >( request_.tellp() ) == _body_length ) { //execute request
+
+                    callback_ ( request_, response_ );
+                    size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
+                    socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
+
+                } else if( static_cast< size_t >( request_.tellp() ) < _body_length ) {
+                    socket_->read( buffer_, std::bind( &Connection::read, shared_from_this(), _1, _2 ) );
+
+                } else {
+                    response_.status( http_status::BAD_REQUEST ); //TODO
+    //                size_t _buffer_size = response_.header ( buffer_.data(), BUFFER_SIZE );
+    //                socket_->write( buffer_, _buffer_size, std::bind( &Connection::write, shared_from_this(), _1 ) );
+                }
             }
         }
     }
@@ -153,7 +193,7 @@ public:
         if( !e ) {
             size_t _body_length = response_length();
             if( static_cast< size_t >( response_.tellg() ) == _body_length ) { //finish request
-                if( request_.persistent() ) {
+                if( request_.persistent() && response_.parameter( header::CONNECTION ) != header::CONNECTION_CLOSE ) {
                     start(); //restart this connection
 
                 } else socket_->close();
@@ -176,6 +216,11 @@ private:
     Response response_;
     utils::HttpParser http_parser_;
     buffer_t buffer_;
+    utils::Chunked chunked_;
+
+    void write_chunked( char* buffer, std::streamsize size ) {
+        request_.write( buffer, size );
+    }
 
     size_t body_length() {
         if( request_.contains_parameter( http::header::CONTENT_LENGTH ) )

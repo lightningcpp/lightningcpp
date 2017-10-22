@@ -29,9 +29,9 @@ namespace mod {
 class Http  {
 public:
     Http() {}
-    Http ( const Http& ) = default; //TODO
+    Http ( const Http& ) = delete;
     Http ( Http&& ) = default;
-    Http& operator= ( const Http& ) = default; //TODO
+    Http& operator= ( const Http& ) = delete;
     Http& operator= ( Http&& ) = default;
     ~Http() {}
 

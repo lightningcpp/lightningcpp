@@ -144,9 +144,16 @@ private:
 
         // Fill out the reply to be sent to the client.
         if ( request.contains_parameter ( http::header::RANGE ) ) {
+
+            const std::tuple<int, int> range = http::utils::parseRange (
+                request.parameter ( http::header::RANGE ) );
+
+            if( std::get<0> ( range ) > file_size )
+            { return http_status::REQUEST_RANGE_NOT_SATISFIABLE; }
+
+            is->seekg ( std::get<0> ( range ), std::ios_base::beg );
+
             response.status ( http_status::PARTIAL_CONTENT );
-            std::tuple<int, int> range = http::utils::parseRange ( request.parameter ( http::header::RANGE ) );
-            //std::cout << "\trange: " << std::get<0> ( range ) << "-" << std::get<1> ( range ) << std::endl;
             response.parameter ( "Content-Range", "bytes " + std::to_string ( std::get<0> ( range ) ) + "-" +
                                  ( std::get<1> ( range ) == -1 ? std::to_string ( file_size - 1 ) :
                                    std::to_string ( std::get<1> ( range ) - 1 ) ) +
@@ -154,8 +161,6 @@ private:
             response.parameter ( header::CONTENT_LENGTH, ( std::get<1> ( range ) == -1 ?
                                      std::to_string ( file_size - static_cast< size_t >( std::get<0> ( range ) ) ) :
                                      std::to_string ( std::get<1> ( range ) - std::get<0> ( range ) ) ) );
-            is->seekg ( std::get<0> ( range ), std::ios_base::beg ); //TODO check if range is available
-
         } else {
             response.parameter ( header::CONTENT_LENGTH, std::to_string ( file_size ) );
             response.status ( http_status::OK );

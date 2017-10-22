@@ -65,9 +65,11 @@ TEST ( StringUtilsTest, TestParseDateFromStringRFC850 ) {
 	EXPECT_EQ ( 784115377U, parse_time_string ( "Sunday, 06-Nov-94 09:49:37 GMT" ) );
 }
 TEST ( StringUtilsTest, TestParseDateFromStringCString ) {
-	EXPECT_EQ ( 784115377U, parse_time_string ( "Sun Nov 06 09:49:37 1994" ) ); //TODO shall also work with "Sun Nov  6 08:49:37 1994"
+    EXPECT_EQ ( 784115377U, parse_time_string ( "Sun Nov 06 09:49:37 1994" ) );
 }
-
+TEST ( StringUtilsTest, DISABLED_TestParseDateFromStringCString ) {
+    EXPECT_EQ ( 784115377U, parse_time_string ( "Sun Nov  6 08:49:37 1994" ) );
+}
 TEST ( StringUtilsTest, TestParseDate1 ) {
 	time_t time_ = static_cast< time_t > ( 1469787808U );
 	EXPECT_EQ ( "Fri, 29 Jul 2016 10:23:28 GMT", time_to_string ( &time_ ) );

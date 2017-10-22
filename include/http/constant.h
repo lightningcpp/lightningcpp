@@ -84,18 +84,6 @@ enum class http_status {
     HTTP_VERSION_NOT_SUPPORTED = 505 //Section 10.5.6: HTTP Version not supported
 };
 
-///** TODO
-// * @brief Can response have a bosy.
-// * @param status status
-// * @return  true if response can have a body
-// */
-//static bool stat_has_body( http_status s ) {
-//    return ( ! ( /* TODO ( request.method() == method::HEAD || */ //error without body
-//                        s == http_status::NO_CONTENT ||
-//                        s == http_status::NOT_MODIFIED ||
-//                        ( static_cast< int > ( s ) >= 100 && static_cast< int > ( s ) <= 199 ) ) );
-//}
-
 static const std::map< http_status, std::string > status_reason_phrases = {
             { http_status::SWITCHING_PROTOCOL,  "Switching Protocols" },
             { http_status::OK,                  "OK" },

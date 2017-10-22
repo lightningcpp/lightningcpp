@@ -91,7 +91,7 @@ template< class... Args > struct T_Match_Impl< 0, Args... > {
 private:
     const std::string _uri;
     inline bool match ( const std::string & left, const std::string & right ) {
-        return RE2::FullMatch ( left, right ); //TODO also use std::regexp
+        return RE2::FullMatch ( left, right );
     }
 };
 
@@ -145,9 +145,9 @@ template< class... Args > struct Match : public _match_utils::T_Match_Impl< size
      */
     Match ( const std::string & uri, Names... names ) : _match_utils::T_Match_Impl< sizeof... ( Args ), Args... > ( uri, names... ) {}
 
-    Match( const Match& ) = default; //TODO
+    Match( const Match& ) = delete;
     Match ( Match&& ) = default;
-    Match& operator= ( const Match& ) = default; //TODO
+    Match& operator= ( const Match& ) = delete;
     Match& operator= ( Match&& ) = default;
 };
 }//namespace mod
