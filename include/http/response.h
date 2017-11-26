@@ -16,6 +16,8 @@
 #ifndef HTTPRESPONSE_H
 #define HTTPRESPONSE_H
 
+#include <cassert>
+
 #include <array>
 #include <map>
 #include <memory>
@@ -27,14 +29,10 @@
 
 namespace http {
 
-/**
- * @brief Response class
- */
+/** @brief Response class. */
 class Response {
 public:
-    /**
-     * @brief Response CTOR.
-     */
+    /** @brief Response CTOR. */
     Response() : body_ostream_( std::make_unique< std::stringstream >() ) {}
     Response ( const Response& ) = delete;
     Response ( Response&& ) = default;
@@ -90,29 +88,29 @@ public:
     /*                                            stream realated methods                                                 */
     /* ------------------------------------------------------------------------------------------------------------------ */
 
-    /**
-     * @brief Fill buffer with the header. The complete header must fit into the buffer.
-     * @param buffer
-     * @return
-     */
-    size_t header ( char* buffer, std::streamsize size ) {
+    /** @brief Fill buffer with the header. The complete header must fit into the buffer. */
+    size_t header ( char* buffer /** @param buffer the buffer to store the header to */,
+                    std::streamsize size ) {
+
         // create status line: Status-Line = HTTP-Version SP Status-Code SP Reason-Phrase CRLF
         auto _position = snprintf ( buffer, static_cast< size_t >( size ), "%s/%d.%d %d %s\r\n",
-            protocol_.c_str(), version_major_, version_minor_, static_cast< int > ( status_ ), status_reason_phrases.at( status_ ).c_str() );
-
-        if ( _position < 0 && _position > size ) { throw http_status::INTERNAL_SERVER_ERROR; } /* TODO */
+            protocol_.c_str(), version_major_, version_minor_,
+            static_cast< int > ( status_ ), status_reason_phrases.at( status_ ).c_str() );
+        if ( _position < 0 && _position > size ) { assert( false ); }
 
         for ( auto & _header : parameters_ ) {
             _position += snprintf ( buffer+_position,
                 static_cast< size_t >( size ) - static_cast< size_t >( _position ),
                 "%s: %s\r\n", _header.first.c_str(), _header.second.c_str() );
-
-            if ( _position < 0 && _position > size ) { throw http_status::INTERNAL_SERVER_ERROR; } /* TODO */
+            if ( _position < 0 && _position > size ) { assert( false ); }
         }
 
         _position += snprintf ( buffer+_position,
                                 static_cast< size_t >( size ) - static_cast< size_t >( _position ),
                                 "\r\n" );
+        if ( _position < 0 && _position > size ) { assert( false ); }
+
+        /** @return the size used by the header. */
         return static_cast< size_t >( _position );
     }
 
@@ -134,13 +132,11 @@ public:
     void write( char* buffer, std::streamsize size )
     { body_ostream_->write( buffer, size ); }
 
-    void istream ( std::unique_ptr< std::istream > && is )
+    /** @brief set the input stream. */
+    void istream ( std::unique_ptr< std::istream > && is /** @param is the input stream */ )
     { body_istream_ = std::move ( is ); }
 
-    /**
-     * @brief get the ostream as string.
-     * @return
-     */
+    /** @brief get the ostream as string. */
     std::string str() const
     { return body_ostream_->str(); }
 
@@ -154,6 +150,7 @@ public:
         *(body_ostream_) << value;
 		return *this;
 	}
+
 	/* ------------------------------------------------------------------------------------------------------------------ */
 
 
@@ -194,5 +191,18 @@ private:
     std::unique_ptr< std::stringstream > body_ostream_;
     std::unique_ptr< std::istream > body_istream_;
 };
+//std::string str( Response& response ) {
+//    std::stringstream out;
+//    out << response.protocol() << "/" << response.version_major() << "." <<
+//        response.version_minor() << " " << static_cast< int > ( response.status() ) <<
+//        status_reason_phrases.at( response.status() ) <<
+//        "\n" << "Parameters:\n";
+
+////TODO    for ( auto response_line : response.parameters() ) {
+////        out << "\t" << response_line.first << ": " << response_line.second << "\n";
+////    }
+
+//    return out.str();
+//}
 } //namespace http
 #endif //HTTPRESPONSE_H

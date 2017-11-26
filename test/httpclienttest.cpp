@@ -257,4 +257,6 @@ TEST ( HttpClientTest, Request404 ) {
     auto _response = _client.get ( _request, _sstream );
     EXPECT_EQ ( http_status::NOT_FOUND, _response.status() );
 }
+
+
 }//namespace http

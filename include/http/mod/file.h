@@ -148,7 +148,7 @@ private:
             const std::tuple<int, int> range = http::utils::parseRange (
                 request.parameter ( http::header::RANGE ) );
 
-            if( std::get<0> ( range ) > file_size )
+            if( static_cast< size_t >( std::get<0> ( range ) ) > file_size )
             { return http_status::REQUEST_RANGE_NOT_SATISFIABLE; }
 
             is->seekg ( std::get<0> ( range ), std::ios_base::beg );

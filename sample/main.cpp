@@ -8,6 +8,7 @@
 #include "../include/http/httpserver.h"
 #include "../include/http/request.h"
 #include "../include/http/response.h"
+#include "../include/http/mod/exec.h"
 #include "../include/http/mod/file.h"
 #include "../include/http/mod/match.h"
 #include "../include/http/mod/http.h"
@@ -30,6 +31,9 @@ int main(int argc, char * argv[] ) {
     std::vector< std::string > _ws_protocols ( { "protocolTwo" } );
     server.bind( http::mod::Match<>( "/socketserver" ), http::mod::WS( _ws_protocols ), http::mod::Http() );
     server.bind( http::mod::Match<>( "/doc/.*" ), http::mod::File( DOCFILES, "/doc/" ), http::mod::Http() );
+    server.bind( http::mod::Match<>( "/index2.html" ), http::mod::Exec( [] ( http::Request&, http::Response & response ) {
+                     return http::http_status::OK;
+                 } ), http::mod::Http() );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
 
     // register signal SIGINT and signal handler
