@@ -27,7 +27,7 @@ int main(int argc, char * argv[] ) {
     std::cout << "}" << std::endl;
 
     //create the server
-    http::Server< http::HttpServer > server ( "127.0.0.1", "9999" );
+    http::Server< http::HttpServer > server ( "0.0.0.0", "9999" );
     std::vector< std::string > _ws_protocols ( { "protocolTwo" } );
     server.bind( http::mod::Match<>( "/socketserver" ), http::mod::WS( _ws_protocols ), http::mod::Http() );
     server.bind( http::mod::Match<>( "/doc/.*" ), http::mod::File( DOCFILES, "/doc/" ), http::mod::Http() );

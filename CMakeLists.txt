@@ -28,6 +28,11 @@ add_definitions( -DHTTP_BUFFER_SIZE=${HTTP_BUFFER_SIZE} -DHTTP_CLIENT_TIMEOUT=${
                  -DTESTFILES="${TESTFILES}/" -DDOCFILES="${DOCFILES}/"
                  -DASIO_STANDALONE -DHTTP_CPP_RELEASE="${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}" )
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -frecord-gcc-switches -pg")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O2 -frecord-gcc-switches -march=native -mfpmath=sse")
+
+message( ${CMAKE_CXX_FLAGS_RELEASE} )
+
 if ( build_example_server OR build_tests OR build_benchmark )
 
     #add headers for editor
