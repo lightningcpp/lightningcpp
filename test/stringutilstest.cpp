@@ -31,38 +31,37 @@ TEST ( StringUtilsTest, is_numeric ) {
     EXPECT_FALSE ( is_numeric( "123abc" ) );
 }
 
-
 TEST ( StringUtilsTest, TrimString ) {
-	std::string v = "  VALUE1 ";
-	EXPECT_EQ ( "VALUE1", trim ( v ) );
+    std::string v = "  VALUE1 ";
+    EXPECT_EQ ( "VALUE1", trim ( v ) );
 
-	v = "VALUE2";
-	EXPECT_EQ ( "VALUE2", trim ( v ) );
+    v = "VALUE2";
+    EXPECT_EQ ( "VALUE2", trim ( v ) );
 
-	v = "   ";
-	EXPECT_EQ ( "", trim ( v ) );
+    v = "   ";
+    EXPECT_EQ ( "", trim ( v ) );
 
-	v = " VALUE 3";
-	EXPECT_EQ ( "VALUE 3", trim ( v ) );
+    v = " VALUE 3";
+    EXPECT_EQ ( "VALUE 3", trim ( v ) );
 
-	v = "VALUE 4   ";
-	EXPECT_EQ ( "VALUE 4", trim ( v ) );
+    v = "VALUE 4   ";
+    EXPECT_EQ ( "VALUE 4", trim ( v ) );
 
-	v = "VALUE 4   ";
-	std::string & _res = trim ( v );
-	EXPECT_EQ ( &v, &_res );
+    v = "VALUE 4   ";
+    std::string & _res = trim ( v );
+    EXPECT_EQ ( &v, &_res );
 }
 
 TEST ( StringUtilsTest, ParseCSV ) {
-	EXPECT_EQ ( std::vector< std::string > ( { "a", "b", "c" } ), parse_csv ( "a,b,c" )  );
-	EXPECT_EQ ( std::vector< std::string > ( { "foo protocol", "bar protocol", "extra protocol" } ), parse_csv ( "foo protocol, bar protocol, extra protocol" )  );
+    EXPECT_EQ ( std::vector< std::string > ( { "a", "b", "c" } ), parse_csv ( "a,b,c" )  );
+    EXPECT_EQ ( std::vector< std::string > ( { "foo protocol", "bar protocol", "extra protocol" } ), parse_csv ( "foo protocol, bar protocol, extra protocol" )  );
 }
 
 TEST ( StringUtilsTest, TestParseDateFromStringRFC822 ) {
-	EXPECT_EQ ( 784115377U, parse_time_string ( "Sun, 06 Nov 1994 09:49:37 GMT" ) );
+    EXPECT_EQ ( 784115377U, parse_time_string ( "Sun, 06 Nov 1994 09:49:37 GMT" ) );
 }
 TEST ( StringUtilsTest, TestParseDateFromStringRFC850 ) {
-	EXPECT_EQ ( 784115377U, parse_time_string ( "Sunday, 06-Nov-94 09:49:37 GMT" ) );
+    EXPECT_EQ ( 784115377U, parse_time_string ( "Sunday, 06-Nov-94 09:49:37 GMT" ) );
 }
 TEST ( StringUtilsTest, TestParseDateFromStringCString ) {
     EXPECT_EQ ( 784115377U, parse_time_string ( "Sun Nov 06 09:49:37 1994" ) );
@@ -71,29 +70,29 @@ TEST ( StringUtilsTest, DISABLED_TestParseDateFromStringCString ) {
     EXPECT_EQ ( 784115377U, parse_time_string ( "Sun Nov  6 08:49:37 1994" ) );
 }
 TEST ( StringUtilsTest, TestParseDate1 ) {
-	time_t time_ = static_cast< time_t > ( 1469787808U );
-	EXPECT_EQ ( "Fri, 29 Jul 2016 10:23:28 GMT", time_to_string ( &time_ ) );
+    time_t time_ = static_cast< time_t > ( 1469787808U );
+    EXPECT_EQ ( "Fri, 29 Jul 2016 10:23:28 GMT", time_to_string ( &time_ ) );
 }
 TEST ( StringUtilsTest, TestParseDate2 ) {
-	time_t time_ = static_cast< time_t > ( 784111777U );
-	EXPECT_EQ ( "Sun, 06 Nov 1994 08:49:37 GMT", time_to_string ( &time_ ) );
+    time_t time_ = static_cast< time_t > ( 784111777U );
+    EXPECT_EQ ( "Sun, 06 Nov 1994 08:49:37 GMT", time_to_string ( &time_ ) );
 }
 
 TEST ( StringUtilsTest, ParseRange ) {
-	//Range: bytes=0-999
-	std::tuple<int, int> range1 = http::utils::parseRange ( "bytes=0-999" );
-	EXPECT_EQ ( 0, std::get<0> ( range1 ) );
-	EXPECT_EQ ( 999, std::get<1> ( range1 ) );
+    //Range: bytes=0-999
+    std::tuple<int, int> range1 = http::utils::parseRange ( "bytes=0-999" );
+    EXPECT_EQ ( 0, std::get<0> ( range1 ) );
+    EXPECT_EQ ( 999, std::get<1> ( range1 ) );
 
-	//Range: bytes=0-
-	std::tuple<int, int> range2 = http::utils::parseRange ( "bytes=0-" );
-	EXPECT_EQ ( 0, std::get<0> ( range2 ) );
-	EXPECT_EQ ( -1, std::get<1> ( range2 ) );
+    //Range: bytes=0-
+    std::tuple<int, int> range2 = http::utils::parseRange ( "bytes=0-" );
+    EXPECT_EQ ( 0, std::get<0> ( range2 ) );
+    EXPECT_EQ ( -1, std::get<1> ( range2 ) );
 
-	//Range: bytes=999-
-	std::tuple<int, int> range3 = http::utils::parseRange ( "bytes=999-" );
-	EXPECT_EQ ( 999, std::get<0> ( range3 ) );
-	EXPECT_EQ ( -1, std::get<1> ( range3 ) );
+    //Range: bytes=999-
+    std::tuple<int, int> range3 = http::utils::parseRange ( "bytes=999-" );
+    EXPECT_EQ ( 999, std::get<0> ( range3 ) );
+    EXPECT_EQ ( -1, std::get<1> ( range3 ) );
 }
 
 TEST ( StringUtilsTest, UrlParser ) {

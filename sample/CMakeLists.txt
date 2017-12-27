@@ -3,13 +3,15 @@
 # -------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.3)
 
-project( sample )
+project(sample)
 
-# -------------------------------------------------------------------------
 # -----------------------      Compile Code         -----------------------
-# -------------------------------------------------------------------------
-
-include_directories( ${LIGHTNING_SOURCES} ${INCLUDES} )
+include_directories(
+    ${LIGHTNING_SOURCES} ${RE2_INCLUDE_DIR}
+    ${ASIO_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR}
+)
 #create the test server
-add_executable( httpserver main.cpp )
-target_link_libraries( httpserver re2 bustache asio ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
+link_libraries("-static")
+add_executable(httpserver main.cpp)
+target_link_libraries( httpserver re2 asio ${LIBS} ssl crypto Threads::Threads)
+install(TARGETS httpserver RUNTIME DESTINATION bin)

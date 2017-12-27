@@ -19,22 +19,23 @@ void signalHandler( int signum ) {
     exit(signum);
 }
 
+//call with documentation and testfiles path as params.
 int main(int argc, char * argv[] ) {
     std::cout << "start web server: " << argc << "{ ";
     for( int i = 0; i<argc; ++i ) {
-        std::cout << argv[i] << " ";
+        std::cout << i << ":" << argv[i] << " ";
     }
     std::cout << "}" << std::endl;
 
     //create the server
-    http::Server< http::HttpServer > server ( "0.0.0.0", "9999" );
+    http::Server< http::HttpServer > server ( "0.0.0.0", "8888" );
     std::vector< std::string > _ws_protocols ( { "protocolTwo" } );
     server.bind( http::mod::Match<>( "/socketserver" ), http::mod::WS( _ws_protocols ), http::mod::Http() );
-    server.bind( http::mod::Match<>( "/doc/.*" ), http::mod::File( DOCFILES, "/doc/" ), http::mod::Http() );
+    server.bind( http::mod::Match<>( "/doc/.*" ), http::mod::File( argv[1], "/doc/" ), http::mod::Http() );
     server.bind( http::mod::Match<>( "/index2.html" ), http::mod::Exec( [] ( http::Request&, http::Response & response ) {
                      return http::http_status::OK;
                  } ), http::mod::Http() );
-    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
+    server.bind( http::mod::Match<>( "*" ), http::mod::File( argv[2] ), http::mod::Http() );
 
     // register signal SIGINT and signal handler
     signal(SIGINT, signalHandler);

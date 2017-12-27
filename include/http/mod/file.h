@@ -21,8 +21,6 @@
 #include <fstream>
 #include <string>
 
-#include "gtest/gtest_prod.h"
-
 #include "../constant.h"
 #include "../request.h"
 #include "../response.h"
@@ -129,6 +127,14 @@ public:
         } else { return http::http_status::NOT_FOUND; }
         return http_status::OK;
     }
+
+    static bool valid_path ( const std::string& path ) {
+        if( ! path.empty() && path.find( "/" ) == 0 ) {
+            if( path.substr( 0, path.find_last_of( "/" ) ).find( ".." ) == std::string::npos ) {
+                return true;
+            } return false;
+        } else return false;
+    }
 private:
     const std::string docroot_, prefix_;
 
@@ -168,14 +174,6 @@ private:
 
         response.istream ( std::move ( is ) );
         return http_status::OK;
-    }
-    FRIEND_TEST ( ModFileTest, valid_path );
-    static bool valid_path ( const std::string& path ) {
-        if( ! path.empty() && path.find( "/" ) == 0 ) {
-            if( path.substr( 0, path.find_last_of( "/" ) ).find( ".." ) == std::string::npos ) {
-                return true;
-            } return false;
-        } else return false;
     }
 };
 }//namespace mod
