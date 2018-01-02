@@ -25,13 +25,12 @@
 
 #include "testutils.h"
 
-#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace http {
 
 TEST ( WebserverTest, DelegateTestWithoutArgs ) {
-    Server< HttpServer > _server( "localhost", "9000" );
+    Server< HttpServer > _server( "localhost", "9721" );
     _server.bind( mod::Match<>( "/foo" ), mod::Http() );
 
     Request _request( "/foo" );
@@ -46,7 +45,7 @@ TEST ( WebserverTest, DelegateTestWithoutArgs ) {
     EXPECT_EQ( 2U, _response.parameter_size() );
 }
 TEST ( WebserverTest, DelegateTestArgs ) {
-    Server< HttpServer > _server( "localhost", "9000" );
+    Server< HttpServer > _server( "localhost", "9721" );
     _server.bind( mod::Match< std::string, int >( "/(\\w+)/(\\d+)", "name", "user-id" ), mod::Http() );
 
     Request _request( "/alice/42" );
@@ -63,7 +62,7 @@ TEST ( WebserverTest, DelegateTestArgs ) {
     EXPECT_EQ( 2U, _response.parameter_size() );
 }
 TEST ( WebserverTest, DelegateTestMixed ) {
-    Server< HttpServer > _server( "localhost", "9000" );
+    Server< HttpServer > _server( "localhost", "9721" );
     _server.bind( mod::Match<>( "/foo" ), mod::Http() );
     _server.bind( mod::Match< std::string, int >( "/(\\w+)/(\\d+)", "name", "user-id" ), mod::Http() );
 

@@ -13,5 +13,5 @@ include_directories(
 #create the test server
 link_libraries("-static")
 add_executable(httpserver main.cpp)
-target_link_libraries( httpserver re2 asio ${LIBS} ssl crypto Threads::Threads)
+target_link_libraries(httpserver ${CONAN_LIBS} Threads::Threads)
 install(TARGETS httpserver RUNTIME DESTINATION bin)

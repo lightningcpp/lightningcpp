@@ -51,11 +51,8 @@ if ( build_example_server OR build_tests OR build_benchmark )
     endif(CCACHE_FOUND)
 
     # ---------------------   External Dependencies       ---------------------
-    include( ExternalProject )
-    include( cmake/external/re2.cmake )
-    include( cmake/external/asio.cmake )
-    include( cmake/external/gtest.cmake )
-    include( cmake/external/openssl.cmake )
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup()
 
     # -----------------------      Compile Code         -----------------------
     if( build_example_server )

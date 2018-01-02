@@ -1,13 +1,30 @@
 sudo: required 
 language: cpp
+
+
+
+
 services:
   - docker
+env:
+  global:
+    - secure: "S1PN2JyX1H65qhrp8LHSA52+RRu5aROKe/4/DVhUhyzqWg42zwaDkWoMlQFEWSQnRp/E2VEOOROKp4D7OP6Ikx74DmTSSo7lt0mka9RsoZB4M0MOJGJ+JDVV/itaqyJI3W822a9bPTGPTwXYqDmvcWFGnq12jyl+4T4q/RAFwaT3jJnlOCLe+7hGDaQchzKfn7CrJZP7pP0YRsgTGzpo1UynFbvtoJ9dd2JuwXUUZ5EuNQSe09FQWsS0HpbwdfWLJahCGkyZhl/qCkFT5ayj9zbNgISXqjM4BUi0J5xmJkqc2cF3YhEYar0qxml55xe3Tg44FhARQm11J7nQAVe8bLKXS25xc2gfGtcZw0aGiuubiPbosC3NsqQQhRkw0l1WPtxtvkJ5tNWjTn19FqdhnyOwzKnllu2+zZIStHLQJcYOj81xshktA8X/LIRL4uvPx8xAIUEqNJAbAsnIKtIk47X9VucNajkKByiqmAH9kL3XA9hHAX1zkR82Eq16PtBj3DZqAJPWm2y5KfpnU8oB8g37+s+qOj8h6RcGUgmP27/my6xb6B/Rh9CO9YqkwvRPIa83CImCDsQXZlLVNv2mNIGIJ4hzoXg17bJtyuAz2zI0MxmUG4N94bwgJeHfTTAwOgdu+gr5M2QxMcsdFKcuo9vboj/ExisgJb9qHprBauw=" #BINTRAY_KEY
+
 before_install:
   - mkdir $(pwd)/build
   - docker pull spielhuus/buildimage:latest
-  - sudo docker run -itd --name build -v $(pwd)/lightningcpp:/repo -v $(pwd)/build:/build spielhuus/buildimage
-  - sudo docker exec build git clone https://github.com/lightningcpp/lightningcpp.git /repo
-script:
-  - sudo docker exec build cmake -H/repo -B/build -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -Dbuild_tests=on
-  - sudo docker exec build cmake --build /build
-  - sudo docker exec build cmake --build /build --target test
+
+  - sudo docker run -it -v $(pwd):/repo -v $(pwd)/.build:/build spielhuus/toolchain /bin/bash -c 'git clone https://github.com/lightningcpp/lightningcpp.git /repo \
+	cd /build && \
+        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan && \
+        conan remote add conan-cpp https://api.bintray.com/conan/squawkcpp/conan-cpp && \
+        conan install /repo --build=missing -s compiler.libcxx=libstdc++11 && \
+        cmake -H/repo -B/build -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -Dbuild_tests=on -Dbuild_example_server=on -Dbuild_documentation=on && \
+        cmake --build /build && \
+        cmake --build /build --target test && \
+        cmake --build /build --target doc && \
+        cmake --build /build --target package && \
+        cd /repo/conan && conan export conan-cpp/latest && \
+        conan install lightningcpp/master@conan-cpp/latest --build=lightningcpp && \
+        conan user -p $BINTRAY_KEY -r conan-cpp squawkcpp && \
+        conan upload lightningcpp/master@conan-cpp/latest --all -r=conan-cpp'

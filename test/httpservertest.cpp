@@ -46,7 +46,7 @@ TEST ( HttpServerTest, TestCreateServer ) {
 
     //setup server
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called] ( Request & request, Response & response ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called] ( Request & request, Response & response ) {
         _call_back_called = true;
         EXPECT_EQ ( "GET", request.method() );
         EXPECT_EQ ( "/index.html", request.uri() );
@@ -65,7 +65,7 @@ TEST ( HttpServerTest, TestCreateServer ) {
     } );
 
     //send a request
-    client_header ( "127.0.0.1", "9000", std::vector< asio::streambuf* > ( { &request } ), response );
+    client_header ( "127.0.0.1", "9721", std::vector< asio::streambuf* > ( { &request } ), response );
     std::istream _response_stream ( &response );
     EXPECT_TRUE ( compare_streams ( _response_expectedstreambuf, _response_stream ) );
     EXPECT_TRUE ( _call_back_called );
@@ -75,7 +75,7 @@ TEST ( HttpServerTest, TestReadChunkedHeader ) {
 
 
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called] ( Request & request, Response & response ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called] ( Request & request, Response & response ) {
         _call_back_called = true;
         EXPECT_EQ ( "GET", request.method() );
         EXPECT_EQ ( "/index.html", request.uri() );
@@ -106,7 +106,7 @@ TEST ( HttpServerTest, TestReadChunkedHeader ) {
 
     asio::streambuf response;
     std::istream _response_stream ( &response );
-    client_header ( "127.0.0.1", "9000", std::vector< asio::streambuf* > ( { &request1, &request2 } ), response );
+    client_header ( "127.0.0.1", "9721", std::vector< asio::streambuf* > ( { &request1, &request2 } ), response );
     std::stringstream _response_expectedstreambuf;
     _response_expectedstreambuf << "HTTP/1.1 200 OK\r\n" <<
                                 "Content-Length: 0\r\n" <<
@@ -118,7 +118,7 @@ TEST ( HttpServerTest, TestReadChunkedHeader ) {
 TEST ( HttpServerTest, TestReadBody ) {
 
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called] ( Request & request, Response & response ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called] ( Request & request, Response & response ) {
         _call_back_called = true;
         EXPECT_EQ ( "GET", request.method() );
         EXPECT_EQ ( "/index.html", request.uri() );
@@ -150,7 +150,7 @@ TEST ( HttpServerTest, TestReadBody ) {
     request_stream << "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.";
 
     asio::streambuf response;
-    client_header ( "127.0.0.1", "9000", std::vector< asio::streambuf* > ( { &request1 } ), response );
+    client_header ( "127.0.0.1", "9721", std::vector< asio::streambuf* > ( { &request1 } ), response );
     std::istream _response_stream ( &response );
     std::stringstream _response_expectedstreambuf;
     _response_expectedstreambuf << "HTTP/1.1 200 OK\r\n" <<
@@ -162,7 +162,7 @@ TEST ( HttpServerTest, TestReadBody ) {
 
 TEST ( HttpServerTest, TestReadChunkedEncoding ) {
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called] ( Request & request, Response & ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called] ( Request & request, Response & ) {
         _call_back_called = true;
         std::string _res = "Wikipedia in\r\n\r\nchunks.";
         EXPECT_EQ ( 4U, request.parameter_map().size() );
@@ -182,7 +182,7 @@ TEST ( HttpServerTest, TestReadChunkedEncoding ) {
 
     asio::io_service io_service;
     tcp::resolver resolver ( io_service );
-    tcp::resolver::query query ( "127.0.0.1", "9000" );
+    tcp::resolver::query query ( "127.0.0.1", "9721" );
     tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
     // Try each endpoint until we successfully establish a connection.
@@ -229,7 +229,7 @@ TEST ( HttpServerTest, TestResponse ) {
     result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
         _call_back_called = true;
         EXPECT_EQ ( "GET", request.method() );
         EXPECT_EQ ( "/index.html", request.uri() );
@@ -255,7 +255,7 @@ TEST ( HttpServerTest, TestResponse ) {
 
     asio::io_service io_service;
     tcp::resolver resolver ( io_service );
-    tcp::resolver::query query ( "127.0.0.1", "9000" );
+    tcp::resolver::query query ( "127.0.0.1", "9721" );
     tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
     tcp::socket socket ( io_service );
@@ -309,7 +309,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV10 ) {
     result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
         _call_back_called = true;
         EXPECT_EQ ( "GET", request.method() );
         EXPECT_EQ ( "/index.html", request.uri() );
@@ -335,7 +335,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV10 ) {
 
     asio::io_service io_service;
     tcp::resolver resolver ( io_service );
-    tcp::resolver::query query ( "127.0.0.1", "9000" );
+    tcp::resolver::query query ( "127.0.0.1", "9721" );
     tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
     tcp::socket socket ( io_service );
@@ -428,7 +428,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV11 ) {
     result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
         _call_back_called = true;
         EXPECT_EQ ( "GET", request.method() );
         EXPECT_EQ ( "/index.html", request.uri() );
@@ -453,7 +453,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV11 ) {
 
     asio::io_service io_service;
     tcp::resolver resolver ( io_service );
-    tcp::resolver::query query ( "127.0.0.1", "9000" );
+    tcp::resolver::query query ( "127.0.0.1", "9721" );
     tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
     tcp::socket socket ( io_service );
@@ -546,7 +546,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV11Mixed ) {
     result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
         EXPECT_EQ ( "GET", request.method() );
         EXPECT_EQ ( "/index.html", request.uri() );
         EXPECT_EQ ( "HTTP", request.protocol() );
@@ -580,7 +580,7 @@ TEST ( HttpServerTest, TestPersistentConnectionV11Mixed ) {
 
     asio::io_service io_service;
     tcp::resolver resolver ( io_service );
-    tcp::resolver::query query ( "127.0.0.1", "9000" );
+    tcp::resolver::query query ( "127.0.0.1", "9721" );
     tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
     tcp::socket socket ( io_service );
@@ -679,7 +679,7 @@ TEST ( HttpServerTest, TestPostBody ) {
     result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
     bool _call_back_called = false;
-    HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
+    HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called, &_test_string] ( Request & request, Response & response ) {
         EXPECT_EQ ( "POST", request.method() );
         EXPECT_EQ ( "/browse.xml", request.uri() );
         EXPECT_EQ ( "HTTP", request.protocol() );
@@ -711,7 +711,7 @@ TEST ( HttpServerTest, TestPostBody ) {
 
     asio::io_service io_service;
     tcp::resolver resolver ( io_service );
-    tcp::resolver::query query ( "127.0.0.1", "9000" );
+    tcp::resolver::query query ( "127.0.0.1", "9721" );
     tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
     tcp::socket socket ( io_service );
@@ -751,7 +751,7 @@ TEST ( HttpServerTest, TestPostBody ) {
         result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
         bool _call_back_called = false;
-        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
+        HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
             EXPECT_EQ ( "POST", request.method() );
             EXPECT_EQ ( "/browse.xml", request.uri() );
             EXPECT_EQ ( "HTTP", request.protocol() );
@@ -777,7 +777,7 @@ TEST ( HttpServerTest, TestPostBody ) {
 
         asio::io_service io_service;
         tcp::resolver resolver ( io_service );
-        tcp::resolver::query query ( "127.0.0.1", "9000" );
+        tcp::resolver::query query ( "127.0.0.1", "9721" );
         tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
 
@@ -843,7 +843,7 @@ TEST ( HttpServerTest, TestPostBody ) {
         result_header_ss << "Content-Type: text/plain\r\n\r\n";
 
         bool _call_back_called = false;
-        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
+        HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
             EXPECT_EQ ( "POST", request.method() );
             EXPECT_EQ ( "/browse.xml", request.uri() );
             EXPECT_EQ ( "HTTP", request.protocol() );
@@ -876,7 +876,7 @@ TEST ( HttpServerTest, TestPostBody ) {
 
         asio::io_service io_service;
         tcp::resolver resolver ( io_service );
-        tcp::resolver::query query ( "127.0.0.1", "9000" );
+        tcp::resolver::query query ( "127.0.0.1", "9721" );
         tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
         tcp::socket socket ( io_service );
@@ -935,7 +935,7 @@ TEST ( HttpServerTest, TestPostBody ) {
         std::string _test_string = "<?xml version=\"1.0\"?>\r\n<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" SOAP-ENV:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\"><SOAP-ENV:Body><m:Browse xmlns:m=\"urn:schemas-upnp-org:service:ContentDirectory:1\"><ObjectID xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">0</ObjectID><BrowseFlag xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">BrowseDirectChildren</BrowseFlag><Filter xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\">*</Filter><StartingIndex xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"ui4\">0</StartingIndex><RequestedCount xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"ui4\">200</RequestedCount><SortCriteria xmlns:dt=\"urn:schemas-microsoft-com:datatypes\" dt:dt=\"string\"></SortCriteria></m:Browse></SOAP-ENV:Body></SOAP-ENV:Envelope>\r\n";
 
         bool _call_back_called = false;
-        HttpServer _server ( "127.0.0.1", "9000", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
+        HttpServer _server ( "127.0.0.1", "9721", [&_call_back_called, &_test_string] ( Request & request, Response& ) {
             EXPECT_EQ ( "POST", request.method() );
             EXPECT_EQ ( "/ctl/ContentDir", request.uri() );
             EXPECT_EQ ( "HTTP", request.protocol() );
@@ -958,7 +958,7 @@ TEST ( HttpServerTest, TestPostBody ) {
 
         asio::io_service io_service;
         tcp::resolver resolver ( io_service );
-        tcp::resolver::query query ( "127.0.0.1", "9000" );
+        tcp::resolver::query query ( "127.0.0.1", "9721" );
         tcp::resolver::iterator endpoint_iterator = resolver.resolve ( query );
 
         tcp::socket socket ( io_service );

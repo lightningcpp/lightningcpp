@@ -77,7 +77,7 @@ private:
 
 TEST ( RegistryTest, TestRegister ) {
 
-    SERVER( "localhost", "9000" )
+    SERVER( "localhost", "9721" )
     DOCROOT( "*", TESTFILES )
     //REGISTER( &method, this )
 

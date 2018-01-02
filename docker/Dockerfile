@@ -3,7 +3,7 @@ FROM scratch
 
 ARG LIGHTNING_TAG_VERSION=master
 
-ADD build/lightning_$LIGHTNING_TAG_VERSION.tar.gz /
+ADD .build/lightning_$LIGHTNING_TAG_VERSION.tar.gz /
 
 EXPOSE 8888
 
