@@ -15,8 +15,8 @@ class LightningcppConan(ConanFile):
 		zip_ref.close()
 
 	def package(self):
-		self.copy("*.h", dst="include/http", src="include/http")
-		self.copy("*.h", dst="include/extra", src="include/extra")
+		self.copy("*.h", dst="include/http", src="include/http", keep_path=False)
+		self.copy("*.h", dst="include/extra", src="include/extra", keep_path=False)
 
 	def build(self):
 		pass
