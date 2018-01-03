@@ -4,7 +4,7 @@ import zipfile
 
 class LightningcppConan(ConanFile):
 	name = "lightningcpp"
-	version = 'master'
+	version = '@LIGHTNING_TAG_VERSION@'
 	url = 'https://github.com/'
 	license = 'LGPL'
 
