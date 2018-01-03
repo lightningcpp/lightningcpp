@@ -8,7 +8,6 @@ env:
 
 before_install:
   - mkdir $(pwd)/build
-  - docker pull spielhuus/toolchain:latest
   - git clone https://github.com/lightningcpp/lightningcpp.git /lightning
 script:
   - sudo /bin/bash -c "cd /lightning && /bin/bash build.sh $BINTRAY_KEY $TRAVIS_BRANCH"
