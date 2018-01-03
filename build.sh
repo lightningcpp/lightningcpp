@@ -29,4 +29,4 @@ fi
 sudo docker build -f docker/Dockerfile --build-arg LIGHTNING_TAG_VERSION=$TAG -t lightning .
 
 #sudo rm -rf .build
-sudo docker rm -f $PID
+#sudo docker rm -f $PID

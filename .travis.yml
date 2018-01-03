@@ -7,8 +7,7 @@ env:
     - secure: "q1K/p4qQQl2nceUb878ue3BNAPZDjBv5xPWVgtyefSV0isYv+0ZFtBttZVwojPFuS3zJtU8KtHomD/WjnniShGkI4V4QoTsM/4mBRXcoJdMv/pib9NLyNp2zFn9o16Rz1ZSMSkzqWsPASq9Pp1vJxSa2pmYjZ7enLCGXzOFuReVUPXtoaum6wUCAqEgwb/RGxcptz/eBATp4G5CkxSLFkRnZV/f+T3uxfmvCQb/FSoWvKDcHXtjDb2aumpFcecQ0eKXlzTprEnXV0fR8BzDmOQ1sJbYya58LLPnECFHJS2t5iwfAyvLsCrPGidRZBDr3p3fUF3rqWYLUjgwNlKnG6fe7mY9IqYuZzNADpLUTg/lH9S6dgjV4ioilX5wiaPc4fgwQVyLW6q611LBnbf20obc3o74DHjOhl53N+6Bl6Jnj9MtmsEfGqQgvGaMy/guQaNGTBHNVOaLbNRXCDED6g14Q1j+zYcGnFn/lD1Kuw9bJGmlBDVex9VziO/onXAvGh+jr5mKI/9Ir2Pu53BsmC7p3YMKXK585qR0X8LD9WIqnquCl915qVJBSC1OD35P//d2M4EDbfRs2cmN70+T44nuDm558gSFk6K7RfLD5IDdzEjd18vfA15V80AAhdpm6j/5po1IcwOq3vS9+EqYCf5ae4JNUVmI/FAqsahAQTHI=" #BINTRAY_KEY
 
 before_install:
-  - mkdir $(pwd)/build
-  - git clone https://github.com/lightningcpp/lightningcpp.git /lightning
+  - sudo git clone https://github.com/lightningcpp/lightningcpp.git /lightning
 script:
   - sudo /bin/bash -c "cd /lightning && /bin/bash build.sh $BINTRAY_KEY $TRAVIS_BRANCH"
 
