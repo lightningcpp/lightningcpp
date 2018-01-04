@@ -1,7 +1,7 @@
 [requires]
 OpenSSL/1.0.2m@conan/stable
 Asio/1.11.0@bincrafters/stable
-Re2/latest@conan-cpp/stable
+Re2/master@conan-cpp/latest
 gtest/1.8.0@bincrafters/stable
 
 [generators]
