@@ -13,7 +13,7 @@ deploy:
   provider: releases
   api_key:
     secure: OO1+/n5AoT+vosctG/tgDcTL2myASDU1kimp1CMWu8jzfsfQjk6z9gDc3aVdn3BDOBm0rCis0BoOBmBRkWqD9Y/9eFHZ3DKADIUxOADIHhpKOfAmrd8p0vQRnDzHiz3bAlHd+mjsh53muCekd5SdRE1X2lxYdwXw/VJ6INQCIIu46fKaE7S9VGZFWIggSLNtW4ikMPCKVNoDztQq02Rstr7zNB8YJyKaxhmEwJs4VzVawq24bRRQtPZOyUJ+kwbE9P4zGcSXQBjk80hHCklKGqrgx4qBN+o89pK5eNFjuczjvyuyS9yx8ImOyW8hBg4GBiARifFcbm24CLH1ZDHWzFDNg/YXV601DFyBTylZMe8Xpz9rXModbNEjjtGfKhy7LVgR+hRwkXnX3iLXKc10WZMylPsPPRZ2lJ4UnS8BYfYswvAUbbTy9IDgcde1ukb606VOvXdBB7d57QCthAwTjrUCg1fKYyeAD9zw+n2mXHxN9tSayj4W2x4TbadtABTF4yJPX0go8KGh5X2W1lzmOuogG/xDHG2sswxvJz4X8wlhkIOfnWp4KzMD7TdO8XkOsGpFtohzO6RZzu2UzXZug3Nbd+yuyIR2sgNmgB2Ftrzwh6yD7zLPlIVLxjdVlZC9qUi9fm8IuOcyCUm4inc/VyrS+18wZzU5wgROaCYX2m8=
-  file: '/build/lightning_$TRAVIS_BRANCH.tar.gz'
+  file: '/.build/lightning_$TRAVIS_BRANCH.tar.gz'
   skip_cleanup: true
   on:
     tags: true
