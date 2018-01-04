@@ -4,9 +4,6 @@ set -e
 
 IMAGE_NAME=spielhuus/toolchain
 TAG=`if [ -z "$2" ]; then echo "master"; else echo "$2" ; fi`
-echo "BEFORE BUILD"
-echo `pwd`
-ls -a
 PID=$(sudo docker run -itd -v $(pwd):/repo -v $(pwd)/.build:/build $IMAGE_NAME /bin/sh)
 echo "build lightningcpp tag:$TAG, image:$PID"
 
@@ -27,11 +24,6 @@ else
 	$DOCKER_EXEC "conan user -p $1 -r conan-cpp squawkcpp"
 	$DOCKER_EXEC "conan upload lightningcpp/$TAG@conan-cpp/latest --all -r=conan-cpp"
 fi
-
-echo "AFTER BUILD"
-echo `pwd`
-ls -a
-ls /build
 
 sudo docker build -f docker/Dockerfile --build-arg LIGHTNING_TAG_VERSION=$TAG -t lightning .
 
