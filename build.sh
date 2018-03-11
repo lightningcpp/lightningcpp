@@ -19,7 +19,7 @@ $DOCKER_EXEC "cmake --build /build --target package"
 if [ -z "$1" ]; then
 	echo not deploying to bintray, set api key to do so.
 else
-        $DOCKER_EXEC "cd /build && conan export . conan-cpp/latest"
+        $DOCKER_EXEC "cd /repo && conan export . conan-cpp/latest"
 	$DOCKER_EXEC "conan install lightningcpp/$TAG@conan-cpp/latest --build=lightningcpp"
 	$DOCKER_EXEC "conan user -p $1 -r conan-cpp squawkcpp"
 	$DOCKER_EXEC "conan upload lightningcpp/$TAG@conan-cpp/latest --all -r=conan-cpp"
