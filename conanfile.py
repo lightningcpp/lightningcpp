@@ -32,5 +32,5 @@ class LightningcppConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", src='lib', keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ["lightning"]
+        pass
 
