@@ -82,7 +82,7 @@ endif(build_documentation)
 # -----------------------   Testimage for Docker                 -----------------------
 IF(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/test/files DESTINATION share/ )
-install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/docs DESTINATION share/ )
+# TODO install(DIRECTORY ${PROJECT_BINARY_DIR}/doc/docs DESTINATION share/ )
 
 INCLUDE(InstallRequiredSystemLibraries)
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr/local")
