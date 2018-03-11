@@ -31,8 +31,6 @@ add_definitions( -DHTTP_BUFFER_SIZE=${HTTP_BUFFER_SIZE} -DHTTP_CLIENT_TIMEOUT=${
                  -DTESTFILES="${TESTFILES}/" -DDOCFILES="${DOCFILES}/"
                  -DASIO_STANDALONE -DHTTP_CPP_RELEASE="${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}" )
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/conan/conanfile.py.in ${CMAKE_CURRENT_BINARY_DIR}/conan/conanfile.py @ONLY)
-
 # -----------------------        Build Targets          -----------------------
 if ( build_example_server OR build_tests OR build_benchmark )
 
