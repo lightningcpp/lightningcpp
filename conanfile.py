@@ -22,7 +22,7 @@ class LightningcppConan(ConanFile):
         cmake.build(target="install")
 
     def package(self):
-        self.copy('*.h', dst='include/', src='include/', keep_path=False)
+        self.copy('*.h', dst='include/', src='include/')
         if self.options.shared:
             if self.settings.os == "Macos":
                 self.copy(pattern="*.dylib", dst="lib", keep_path=False)
