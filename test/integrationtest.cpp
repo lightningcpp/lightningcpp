@@ -169,7 +169,7 @@ TEST ( IntegrationTest, CustomGetFileNotFound ) {
     EXPECT_EQ ( "404", _sstream.str() );
 }
 
-TEST ( IntegrationTest, MultiThreadingTest ) {
+TEST ( IntegrationTest, DISABLED_MultiThreadingTest ) {
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
     server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
