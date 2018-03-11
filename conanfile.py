@@ -9,7 +9,7 @@ class LightningcppConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
     description = ""
-    requires = "asio/1.11.0@bincrafters/stable", "re2/master@conan-cpp/latest", "gtest/1.8.0@bincrafters/stable"
+    requires = "asio/1.11.0@bincrafters/stable", "re2/master@conan-cpp/latest", "OpenSSL/1.0.2m@conan/stable", "gtest/1.8.0@bincrafters/stable"
     options = { "shared": [True, False], "build_tests":  [True, False], "build_samples": [True, False]}
     default_options = "shared=False", "*:shared=False", "build_tests=False", "build_samples=False"
     exports_sources = "*"
