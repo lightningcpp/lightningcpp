@@ -34,33 +34,33 @@ namespace http {
 
 TEST ( IntegrationTest, GetSimpleException ) {
     HttpClient< Http > client_ ( "localhost", "9999" );
-	Request request_ ( "/foo/bar" );
-	request_.version_minor ( 0 );
-	std::stringstream _sstream;
-	EXPECT_THROW ( client_.get ( request_, _sstream ), std::system_error );
+    Request request_ ( "/foo/bar" );
+    request_.version_minor ( 0 );
+    std::stringstream _sstream;
+    EXPECT_THROW ( client_.get ( request_, _sstream ), std::system_error );
 }
 
 TEST ( IntegrationTest, GetSimpleSmalFile ) {
 
-	//create the server
+    //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
-    server.bind( http::mod::Match<>( "*" ), http::mod::Exec( [] ( Request&, Response & response ) {
+    server.bind ( http::mod::Match<> ( "*" ), http::mod::Exec ( [] ( Request&, Response & response ) {
         response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL";
         return http::http_status::OK;
     } ), http::mod::Http() );
 
     HttpClient< Http > client_ ( "localhost", "9999" );
-	Request request_ ( "/simple.txt" );
-	std::stringstream _sstream;
-	client_.get ( request_, _sstream );
-	EXPECT_EQ ( "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL", _sstream.str() );
+    Request request_ ( "/simple.txt" );
+    std::stringstream _sstream;
+    client_.get ( request_, _sstream );
+    EXPECT_EQ ( "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL", _sstream.str() );
 }
 
 TEST ( IntegrationTest, GetSimpleLargeFile ) {
 
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
-    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
+    server.bind ( http::mod::Match<> ( "*" ), http::mod::File ( TESTFILES ), http::mod::Http() );
 
     HttpClient< Http > client_ ( "localhost", "9999" );
     Request request_ ( "/files/The%20Divine%20Comedy.txt" );
@@ -76,7 +76,7 @@ TEST ( IntegrationTest, GetSimpleLargeFileAsFile ) {
 
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
-    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
+    server.bind ( http::mod::Match<> ( "*" ), http::mod::File ( TESTFILES ), http::mod::Http() );
 
     HttpClient< Http > client_ ( "localhost", "9999" );
     Request request_ ( "/files/The%20Divine%20Comedy.txt" );
@@ -92,7 +92,7 @@ TEST ( IntegrationTest, RepeatGetSimpleLargeFile ) {
 
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
-    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
+    server.bind ( http::mod::Match<> ( "*" ), http::mod::File ( TESTFILES ), http::mod::Http() );
 
     for ( int i = 0; i<100; ++i ) {
         HttpClient< Http > client_ ( "localhost", "9999" );
@@ -108,11 +108,11 @@ TEST ( IntegrationTest, GetReMatchFile ) {
 
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
-    server.bind( http::mod::Match<>( "/foo/.*" ), http::mod::Exec( [] ( Request& request, Response & response ) {
+    server.bind ( http::mod::Match<> ( "/foo/.*" ), http::mod::Exec ( [] ( Request& request, Response & response ) {
         response << request.uri();
         return http::http_status::OK;
     } ), http::mod::Http() );
-    server.bind( http::mod::Match<>( "/foo" ), http::mod::Exec( [] ( Request&, Response & response ) {
+    server.bind ( http::mod::Match<> ( "/foo" ), http::mod::Exec ( [] ( Request&, Response & response ) {
         response << "abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL";
         return http::http_status::OK;
     } ), http::mod::Http() );
@@ -138,7 +138,7 @@ TEST ( IntegrationTest, GetFileNotFound ) {
 
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
-    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
+    server.bind ( http::mod::Match<> ( "*" ), http::mod::File ( TESTFILES ), http::mod::Http() );
 
     HttpClient< Http > client_ ( "localhost", "9999" );
     Request request_ ( "/foo.txt" );
@@ -152,27 +152,27 @@ TEST ( IntegrationTest, CustomGetFileNotFound ) {
 
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
-    server.bind_error ( http::mod::Exec( [] ( Request&, Response & response ) {
+    server.bind_error ( http::mod::Exec ( [] ( Request&, Response & response ) {
         response << "404";
-        response.parameter( http::header::CONNECTION, http::header::CONNECTION_CLOSE );
-        response.parameter( http::header::CONTENT_LENGTH, "3" );
+        response.parameter ( http::header::CONNECTION, http::header::CONNECTION_CLOSE );
+        response.parameter ( http::header::CONTENT_LENGTH, "3" );
         return http::http_status::NOT_FOUND;
     } ) );
-    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
+    server.bind ( http::mod::Match<> ( "*" ), http::mod::File ( TESTFILES ), http::mod::Http() );
 
     HttpClient< Http > client_ ( "localhost", "9999" );
     Request request_ ( "/foo.txt" );
     std::stringstream _sstream;
     Response _response = client_.get ( request_, _sstream );
     EXPECT_EQ ( http_status::NOT_FOUND, _response.status() );
-    EXPECT_EQ ( "3", _response.parameter( header::CONTENT_LENGTH ) );
+    EXPECT_EQ ( "3", _response.parameter ( header::CONTENT_LENGTH ) );
     EXPECT_EQ ( "404", _sstream.str() );
 }
 
 TEST ( IntegrationTest, DISABLED_MultiThreadingTest ) {
     //create the server
     Server< HttpServer > server ( "127.0.0.1", "9999" );
-    server.bind( http::mod::Match<>( "*" ), http::mod::File( TESTFILES ), http::mod::Http() );
+    server.bind ( http::mod::Match<> ( "*" ), http::mod::File ( TESTFILES ), http::mod::Http() );
 
     for ( int j = 0; j<25; ++j ) {
 

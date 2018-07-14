@@ -33,17 +33,17 @@ namespace utils {
  */
 class HttpParser {
 public:
-	HttpParser() {}
-	~HttpParser() {}
+    HttpParser() {}
+    ~HttpParser() {}
 
-	/**
-	 * @brief parse http request
-	 * @param request
-	 * @param buffer
-	 * @param index
-	 * @param end
-	 * @return
-	 */
+    /**
+     * @brief parse http request
+     * @param request
+     * @param buffer
+     * @param index
+     * @param end
+     * @return
+     */
     size_t parse_request ( Request & request, buffer_t & buffer, size_t start, size_t end ) {
         size_t _position = start;
 
@@ -63,6 +63,8 @@ public:
             _position = parse_body_form_data ( parser_state_, request, buffer, _position, end );
 
             if ( _position == 0 ) { return 0; }
+
+            _position -= std::stoul ( request.parameter ( http::header::CONTENT_LENGTH ) );
         }
 
         parser_state_.reset();
@@ -70,13 +72,13 @@ public:
     }
 
     /**
-	 * @brief parse http response
-	 * @param request
-	 * @param buffer
-	 * @param index
-	 * @param end
-	 * @return
-	 */
+     * @brief parse http response
+     * @param request
+     * @param buffer
+     * @param index
+     * @param end
+     * @return
+     */
     size_t parse_response ( Response & response, buffer_t & buffer, size_t start, size_t end ) {
         size_t _position = start;
 
@@ -129,10 +131,10 @@ public:
             return t = HttpParser::request_parser_type::REQUEST_END;
         }
     }
-	enum class response_parser_type {
-		RESPONSE_PROTOCOL, RESPONSE_VERSION_MAJOR, RESPONSE_VERSION_MINOR, RESPONSE_STATUS,
-		RESPONSE_STATUS_TEXT, RESPONSE_KEY, RESPONSE_VALUE, RESPONSE_END
-	};
+    enum class response_parser_type {
+        RESPONSE_PROTOCOL, RESPONSE_VERSION_MAJOR, RESPONSE_VERSION_MINOR, RESPONSE_STATUS,
+        RESPONSE_STATUS_TEXT, RESPONSE_KEY, RESPONSE_VALUE, RESPONSE_END
+    };
     friend HttpParser::response_parser_type & operator ++ ( HttpParser::response_parser_type & t ) {
         switch ( t ) {
         case HttpParser::response_parser_type::RESPONSE_PROTOCOL:
@@ -161,41 +163,41 @@ public:
         }
     }
 
-	struct RequestParserState {
-		short line_breaks_ = 0;
-		request_parser_type request_type_ = request_parser_type::REQUEST_METHOD;
-		response_parser_type response_type_ = response_parser_type::RESPONSE_PROTOCOL;
-		size_t start_pos_ = 0;
-		std::string key_;
-		std::list< std::string > temp_buffer_;
-		size_t combined_string_size_ = 0;
+    struct RequestParserState {
+        short line_breaks_ = 0;
+        request_parser_type request_type_ = request_parser_type::REQUEST_METHOD;
+        response_parser_type response_type_ = response_parser_type::RESPONSE_PROTOCOL;
+        size_t start_pos_ = 0;
+        std::string key_;
+        std::list< std::string > temp_buffer_;
+        size_t combined_string_size_ = 0;
 
-		void reset() {
-			line_breaks_ = 0;
-			request_type_ = request_parser_type::REQUEST_METHOD;
-			response_type_ = response_parser_type::RESPONSE_PROTOCOL;
-			key_ = std::string();
-			temp_buffer_.clear();
-			combined_string_size_ = 0;
-		}
+        void reset() {
+            line_breaks_ = 0;
+            request_type_ = request_parser_type::REQUEST_METHOD;
+            response_type_ = response_parser_type::RESPONSE_PROTOCOL;
+            key_ = std::string();
+            temp_buffer_.clear();
+            combined_string_size_ = 0;
+        }
 
-		/**
-		 * @brief get and erase the buffer
-		 * @param last_token
-		 * @return
-		 */
-		std::string get_buffer ( const std::string & last_token ) {
-			std::stringstream _buf;
+        /**
+         * @brief get and erase the buffer
+         * @param last_token
+         * @return
+         */
+        std::string get_buffer ( const std::string & last_token ) {
+            std::stringstream _buf;
 
-			for ( auto & __item : temp_buffer_ ) {
-				_buf << __item;
-			}
+            for ( auto & __item : temp_buffer_ ) {
+                _buf << __item;
+            }
 
-			_buf << last_token;
-			temp_buffer_.clear();
-			return _buf.str();
-		}
-	};
+            _buf << last_token;
+            temp_buffer_.clear();
+            return _buf.str();
+        }
+    };
 
     RequestParserState parser_state_;
     static size_t parse_request_status_line ( RequestParserState & parser_state, http::Request & request, buffer_t & buffer, size_t start, size_t end ) {
@@ -230,12 +232,12 @@ public:
                 ++ parser_state.request_type_;
 
             } else if ( parser_state.request_type_ == request_parser_type::REQUEST_VERSION_MAJOR &&  buffer[i] == '.' ) {
-                request.version_major ( static_cast< short >( std::stoi ( combine_string ( parser_state, buffer, i ) ) ) );
+                request.version_major ( static_cast< short > ( std::stoi ( combine_string ( parser_state, buffer, i ) ) ) );
                 parser_state.start_pos_ = i + 1;
                 ++ parser_state.request_type_;
 
             } else if ( parser_state.request_type_ == request_parser_type::REQUEST_VERSION_MINOR &&  buffer[i] == '\r' ) {
-                request.version_minor ( static_cast< short >( std::stoi ( combine_string ( parser_state, buffer, i ) ) ) );
+                request.version_minor ( static_cast< short > ( std::stoi ( combine_string ( parser_state, buffer, i ) ) ) );
                 parser_state.start_pos_ = i + 1;
                 ++ parser_state.request_type_;
 
@@ -259,13 +261,13 @@ public:
 
             } else if ( parser_state.response_type_ == response_parser_type::RESPONSE_VERSION_MAJOR && buffer[i] == '.' ) {
                 std::string _value = combine_string ( parser_state, buffer, i );
-                response.version_major ( static_cast< short >( std::stoi ( _value ) ) );
+                response.version_major ( static_cast< short > ( std::stoi ( _value ) ) );
                 parser_state.start_pos_ = i + 1;
                 ++ parser_state.response_type_;
 
             } else if ( parser_state.response_type_ == response_parser_type::RESPONSE_VERSION_MINOR && buffer[i] == ' ' ) {
                 std::string _value = combine_string ( parser_state, buffer, i );
-                response.version_minor ( static_cast< short >( std::stoi ( _value ) ) );
+                response.version_minor ( static_cast< short > ( std::stoi ( _value ) ) );
                 parser_state.start_pos_ = i + 1;
                 ++ parser_state.response_type_;
 
@@ -389,7 +391,7 @@ public:
 
             } else if ( parameters[i] == '&' ) {
                 std::string value;
-                url_decode ( _ss_buffer_value.str() , value );
+                url_decode ( _ss_buffer_value.str(), value );
                 request.attribute ( _ss_buffer_key.str(), value );
                 _ss_buffer_key.str ( std::string() );
                 _ss_buffer_key.clear();
@@ -407,27 +409,27 @@ public:
 
         if ( _mode == VALUE ) {
             std::string _value;
-            url_decode ( _ss_buffer_value.str() , _value );
+            url_decode ( _ss_buffer_value.str(), _value );
             request.attribute ( _ss_buffer_key.str(), _value );
         }
     }
 
     /**
-	 * @brief combine string from buffer
-	 * @param request_parser_state
-	 * @param position
-	 * @return
-	 */
-	static inline std::string combine_string ( RequestParserState & parser_state, buffer_t & buffer, const size_t position ) {
-		size_t _last_token_size = ( position < parser_state.start_pos_ ? 0 : position - parser_state.start_pos_ );
+     * @brief combine string from buffer
+     * @param request_parser_state
+     * @param position
+     * @return
+     */
+    static inline std::string combine_string ( RequestParserState & parser_state, buffer_t & buffer, const size_t position ) {
+        size_t _last_token_size = ( position < parser_state.start_pos_ ? 0 : position - parser_state.start_pos_ );
 
-		if ( parser_state.temp_buffer_.empty() ) {
-			return ( _last_token_size == 0 ? std::string() : std::string ( buffer.data(), parser_state.start_pos_, _last_token_size ) );
+        if ( parser_state.temp_buffer_.empty() ) {
+            return ( _last_token_size == 0 ? std::string() : std::string ( buffer.data(), parser_state.start_pos_, _last_token_size ) );
 
-		} else {
-			return parser_state.get_buffer ( _last_token_size == 0? std::string() : std::string ( buffer.data(), parser_state.start_pos_, _last_token_size ) );
-		}
-	}
+        } else {
+            return parser_state.get_buffer ( _last_token_size == 0? std::string() : std::string ( buffer.data(), parser_state.start_pos_, _last_token_size ) );
+        }
+    }
     ///@endcond DOC_INTERNAL
 };
 }//namespace utils
