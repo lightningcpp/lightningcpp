@@ -197,7 +197,7 @@ private:
 
         request.parameter ( header::HOST, _hostname );
         request.parameter ( header::CONTENT_LENGTH, std::to_string ( request.tellp() ) );
-        request.parameter ( header::USER_AGENT, "lightningcpp/1.0 (Generic)" );
+        request.parameter ( header::USER_AGENT, "lightningcpp/1.0 (spielhuu@gmail.com)" );
 
         size_t _position = request.header ( buffer_.data(), BUFFER_SIZE );
         //TODO check that all bytes are written and timeout
