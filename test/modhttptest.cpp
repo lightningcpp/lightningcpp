@@ -25,10 +25,10 @@ namespace mod {
 
 TEST ( ModHttpTest, TestExecute ) {
     Http _http;
-    Request _request( "/foo/bar" );
+    Request _request ( "/foo/bar" );
     Response _response;
-    EXPECT_EQ( http::http_status::OK, _http.execute( _request, _response ) );
-    EXPECT_EQ( 2U, _response.parameter_size() );
+    EXPECT_EQ ( http::http_status::OK, _http.execute ( _request, _response ) );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
 
 }
 }//namespace mod

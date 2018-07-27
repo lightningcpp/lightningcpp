@@ -30,58 +30,58 @@
 namespace http {
 
 TEST ( WebserverTest, DelegateTestWithoutArgs ) {
-    Server< HttpServer > _server( "localhost", "9721" );
-    _server.bind( mod::Match<>( "/foo" ), mod::Http() );
+    Server< HttpServer > _server ( "localhost", "9721" );
+    _server.bind ( mod::Match<> ( "/foo" ), mod::Http() );
 
-    Request _request( "/foo" );
+    Request _request ( "/foo" );
     Response _response;
-    _server.request( _request, _response );
-    EXPECT_EQ( http::http_status::OK, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
+    _server.request ( _request, _response );
+    EXPECT_EQ ( http::http_status::OK, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
 
     Request _request2 ( "/bar" );
-    _server.request( _request2, _response );
-    EXPECT_EQ( http::http_status::NOT_FOUND, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
+    _server.request ( _request2, _response );
+    EXPECT_EQ ( http::http_status::NOT_FOUND, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
 }
 TEST ( WebserverTest, DelegateTestArgs ) {
-    Server< HttpServer > _server( "localhost", "9721" );
-    _server.bind( mod::Match< std::string, int >( "/(\\w+)/(\\d+)", "name", "user-id" ), mod::Http() );
+    Server< HttpServer > _server ( "localhost", "9721" );
+    _server.bind ( mod::Match< std::string, int > ( "/(\\w+)/(\\d+)", "name", "user-id" ), mod::Http() );
 
-    Request _request( "/alice/42" );
+    Request _request ( "/alice/42" );
     Response _response;
-    _server.request( _request, _response );
-    EXPECT_EQ( http::http_status::OK, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
-    EXPECT_EQ( "alice", _request.attribute( "name" ) );
-    EXPECT_EQ( "42", _request.attribute( "user-id" ) );
+    _server.request ( _request, _response );
+    EXPECT_EQ ( http::http_status::OK, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
+    EXPECT_EQ ( "alice", _request.attribute ( "name" ) );
+    EXPECT_EQ ( "42", _request.attribute ( "user-id" ) );
 
     Request _request2 ( "/bar" );
-    _server.request( _request2, _response );
-    EXPECT_EQ( http::http_status::NOT_FOUND, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
+    _server.request ( _request2, _response );
+    EXPECT_EQ ( http::http_status::NOT_FOUND, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
 }
 TEST ( WebserverTest, DelegateTestMixed ) {
-    Server< HttpServer > _server( "localhost", "9721" );
-    _server.bind( mod::Match<>( "/foo" ), mod::Http() );
-    _server.bind( mod::Match< std::string, int >( "/(\\w+)/(\\d+)", "name", "user-id" ), mod::Http() );
+    Server< HttpServer > _server ( "localhost", "9721" );
+    _server.bind ( mod::Match<> ( "/foo" ), mod::Http() );
+    _server.bind ( mod::Match< std::string, int > ( "/(\\w+)/(\\d+)", "name", "user-id" ), mod::Http() );
 
-    Request _request( "/foo" );
+    Request _request ( "/foo" );
     Response _response;
-    _server.request( _request, _response );
-    EXPECT_EQ( http::http_status::OK, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
+    _server.request ( _request, _response );
+    EXPECT_EQ ( http::http_status::OK, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
 
     Request _request2 ( "/alice/42" );
-    _server.request( _request2, _response );
-    EXPECT_EQ( http::http_status::OK, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
-    EXPECT_EQ( "alice", _request2.attribute( "name" ) );
-    EXPECT_EQ( "42", _request2.attribute( "user-id" ) );
+    _server.request ( _request2, _response );
+    EXPECT_EQ ( http::http_status::OK, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
+    EXPECT_EQ ( "alice", _request2.attribute ( "name" ) );
+    EXPECT_EQ ( "42", _request2.attribute ( "user-id" ) );
 
     Request _request3 ( "/bar" );
-    _server.request( _request3, _response );
-    EXPECT_EQ( http::http_status::NOT_FOUND, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
+    _server.request ( _request3, _response );
+    EXPECT_EQ ( http::http_status::NOT_FOUND, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
 }
 }//namespace http

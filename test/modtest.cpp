@@ -29,28 +29,28 @@ namespace mod {
 
 TEST ( ModTest, TestExecuteWithoutAttributes ) {
 
-    Mod< Match<>, Http > _mod( Match<>( "/foo" ), Http() );
+    Mod< Match<>, Http > _mod ( Match<> ( "/foo" ), Http() );
 
-    Request _request( "/foo" );
+    Request _request ( "/foo" );
     Response _response;
-    _mod.execute( _request, _response );
+    _mod.execute ( _request, _response );
 
-    EXPECT_EQ( http::http_status::OK, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
+    EXPECT_EQ ( http::http_status::OK, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
 }
 
 TEST ( ModTest, TestExecuteWithAttributes ) {
 
-    Mod< Match<std::string, int>, Http > _mod( Match< std::string, int >( "/(\\w+)/(\\d+)", "name", "user-id" ), Http() );
+    Mod< Match<std::string, int>, Http > _mod ( Match< std::string, int > ( "/(\\w+)/(\\d+)", "name", "user-id" ), Http() );
 
-    Request _request( "/Alice/42" );
+    Request _request ( "/Alice/42" );
     Response _response;
-    _mod.execute( _request, _response );
+    _mod.execute ( _request, _response );
 
-    EXPECT_EQ( http::http_status::OK, _response.status() );
-    EXPECT_EQ( 2U, _response.parameter_size() );
-    EXPECT_EQ( "Alice", _request.attribute( "name" ) );
-    EXPECT_EQ( "42", _request.attribute( "user-id" ) );
+    EXPECT_EQ ( http::http_status::OK, _response.status() );
+    EXPECT_EQ ( 3U, _response.parameter_size() );
+    EXPECT_EQ ( "Alice", _request.attribute ( "name" ) );
+    EXPECT_EQ ( "42", _request.attribute ( "user-id" ) );
 }
 }//namespace mod
 }//namespace http
