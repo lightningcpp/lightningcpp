@@ -26,40 +26,40 @@ namespace http {
 namespace mime {
 
 enum MIME_TYPE { GIF = 0, HTM = 1, HTML = 2, JPEG = 3, PNG = 4, CRTWO = 5, CSS = 6, JS = 7, MPEG = 8, FLAC = 9,
-				 VORBIS = 10, MUSEPACK = 11, JSON = 12, TEXT = 13, XML = 14, AVI = 15, MP4 = 16, MKV = 17,
+                 VORBIS = 10, MUSEPACK = 11, JSON = 12, TEXT = 13, XML = 14, AVI = 15, MP4 = 16, MKV = 17,
                  VIDEOMPEG = 18, MOV = 19, WMV = 20, VTT = 21, PDF=22, EPUB=23, TXT=24
-			   };
+               };
 
 static struct mapping {
-	const char* extension;
-	const char* mime_type;
+    const char* extension;
+    const char* mime_type;
 } mappings[] = {
-	{ "gif", "image/gif" },
-	{ "htm", "text/html" },
-	{ "html", "text/html" },
-	{ "jpg", "image/jpeg" },
-	{ "png", "image/png" },
-	{ "cr2", "image/x-canon-cr2" },
-	{ "css", "text/css" },
-	{ "js", "text/javascript" },
-	{ "mp3", "audio/mpeg" },
-	{ "flac", "audio/x-flac" },
-	{ "ogg", "audio/vorbis" },
-	{ "mpc", "audio/musepack" },
-	{ "json", "text/json" },
-	{ "txt", "text/plain" },
-	{ "xml", "text/xml" },
-	{ "avi", "video/x-msvideo" },
-	{ "mp4", "video/mp4" },
-	{ "mkv", "video/x-matroska" },
-	{ "mpeg", "video/mpeg" },
-	{ "mov", "video/quicktime" },
-	{ "wmv", "video/x-ms-wmv" },
-	{ "vtt", "text/vtt" },
+    { "gif", "image/gif" },
+    { "htm", "text/html" },
+    { "html", "text/html" },
+    { "jpg", "image/jpeg" },
+    { "png", "image/png" },
+    { "cr2", "image/x-canon-cr2" },
+    { "css", "text/css" },
+    { "js", "text/javascript" },
+    { "mp3", "audio/mpeg" },
+    { "flac", "audio/x-flac" },
+    { "ogg", "audio/vorbis" },
+    { "mpc", "audio/musepack" },
+    { "json", "application/json" },
+    { "txt", "text/plain" },
+    { "xml", "text/xml" },
+    { "avi", "video/x-msvideo" },
+    { "mp4", "video/mp4" },
+    { "mkv", "video/x-matroska" },
+    { "mpeg", "video/mpeg" },
+    { "mov", "video/quicktime" },
+    { "wmv", "video/x-ms-wmv" },
+    { "vtt", "text/vtt" },
     { "pdf", "application/pdf" },
     { "epub", "application/epub+zip" },
     { "txt", "text/plain" },
-	{ 0, 0 }
+    { 0, 0 }
 };
 
 /**
@@ -68,49 +68,49 @@ static struct mapping {
  * @return
  */
 inline MIME_TYPE mime_type ( const std::string & extension ) {
-	int position_ = 0;
-	std::string clean_ext_ = extension;
+    int position_ = 0;
+    std::string clean_ext_ = extension;
 
-	if ( clean_ext_ == "jpeg" ) { clean_ext_ = "jpg"; }
+    if ( clean_ext_ == "jpeg" ) { clean_ext_ = "jpg"; }
 
-	for ( mapping * m = mappings; m->extension; ++m ) {
-		if ( m->extension == clean_ext_ ) {
-			return MIME_TYPE ( position_ );
-		}
+    for ( mapping * m = mappings; m->extension; ++m ) {
+        if ( m->extension == clean_ext_ ) {
+            return MIME_TYPE ( position_ );
+        }
 
-		position_++;
-	}
+        position_++;
+    }
 
-	return TEXT;
+    return TEXT;
 }
 /**
  * @brief mime type for enum type.
  */
 inline std::string mime_type ( MIME_TYPE mime_type ) {
-	return mappings[mime_type].mime_type;
+    return mappings[mime_type].mime_type;
 }
 /**
  * @brief get extension by mime type.
  */
 inline std::string extension ( MIME_TYPE mime_type ) {
-	return mappings[mime_type].extension;
+    return mappings[mime_type].extension;
 }
 /**
  * @brief get extension by mime type string.
  */
 inline std::string extension ( const std::string & mime_type ) {
-	int position = 0;
-	MIME_TYPE type = TEXT;
+    int position = 0;
+    MIME_TYPE type = TEXT;
 
-	for ( mapping * m = mappings; m->extension; ++m ) {
-		if ( m->mime_type == mime_type ) {
-			type = MIME_TYPE ( position );
-		}
+    for ( mapping * m = mappings; m->extension; ++m ) {
+        if ( m->mime_type == mime_type ) {
+            type = MIME_TYPE ( position );
+        }
 
-		position++;
-	}
+        position++;
+    }
 
-	return mappings[type].extension;
+    return mappings[type].extension;
 }
 }
 }

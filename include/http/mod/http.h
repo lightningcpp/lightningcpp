@@ -61,6 +61,7 @@ public:
         struct tm now_tm = *gmtime ( &now );
         mktime ( &now_tm );
         response.parameter ( header::DATE, http::utils::time_to_string ( &now_tm ) );
+        response.parameter ( header::USER_AGENT, "lightningcpp/1.0 (Generic)" );
 
         //TODO more
         //add mime-type
