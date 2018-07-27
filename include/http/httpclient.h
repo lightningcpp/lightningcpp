@@ -196,8 +196,9 @@ private:
         { _hostname.append ( ":" ).append ( T::protocol_ ); }
 
         request.parameter ( header::HOST, _hostname );
-
         request.parameter ( header::CONTENT_LENGTH, std::to_string ( request.tellp() ) );
+        request.parameter ( header::USER_AGENT, "lightningcpp/1.0 (Generic)" );
+
         size_t _position = request.header ( buffer_.data(), BUFFER_SIZE );
         //TODO check that all bytes are written and timeout
         size_t _written = 0;
@@ -273,8 +274,6 @@ static Response get ( const std::string& path, Output& output ) {
     if ( p.secure() ) {
         HttpClient< Https > _client ( p.host(), p.proto() );
         Request _request ( p.path() );
-        _request.parameter ( http::header::USER_AGENT, "lightningcpp/1.0 (Generic)" );
-
         return _client.get ( _request, output );
 
     } else {
