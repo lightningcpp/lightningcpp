@@ -43,7 +43,8 @@ public:
         response.protocol ( request.protocol() );
 
         //set content length
-        if ( ! response.contains_parameter ( header::CONTENT_LENGTH ) ) {
+        if ( ! response.contains_parameter ( header::CONTENT_LENGTH ) /* &&
+                ! response.contains_parameter ( header::TRANSFER_ENCODING ) */ ) {
             response.parameter ( header::CONTENT_LENGTH,  std::to_string ( response.tellp() ) );
         }
 

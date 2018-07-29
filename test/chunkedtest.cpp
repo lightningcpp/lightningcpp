@@ -29,9 +29,9 @@ namespace utils {
 
 TEST ( ChunkedTest, WriteChunked ) {
     std::stringstream _attribute_stream;
-    Chunked chunked( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
-        _attribute_stream << std::string( buffer, static_cast< size_t >( size ) );
-    });
+    Chunked chunked ( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
+        _attribute_stream << std::string ( buffer, static_cast< size_t > ( size ) );
+    } );
     std::stringstream _request_stream;
     _request_stream << "4\r\n";
     _request_stream << "Wiki\r\n";
@@ -45,53 +45,54 @@ TEST ( ChunkedTest, WriteChunked ) {
     _request_stream << "\r\n\r\n";
     buffer_t _buffer;
     std::streamsize _request_size = _request_stream.tellp();
-    _request_stream.read( _buffer.data(), _request_size );
-    auto _is_complete = chunked.write( _buffer, 0, static_cast< size_t >( _request_size ) );
-    EXPECT_TRUE( _is_complete );
-    EXPECT_EQ( "Wikipedia in\r\n\r\nchunks.", _attribute_stream.str() );
+    _request_stream.read ( _buffer.data(), _request_size );
+    auto _is_complete = chunked.write ( _buffer, 0, static_cast< size_t > ( _request_size ) );
+    EXPECT_TRUE ( _is_complete );
+    EXPECT_EQ ( "Wikipedia in\r\n\r\nchunks.", _attribute_stream.str() );
 }
 TEST ( ChunkedTest, WriteChunkedFile ) {
     std::stringstream _attribute_stream;
-    Chunked chunked( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
-        _attribute_stream.write( buffer, size );
-    });
-    std::ifstream _is ( TESTFILES + std::string( "raw/chunked/chunkedimage.raw" ), std::ifstream::binary );
+    Chunked chunked ( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
+        _attribute_stream.write ( buffer, size );
+    } );
+    std::ifstream _is ( TESTFILES + std::string ( "raw/chunked/chunkedimage.raw" ), std::ifstream::binary );
     buffer_t _buffer;
     bool _is_complete = false;
-    while( _is ) {
-        _is.read( _buffer.data(), BUFFER_SIZE );
-        _is_complete = chunked.write( _buffer, 0, static_cast< size_t >( _is.gcount() ) );
+
+    while ( _is ) {
+        _is.read ( _buffer.data(), BUFFER_SIZE );
+        _is_complete = chunked.write ( _buffer, 0, static_cast< size_t > ( _is.gcount() ) );
     }
 
-    std::ifstream _is_result ( TESTFILES + std::string( "raw/chunked/chunkedimage.jpeg" ), std::ifstream::binary );
-    EXPECT_EQ( 33653, _attribute_stream.tellp() );
-    EXPECT_TRUE( _is_complete );
-    EXPECT_TRUE(  compare_streams( _is_result, _attribute_stream ) );
+    std::ifstream _is_result ( TESTFILES + std::string ( "raw/chunked/chunkedimage.jpeg" ), std::ifstream::binary );
+    EXPECT_EQ ( 33653, _attribute_stream.tellp() );
+    EXPECT_TRUE ( _is_complete );
+    EXPECT_TRUE (  compare_streams ( _is_result, _attribute_stream ) );
 }
 TEST ( ChunkedTest, WriteChunkedStatus ) {
     std::stringstream _attribute_stream;
-    Chunked chunked( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
-        _attribute_stream.write( buffer, size );
-    });
-    std::ifstream _is ( TESTFILES + std::string( "raw/chunked/chunkedimage.raw" ), std::ifstream::binary );
+    Chunked chunked ( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
+        _attribute_stream.write ( buffer, size );
+    } );
+    std::ifstream _is ( TESTFILES + std::string ( "raw/chunked/chunkedimage.raw" ), std::ifstream::binary );
     buffer_t _buffer;
     bool _is_complete = false;
 
-    _is.read( _buffer.data(), BUFFER_SIZE );
-    _is_complete = chunked.write( _buffer, 0, static_cast< size_t >( _is.gcount() ) );
-    EXPECT_FALSE( _is_complete );
-    EXPECT_TRUE( _is );
+    _is.read ( _buffer.data(), BUFFER_SIZE );
+    _is_complete = chunked.write ( _buffer, 0, static_cast< size_t > ( _is.gcount() ) );
+    EXPECT_FALSE ( _is_complete );
+    EXPECT_TRUE ( _is );
 
-    _is.read( _buffer.data(), BUFFER_SIZE );
-    _is_complete = chunked.write( _buffer, 0, static_cast< size_t >( _is.gcount() ) );
-    EXPECT_FALSE( _is_complete );
-    EXPECT_TRUE( _is );
+    _is.read ( _buffer.data(), BUFFER_SIZE );
+    _is_complete = chunked.write ( _buffer, 0, static_cast< size_t > ( _is.gcount() ) );
+    EXPECT_FALSE ( _is_complete ); //not the complete file is read.
+    EXPECT_TRUE ( _is );
 }
-TEST ( ChunkedTest, DISABLED_WriteChunkedTrailer ) {
+TEST ( ChunkedTest, WriteChunkedTrailer ) {
     std::stringstream _attribute_stream;
-    Chunked chunked( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
-        _attribute_stream << std::string( buffer, static_cast< size_t >( size ) );
-    });
+    Chunked chunked ( [&_attribute_stream] ( char* buffer, std::streamsize size ) {
+        _attribute_stream << std::string ( buffer, static_cast< size_t > ( size ) );
+    } );
     std::stringstream _request_stream;
     _request_stream << "4\r\n";
     _request_stream << "Wiki\r\n";
@@ -106,10 +107,10 @@ TEST ( ChunkedTest, DISABLED_WriteChunkedTrailer ) {
     _request_stream << "\r\n\r\n";
     buffer_t _buffer;
     auto _request_size = _request_stream.tellp();
-    _request_stream.read( _buffer.data(), _request_size );
-    chunked.write( _buffer, 0, static_cast< size_t >( _request_size ) );
-    EXPECT_EQ( "Wikipedia in\r\n\r\nchunks.", _attribute_stream.str() );
-    //EXPECT_EQ( "TheData", request.attribute( "SomeAfterHeader" ) );
+    _request_stream.read ( _buffer.data(), _request_size );
+    chunked.write ( _buffer, 0, static_cast< size_t > ( _request_size ) );
+    EXPECT_EQ ( "Wikipedia in\r\n\r\nchunks.", _attribute_stream.str() );
+    //TODO Extra Data is not parsed; EXPECT_EQ( "TheData", request.attribute( "SomeAfterHeader" ) );
 }
 }//namespace utils
 }//namespace http

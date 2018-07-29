@@ -24,6 +24,7 @@
 #include "request.h"
 #include "response.h"
 #include "utils/httpparser.h"
+#include "utils/chunked.h"
 
 namespace http {
 
@@ -241,27 +242,53 @@ private:
             }
         }
 
-        size_t _read_content = 0; //the recieved content size
+        if ( response.contains_parameter ( header::TRANSFER_ENCODING ) &&
+                response.parameter ( header::TRANSFER_ENCODING ) == "chunked" ) {
 
-        if ( _len - _position > 0 ) { //read the rest of the buffer
-            Writer< Output >::result_write ( output, buffer_, _position, _len - _position );
-            _read_content = _len - _position;
-        }
+            size_t _read_content = 0; //the recieved content size
 
-        //read body from socket
-        size_t _content_length = ( response.contains_parameter ( header::CONTENT_LENGTH ) ?
-                                   std::stoul ( response.parameter ( header::CONTENT_LENGTH ) ) :
-                                   0 );
+            utils::Chunked chunked ( [&output] ( char* buffer, std::streamsize size ) {
+                //Writer< Output >::result_write ( output, buffer, static_cast< size_t > ( size ) );
+                output.write ( buffer, static_cast< size_t > ( size ) );
 
-        if ( _content_length > 0 && !error ) {
-            while ( _read_content < _content_length && !error ) { //get content
+            } );
+            bool _is_complete = false;
+
+            if ( _len - _position > 0 ) { //read the rest of the buffer
+                _is_complete = chunked.write ( buffer_, _position, _len /*- _position*/ );
+                _read_content = _len - _position;
+            }
+
+            while ( !_is_complete && !error ) { //get content
                 _len = T::socket.read_some ( asio::buffer ( buffer_ ), error );
-                Writer< Output >::result_write ( output, buffer_, 0, _len );
+                _is_complete = chunked.write ( buffer_, 0, _len );
                 _read_content += _len;
             };
-        }
 
-        if ( error ) { std::cout << "error in reading from socket." << std::endl; } //TODO
+        } else {
+
+            size_t _read_content = 0; //the recieved content size
+
+            if ( _len - _position > 0 ) { //read the rest of the buffer
+                Writer< Output >::result_write ( output, buffer_, _position, _len - _position );
+                _read_content = _len - _position;
+            }
+
+            //read body from socket
+            size_t _content_length = ( response.contains_parameter ( header::CONTENT_LENGTH ) ?
+                                       std::stoul ( response.parameter ( header::CONTENT_LENGTH ) ) :
+                                       0 );
+
+            if ( _content_length > 0 && !error ) {
+                while ( _read_content < _content_length && !error ) { //get content
+                    _len = T::socket.read_some ( asio::buffer ( buffer_ ), error );
+                    Writer< Output >::result_write ( output, buffer_, 0, _len );
+                    _read_content += _len;
+                };
+            }
+
+            if ( error ) { std::cout << "error in reading from socket." << std::endl; } //TODO
+        }
 
         output.flush();
     }

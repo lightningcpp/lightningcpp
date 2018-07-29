@@ -11,7 +11,11 @@ include_directories(
     ${ASIO_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR}
 )
 #create the test server
-link_libraries("-static")
+#link_libraries("-static")
 add_executable(httpserver main.cpp)
 target_link_libraries(httpserver ${CONAN_LIBS} Threads::Threads)
+install(TARGETS httpserver RUNTIME DESTINATION bin)
+
+add_executable(client sample_client.cpp)
+target_link_libraries(client ${CONAN_LIBS} Threads::Threads)
 install(TARGETS httpserver RUNTIME DESTINATION bin)

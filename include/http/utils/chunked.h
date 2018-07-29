@@ -27,67 +27,77 @@ namespace utils {
 
 class Chunked {
 public:
-    Chunked( writer_t writer ) : _writer( writer ) {}
+    Chunked ( writer_t writer ) : _writer ( writer ) {}
 
     bool write ( buffer_t buffer, size_t index, size_t size ) {
 
-        for( size_t i=index; i<size; ++i ) {
+        for ( size_t i=index; i<size; ++i ) {
             //search size
             if ( status_ == END ) {
-                std::cout << "END, extra character : " << buffer[i] << std::endl;
+                if ( buffer[i] == '\r' || buffer[i] == '\n' )
+                { end_line_breaks_ += 1; }
+
+                else { std::cout << "END, extra character : " << buffer[i] << std::endl; }
+
             } else if ( status_ == CHUNK ) {
-                if( chunk_read_ == 0 ) {
+                if ( chunk_read_ == 0 ) {
                     status_ = START;
-                    ss_.str("");
+                    ss_.str ( "" );
                     ss_.clear();
                     chunk_size_ = 0;
                     chunk_read_ = 0;
+
                 } else {
-                    if( chunk_read_ > size - i ) {
-                        _writer( buffer.data()+i, std::streamsize( size - i ) );
+                    if ( chunk_read_ > size - i ) {
+                        _writer ( buffer.data()+i, std::streamsize ( size - i ) );
                         chunk_read_ -= ( size - i );
                         i = size + 1;
+
                     } else {
-                        _writer( buffer.data()+i, std::streamsize( chunk_read_ ) );
+                        _writer ( buffer.data()+i, std::streamsize ( chunk_read_ ) );
                         i = i + chunk_read_;
                         chunk_read_ = 0;
                     }
                 }
 
-            } else if( status_ == START && buffer[i] == '\n' ) {
-                if( ! ss_.str().empty() ) {
+            } else if ( status_ == START && buffer[i] == '\n' ) {
+                if ( ! ss_.str().empty() ) {
                     status_ = CHUNK;
-                    chunk_size_ = std::stoul( ss_.str(), 0, 16 );
-                    if( chunk_size_ == 0 ) {
+                    chunk_size_ = std::stoul ( ss_.str(), 0, 16 );
+
+                    if ( chunk_size_ == 0 ) {
                         status_ = END;
-                    } else if( chunk_size_ > size - i ) {
-                        _writer( buffer.data()+i+1  /* skip \n */, std::streamsize( size - i - 1 ) );
+
+                    } else if ( chunk_size_ > size - i ) {
+                        _writer ( buffer.data()+i+1  /* skip \n */, std::streamsize ( size - i - 1 ) );
                         chunk_read_ = chunk_size_ - ( size - i - 1 );
                         return false;
 
                     } else {
-                        _writer( buffer.data()+i+1 /* skip \n */, std::streamsize( chunk_size_ ) );
+                        _writer ( buffer.data()+i+1 /* skip \n */, std::streamsize ( chunk_size_ ) );
                     }
 
                     if ( i + chunk_size_ < size ) {
                         i = i + chunk_size_ + 1;
-                        ss_.str("");
+                        ss_.str ( "" );
                         ss_.clear();
                     }
                 }
-            } else if( buffer[i] != '\r' ) {
+
+            } else if ( buffer[i] != '\r' ) {
                 ss_ << buffer[i];
             }
         }
-        return( status_ == END );
+
+        return ( status_ == END ) && ( end_line_breaks_ == 1 || end_line_breaks_ == 3 );
     }
 
-    void read( buffer_t buffer, size_t index, size_t size ) {
-        if( size == 0 ) {
+    void read ( buffer_t buffer, size_t index, size_t size ) {
+        if ( size == 0 ) {
             //TODO _reader( "trailer", 0, trailer.size() );
         } else {
             //TODO _reader( "header", 0, header.size() );
-            _reader( buffer.data()+index, std::streamsize( size ) );
+            _reader ( buffer.data()+index, std::streamsize ( size ) );
         }
     }
 
@@ -97,6 +107,7 @@ private:
     writer_t _writer;
     writer_t _reader;
     std::stringstream ss_;
+    int end_line_breaks_ = 0;
 };
 }//namespace utils
 }//namespace http
