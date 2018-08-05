@@ -9,7 +9,7 @@ include(CTest)
 
 SET(MAJOR_VERSION "0")
 SET(MINOR_VERSION "1")
-SET(PATCH_VERSION "1" CACHE PATCH_VERSION "The package build number." )
+SET(PATCH_VERSION "0" CACHE PATCH_VERSION "The package build number." )
 
 # -------------------------------------------------------------------------
 # -----------------------   Options and Parameters  -----------------------
